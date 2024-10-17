@@ -1,4 +1,4 @@
-import { ChainId } from "@bgd-labs/js-utils";
+import { ChainId } from "./chainIds";
 
 type ChainIdValue = (typeof ChainId)[keyof typeof ChainId];
 
