@@ -15,5 +15,11 @@ jobs:
 
       - uses: bgd-labs/github-workflows/.github/actions/setup-node@feat/actions-setup-node
 
-      - name: test
+      - name: test lib
         run: npm test -- --run
+
+      - name: test action
+        uses: ./
+        with:
+          ALCHEMY_API_KEY: "bla"
+          RPC_POLYGON: "https://rpc.polygon.com"

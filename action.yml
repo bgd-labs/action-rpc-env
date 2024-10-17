@@ -1,0 +1,37 @@
+name: "rpc-env"
+description: "Iterates over the supported chain ids and sets the corresponding env var"
+inputs:
+  ALCHEMY_API_KEY:
+    description: "Alchemy API key"
+  RPC_MAINNET:
+    description: "RPC for mainnet"
+  RPC_POLYGON:
+    description: "RPC for polygon"
+  RPC_AVALANCHE:
+    description: "RPC for avalanche"
+  RPC_OPTIMISM:
+    description: "RPC for optimism"
+  RPC_ARBITRUM:
+    description: "RPC for arbitrum"
+  RPC_METIS:
+    description: "RPC for metis"
+  RPC_BASE:
+    description: "RPC for base"
+  RPC_FANTOM:
+    description: "RPC for fantom"
+  RPC_BNB:
+    description: "RPC for bnb"
+  RPC_GNOSIS:
+    description: "RPC for gnosis"
+  RPC_ZKEVM:
+    description: "RPC for polygon zk evm"
+  RPC_SCROLL:
+    description: "RPC for scroll"
+  RPC_ZKSYNC:
+    description: "RPC for zksync"
+  RPC_SEPOLIA:
+    description: "RPC for sepolia"
+
+runs:
+  using: "node20"
+  main: dist/action.js
