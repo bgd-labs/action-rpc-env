@@ -1,0 +1,19 @@
+# creates a new npm release
+name: test
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: ./.github/actions/setup-node@feat/actions-setup-node
+
+      - name: test
+        run: npm test -- --run
