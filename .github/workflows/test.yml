@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: ./.github/actions/setup-node@feat/actions-setup-node
+      - uses: bgd-labs/github-workflows/.github/actions/setup-node@feat/actions-setup-node
 
       - name: test
         run: npm test -- --run
