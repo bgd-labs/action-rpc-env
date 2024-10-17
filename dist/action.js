@@ -403,7 +403,7 @@ var require_tunnel = __commonJS({
         connectOptions.headers = connectOptions.headers || {};
         connectOptions.headers["Proxy-Authorization"] = "Basic " + new Buffer(connectOptions.proxyAuth).toString("base64");
       }
-      debug("making CONNECT request");
+      debug2("making CONNECT request");
       var connectReq = self2.request(connectOptions);
       connectReq.useChunkedEncodingByDefault = false;
       connectReq.once("response", onResponse);
@@ -423,7 +423,7 @@ var require_tunnel = __commonJS({
         connectReq.removeAllListeners();
         socket.removeAllListeners();
         if (res.statusCode !== 200) {
-          debug(
+          debug2(
             "tunneling socket could not be established, statusCode=%d",
             res.statusCode
           );
@@ -435,7 +435,7 @@ var require_tunnel = __commonJS({
           return;
         }
         if (head.length > 0) {
-          debug("got illegal response body from proxy");
+          debug2("got illegal response body from proxy");
           socket.destroy();
           var error = new Error("got illegal response body from proxy");
           error.code = "ECONNRESET";
@@ -443,13 +443,13 @@ var require_tunnel = __commonJS({
           self2.removeSocket(placeholder);
           return;
         }
-        debug("tunneling connection has established");
+        debug2("tunneling connection has established");
         self2.sockets[self2.sockets.indexOf(placeholder)] = socket;
         return cb(socket);
       }
       function onError(cause) {
         connectReq.removeAllListeners();
-        debug(
+        debug2(
           "tunneling socket could not be established, cause=%s\n",
           cause.message,
           cause.stack
@@ -511,9 +511,9 @@ var require_tunnel = __commonJS({
       }
       return target;
     }
-    var debug;
+    var debug2;
     if (process.env.NODE_DEBUG && /\btunnel\b/.test(process.env.NODE_DEBUG)) {
-      debug = function() {
+      debug2 = function() {
         var args = Array.prototype.slice.call(arguments);
         if (typeof args[0] === "string") {
           args[0] = "TUNNEL: " + args[0];
@@ -523,10 +523,10 @@ var require_tunnel = __commonJS({
         console.error.apply(console, args);
       };
     } else {
-      debug = function() {
+      debug2 = function() {
       };
     }
-    exports2.debug = debug;
+    exports2.debug = debug2;
   }
 });
 
@@ -19696,7 +19696,7 @@ var require_core = __commonJS({
       ExitCode2[ExitCode2["Success"] = 0] = "Success";
       ExitCode2[ExitCode2["Failure"] = 1] = "Failure";
     })(ExitCode || (exports2.ExitCode = ExitCode = {}));
-    function exportVariable(name, val) {
+    function exportVariable2(name, val) {
       const convertedVal = (0, utils_1.toCommandValue)(val);
       process.env[name] = convertedVal;
       const filePath = process.env["GITHUB_ENV"] || "";
@@ -19705,7 +19705,7 @@ var require_core = __commonJS({
       }
       (0, command_1.issueCommand)("set-env", { name }, convertedVal);
     }
-    exports2.exportVariable = exportVariable;
+    exports2.exportVariable = exportVariable2;
     function setSecret(secret) {
       (0, command_1.issueCommand)("add-mask", {}, secret);
     }
@@ -19720,7 +19720,7 @@ var require_core = __commonJS({
       process.env["PATH"] = `${inputPath}${path.delimiter}${process.env["PATH"]}`;
     }
     exports2.addPath = addPath;
-    function getInput(name, options2) {
+    function getInput2(name, options2) {
       const val = process.env[`INPUT_${name.replace(/ /g, "_").toUpperCase()}`] || "";
       if (options2 && options2.required && !val) {
         throw new Error(`Input required and not supplied: ${name}`);
@@ -19730,9 +19730,9 @@ var require_core = __commonJS({
       }
       return val.trim();
     }
-    exports2.getInput = getInput;
+    exports2.getInput = getInput2;
     function getMultilineInput(name, options2) {
-      const inputs = getInput(name, options2).split("\n").filter((x) => x !== "");
+      const inputs = getInput2(name, options2).split("\n").filter((x) => x !== "");
       if (options2 && options2.trimWhitespace === false) {
         return inputs;
       }
@@ -19742,7 +19742,7 @@ var require_core = __commonJS({
     function getBooleanInput(name, options2) {
       const trueValue = ["true", "True", "TRUE"];
       const falseValue = ["false", "False", "FALSE"];
-      const val = getInput(name, options2);
+      const val = getInput2(name, options2);
       if (trueValue.includes(val))
         return true;
       if (falseValue.includes(val))
@@ -19773,10 +19773,10 @@ Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
       return process.env["RUNNER_DEBUG"] === "1";
     }
     exports2.isDebug = isDebug;
-    function debug(message) {
+    function debug2(message) {
       (0, command_1.issueCommand)("debug", {}, message);
     }
-    exports2.debug = debug;
+    exports2.debug = debug2;
     function error(message, properties = {}) {
       (0, command_1.issueCommand)("error", (0, utils_1.toCommandProperties)(properties), message instanceof Error ? message.toString() : message);
     }
@@ -66545,17 +66545,17 @@ var getRPCUrl = (chainId, alchemyKey2) => {
 };
 
 // src/action.ts
-var alchemyKey = import_core.default.getInput("ALCHEMY_API_KEY") !== "" ? import_core.default.getInput("ALCHEMY_API_KEY") : void 0;
+var alchemyKey = (0, import_core.getInput)("ALCHEMY_API_KEY") !== "" ? (0, import_core.getInput)("ALCHEMY_API_KEY") : void 0;
 for (const chainId of supportedChainIds) {
   const envVarName = networkEnv[chainId];
-  const input = import_core.default.getInput(envVarName);
+  const input = (0, import_core.getInput)(envVarName);
   const hasEnvVar = input && input !== "";
   if (hasEnvVar) {
-    import_core.default.debug(`Found '${envVarName}' env var and using it.`);
-    process.env[networkEnv[chainId]] = input;
+    (0, import_core.debug)(`Found '${envVarName}' env var and using it.`);
+    (0, import_core.exportVariable)(networkEnv[chainId], input);
   } else {
-    import_core.default.debug(`No '${envVarName}; env var, using alchemy.`);
-    process.env[networkEnv[chainId]] = getRPCUrl(chainId, alchemyKey);
+    (0, import_core.debug)(`No '${envVarName}; env var, using alchemy.`);
+    (0, import_core.exportVariable)(networkEnv[chainId], getRPCUrl(chainId, alchemyKey));
   }
 }
 /*! Bundled license information:

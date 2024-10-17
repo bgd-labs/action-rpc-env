@@ -1,4 +1,4 @@
-import { beforeEach, describe } from "node:test";
+import { describe } from "node:test";
 import { expect, it } from "vitest";
 import { getRPCUrl } from "./lib";
 

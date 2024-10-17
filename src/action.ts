@@ -1,10 +1,8 @@
-import actions from "@actions/core";
+import { debug, exportVariable, getInput } from "@actions/core";
 import { getRPCUrl, networkEnv, supportedChainIds } from "./lib";
 
 const alchemyKey =
-	actions.getInput("ALCHEMY_API_KEY") !== ""
-		? actions.getInput("ALCHEMY_API_KEY")
-		: undefined;
+	getInput("ALCHEMY_API_KEY") !== "" ? getInput("ALCHEMY_API_KEY") : undefined;
 
 /**
  * Iterates over the supported chain ids and sets the corresponding env var
@@ -14,15 +12,15 @@ const alchemyKey =
 for (const chainId of supportedChainIds) {
 	const envVarName = networkEnv[chainId];
 
-	const input = actions.getInput(envVarName);
+	const input = getInput(envVarName);
 
 	const hasEnvVar = input && input !== "";
 
 	if (hasEnvVar) {
-		actions.debug(`Found '${envVarName}' env var and using it.`);
-		process.env[networkEnv[chainId]] = input;
+		debug(`Found '${envVarName}' env var and using it.`);
+		exportVariable(networkEnv[chainId], input);
 	} else {
-		actions.debug(`No '${envVarName}; env var, using alchemy.`);
-		process.env[networkEnv[chainId]] = getRPCUrl(chainId, alchemyKey);
+		debug(`No '${envVarName}; env var, using alchemy.`);
+		exportVariable(networkEnv[chainId], getRPCUrl(chainId, alchemyKey));
 	}
 }
