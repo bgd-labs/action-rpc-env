@@ -23770,15 +23770,7 @@ var getRPCUrl = (chainId, alchemyKey2) => {
 var alchemyKey = (0, import_core.getInput)("ALCHEMY_API_KEY") !== "" ? (0, import_core.getInput)("ALCHEMY_API_KEY") : void 0;
 for (const chainId of supportedChainIds) {
   const envVarName = networkEnv[chainId];
-  const input = (0, import_core.getInput)(envVarName);
-  const hasEnvVar = input && input !== "";
-  if (hasEnvVar) {
-    (0, import_core.debug)(`Found '${envVarName}' env var and using it.`);
-    (0, import_core.exportVariable)(networkEnv[chainId], input);
-  } else {
-    (0, import_core.debug)(`No '${envVarName}; env var, using alchemy.`);
-    (0, import_core.exportVariable)(networkEnv[chainId], getRPCUrl(chainId, alchemyKey));
-  }
+  (0, import_core.exportVariable)(envVarName, getRPCUrl(chainId, alchemyKey));
 }
 /*! Bundled license information:
 

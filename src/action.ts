@@ -11,16 +11,5 @@ const alchemyKey =
  */
 for (const chainId of supportedChainIds) {
   const envVarName = networkEnv[chainId];
-
-  const input = getInput(envVarName);
-
-  const hasEnvVar = input && input !== "";
-
-  if (hasEnvVar) {
-    debug(`Found '${envVarName}' env var and using it.`);
-    exportVariable(networkEnv[chainId], input);
-  } else {
-    debug(`No '${envVarName}; env var, using alchemy.`);
-    exportVariable(networkEnv[chainId], getRPCUrl(chainId, alchemyKey));
-  }
+  exportVariable(envVarName, getRPCUrl(chainId, alchemyKey));
 }
