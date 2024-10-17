@@ -1,0 +1,9 @@
+pre-commit:
+  parallel: true
+  commands:
+    format:
+      glob: "*.{ts,json,md}"
+      run: npm run format
+    build:
+      glob: "*.{ts,package-lock.json}"
+      run: npm run build
