@@ -1,13 +1,29 @@
 {
 	"name": "@bgd-labs/rpc-env",
 	"version": "1.0.0",
-	"main": "index.js",
 	"scripts": {
 		"build": "tsup",
 		"test": "echo \"Error: no test specified\" && exit 1",
-		"format": "biome check --write"
+		"format": "biome check --write",
+		"prepublishOnly": "npm run build"
 	},
-	"author": "",
+	"files": ["src/lib.ts", "dist/lib.*"],
+	"main": "dist/lib.js",
+	"module": "./dist/lib.mjs",
+	"types": "./dist/lib.d.ts",
+	"exports": {
+		".": {
+			"require": {
+				"types": "./dist/lib.d.mts",
+				"default": "./dist/lib.js"
+			},
+			"import": {
+				"types": "./dist/lib.d.mts",
+				"default": "./dist/lib.mjs"
+			}
+		}
+	},
+	"author": "Jonas Strassel <jonas@bdglabs.com>",
 	"license": "MIT",
 	"devDependencies": {
 		"@actions/core": "^1.11.1",
