@@ -14,7 +14,7 @@
     "dist/lib.js",
     "dist/lib.mjs"
   ],
-  "main": "dist/lib.js",
+  "main": "./dist/lib.js",
   "module": "./dist/lib.mjs",
   "types": "./dist/lib.d.ts",
   "exports": {
