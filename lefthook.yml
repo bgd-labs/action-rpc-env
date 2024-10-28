@@ -1,5 +1,13 @@
+prepare-commit-msg:
+  commands:
+    gitmoji:
+      only:
+        - run: command -v gitmoji
+      interactive: true
+      run: gitmoji --hook {1} {2}
+      
 pre-commit:
-  parallel: true
+  parallel: false
   commands:
     build:
       glob: "*.{ts,package-lock.json}"
