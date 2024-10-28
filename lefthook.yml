@@ -1,12 +1,12 @@
 pre-commit:
   parallel: true
   commands:
+    build:
+      glob: "*.{ts,package-lock.json}"
+      run: npm run build && git add dist/*
+      # yes we're actually committing the build output, because github actions works like that
+      stage_fixed: true
     format:
       glob: "*.{ts,json,md}"
       run: npm run format
-      stage_fixed: true
-    build:
-      glob: "*.{ts,package-lock.json}"
-      run: npm run build
-      # yes we're actually committing the build output, because github actions works like that
       stage_fixed: true

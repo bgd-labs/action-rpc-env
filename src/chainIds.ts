@@ -24,7 +24,7 @@ import {
   scroll,
   scrollSepolia,
   sepolia,
-  zkSync,
+  zksync,
 } from "viem/chains";
 
 export const ChainId = {
@@ -53,5 +53,5 @@ export const ChainId = {
   gnosis: gnosis.id,
   zkEVM: polygonZkEvm.id,
   celo: celo.id,
-  zkSync: zkSync.id,
+  zksync: zksync.id,
 } as const;

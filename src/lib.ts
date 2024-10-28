@@ -75,7 +75,7 @@ export const networkEnv = {
   [ChainId.gnosis]: "RPC_GNOSIS",
   [ChainId.polygon]: "RPC_POLYGON",
   [ChainId.fantom]: "RPC_FANTOM",
-  [ChainId.zkSync]: "RPC_ZKSYNC",
+  [ChainId.zksync]: "RPC_ZKSYNC",
   [ChainId.metis]: "RPC_METIS",
   [ChainId.base]: "RPC_BASE",
   [ChainId.arbitrum_one]: "RPC_ARBITRUM",
@@ -106,3 +106,5 @@ export const getRPCUrl = (
     return `https://${alchemyNetworks[chainId]}.g.alchemy.com/v2/${alchemyKey}`;
   }
 };
+
+export { ChainId };

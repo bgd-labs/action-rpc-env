@@ -3822,7 +3822,7 @@ var ChainId = {
   gnosis: gnosis.id,
   zkEVM: polygonZkEvm.id,
   celo: celo.id,
-  zkSync: zksync.id
+  zksync: zksync.id
 };
 
 // src/lib.ts
@@ -3890,7 +3890,7 @@ var networkEnv = {
   [ChainId.gnosis]: "RPC_GNOSIS",
   [ChainId.polygon]: "RPC_POLYGON",
   [ChainId.fantom]: "RPC_FANTOM",
-  [ChainId.zkSync]: "RPC_ZKSYNC",
+  [ChainId.zksync]: "RPC_ZKSYNC",
   [ChainId.metis]: "RPC_METIS",
   [ChainId.base]: "RPC_BASE",
   [ChainId.arbitrum_one]: "RPC_ARBITRUM",
@@ -3909,6 +3909,7 @@ var getRPCUrl = (chainId, alchemyKey) => {
   }
 };
 export {
+  ChainId,
   getRPCUrl,
   networkEnv,
   supportedChainIds

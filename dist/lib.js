@@ -377,6 +377,7 @@ var init_sha256 = __esm({
 // src/lib.ts
 var lib_exports = {};
 __export(lib_exports, {
+  ChainId: () => ChainId,
   getRPCUrl: () => getRPCUrl,
   networkEnv: () => networkEnv,
   supportedChainIds: () => supportedChainIds
@@ -3848,7 +3849,7 @@ var ChainId = {
   gnosis: gnosis.id,
   zkEVM: polygonZkEvm.id,
   celo: celo.id,
-  zkSync: zksync.id
+  zksync: zksync.id
 };
 
 // src/lib.ts
@@ -3916,7 +3917,7 @@ var networkEnv = {
   [ChainId.gnosis]: "RPC_GNOSIS",
   [ChainId.polygon]: "RPC_POLYGON",
   [ChainId.fantom]: "RPC_FANTOM",
-  [ChainId.zkSync]: "RPC_ZKSYNC",
+  [ChainId.zksync]: "RPC_ZKSYNC",
   [ChainId.metis]: "RPC_METIS",
   [ChainId.base]: "RPC_BASE",
   [ChainId.arbitrum_one]: "RPC_ARBITRUM",
@@ -3936,6 +3937,7 @@ var getRPCUrl = (chainId, alchemyKey) => {
 };
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
+  ChainId,
   getRPCUrl,
   networkEnv,
   supportedChainIds

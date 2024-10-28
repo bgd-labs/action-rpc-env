@@ -1,3 +1,32 @@
+declare const ChainId: {
+    readonly mainnet: 1;
+    readonly goerli: 5;
+    readonly polygon: 137;
+    readonly mumbai: 80001;
+    readonly avalanche: 43114;
+    readonly fuji: 43113;
+    readonly arbitrum_one: 42161;
+    readonly arbitrum_goerli: 421613;
+    readonly arbitrum_sepolia: 421614;
+    readonly fantom: 250;
+    readonly fantom_testnet: 4002;
+    readonly optimism: 10;
+    readonly optimism_sepolia: 11155420;
+    readonly optimism_goerli: 420;
+    readonly harmony: 1666600000;
+    readonly sepolia: 11155111;
+    readonly scroll: 534352;
+    readonly scroll_sepolia: 534351;
+    readonly metis: 1088;
+    readonly base: 8453;
+    readonly base_sepolia: 84532;
+    readonly bnb: 56;
+    readonly gnosis: 100;
+    readonly zkEVM: 1101;
+    readonly celo: 42220;
+    readonly zksync: 324;
+};
+
 declare const networkEnv: {
     readonly 1: "RPC_MAINNET";
     readonly 10: "RPC_OPTIMISM";
@@ -23,4 +52,4 @@ declare const supportedChainIds: (keyof typeof networkEnv)[];
  */
 declare const getRPCUrl: (chainId: keyof typeof networkEnv, alchemyKey?: string) => string | undefined;
 
-export { getRPCUrl, networkEnv, supportedChainIds };
+export { ChainId, getRPCUrl, networkEnv, supportedChainIds };
