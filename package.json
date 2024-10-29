@@ -1,6 +1,7 @@
 {
   "name": "@bgd-labs/rpc-env",
   "version": "1.0.0",
+  "private": false,
   "scripts": {
     "build": "tsup",
     "test": "vitest",
