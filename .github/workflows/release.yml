@@ -22,7 +22,7 @@ jobs:
           release-type: node
 
   release-node:
-    uses: bgd-labs/github-workflows/.github/workflows/release-node.yml@ea41920d7c7c656823137da415d1e3f59bf064bf # pin@main
+    uses: bgd-labs/github-workflows/.github/workflows/release-node.yml@main
     if: ${{ needs.release-please.outputs.releaseCreated }}
     needs: release-please
     secrets:
