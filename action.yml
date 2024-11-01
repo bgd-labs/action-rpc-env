@@ -1,0 +1,10 @@
+name: "rpc-env"
+description: "Iterates over the supported chain ids and sets the corresponding env var"
+inputs:
+  ALCHEMY_API_KEY:
+    description: "Alchemy API key"
+    required: false
+
+runs:
+  using: "node20"
+  main: dist/action.js

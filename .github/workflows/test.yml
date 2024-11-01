@@ -1,0 +1,31 @@
+# creates a new npm release
+name: test
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # pin@v4.2.1
+
+      - uses: bgd-labs/github-workflows/.github/actions/setup-node@main
+
+      - name: test lib
+        run: npm test -- --run
+
+      - name: test action
+        uses: ./
+        with:
+          ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
+        env:
+          RPC_POLYGON: "https://rpc.polygon.com"
+
+      - name: test action (assertion)
+        run: |
+          test "${{env.RPC_POLYGON}}" = "https://rpc.polygon.com"
+          test "${{env.RPC_MAINNET}}" = "https://eth-mainnet.g.alchemy.com/v2/${{ secrets.ALCHEMY_API_KEY }}"
