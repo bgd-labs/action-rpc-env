@@ -1,0 +1,49 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`should return supported chain 1 > eth-mainnet 1`] = `"https://eth-mainnet.g.alchemy.com/v2/abc"`;
+
+exports[`should return supported chain 5 > eth-goerli 1`] = `"https://eth-goerli.g.alchemy.com/v2/abc"`;
+
+exports[`should return supported chain 10 > opt-mainnet 1`] = `"https://opt-mainnet.g.alchemy.com/v2/abc"`;
+
+exports[`should return supported chain 56 > bnb-mainnet 1`] = `"https://bnb-mainnet.g.alchemy.com/v2/abc"`;
+
+exports[`should return supported chain 100 > gnosis-mainnet 1`] = `"https://gnosis-mainnet.g.alchemy.com/v2/abc"`;
+
+exports[`should return supported chain 137 > polygon-mainnet 1`] = `"https://polygon-mainnet.g.alchemy.com/v2/abc"`;
+
+exports[`should return supported chain 250 > fantom-mainnet 1`] = `"https://fantom-mainnet.g.alchemy.com/v2/abc"`;
+
+exports[`should return supported chain 324 > zksync-mainnet 1`] = `"https://zksync-mainnet.g.alchemy.com/v2/abc"`;
+
+exports[`should return supported chain 420 > opt-goerli 1`] = `"https://opt-goerli.g.alchemy.com/v2/abc"`;
+
+exports[`should return supported chain 1088 > metis-mainnet 1`] = `"https://metis-mainnet.g.alchemy.com/v2/abc"`;
+
+exports[`should return supported chain 1101 > polygonzkevm-mainnet 1`] = `"https://polygonzkevm-mainnet.g.alchemy.com/v2/abc"`;
+
+exports[`should return supported chain 4002 > fantom-testnet 1`] = `"https://fantom-testnet.g.alchemy.com/v2/abc"`;
+
+exports[`should return supported chain 8453 > base-mainnet 1`] = `"https://base-mainnet.g.alchemy.com/v2/abc"`;
+
+exports[`should return supported chain 42161 > arb-mainnet 1`] = `"https://arb-mainnet.g.alchemy.com/v2/abc"`;
+
+exports[`should return supported chain 43113 > avax-fuji 1`] = `"https://avax-fuji.g.alchemy.com/v2/abc"`;
+
+exports[`should return supported chain 43114 > avax-mainnet 1`] = `"https://avax-mainnet.g.alchemy.com/v2/abc"`;
+
+exports[`should return supported chain 80001 > polygon-mumbai 1`] = `"https://polygon-mumbai.g.alchemy.com/v2/abc"`;
+
+exports[`should return supported chain 84532 > base-sepolia 1`] = `"https://base-sepolia.g.alchemy.com/v2/abc"`;
+
+exports[`should return supported chain 421613 > arb-goerli 1`] = `"https://arb-goerli.g.alchemy.com/v2/abc"`;
+
+exports[`should return supported chain 421614 > arb-sepolia 1`] = `"https://arb-sepolia.g.alchemy.com/v2/abc"`;
+
+exports[`should return supported chain 534351 > scroll-sepolia 1`] = `"https://scroll-sepolia.g.alchemy.com/v2/abc"`;
+
+exports[`should return supported chain 534352 > scroll-mainnet 1`] = `"https://scroll-mainnet.g.alchemy.com/v2/abc"`;
+
+exports[`should return supported chain 11155111 > eth-sepolia 1`] = `"https://eth-sepolia.g.alchemy.com/v2/abc"`;
+
+exports[`should return supported chain 11155420 > opt-sepolia 1`] = `"https://opt-sepolia.g.alchemy.com/v2/abc"`;
