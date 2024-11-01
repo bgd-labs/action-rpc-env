@@ -1,0 +1,27 @@
+version: 2
+updates:
+  # as for bundling purposes, we only have devDependencies
+  # we're separating the actual devDependencies from the dependencies here
+  - package-ecosystem: "npm"
+    directory: /
+    schedule:
+      interval: "weekly"
+    groups:
+      devDependencies:
+        applies-to: version-updates
+        exclude-patterns:
+          - "viem"
+      dependencies:
+        applies-to: version-updates
+        patterns:
+          - "viem"
+
+  # update all actions weekly
+  - package-ecosystem: "github-actions"
+    directory: /
+    schedule:
+      interval: "weekly"
+    groups:
+      "github-actions":
+        applies-to: version-updates
+        dependency-type: development
