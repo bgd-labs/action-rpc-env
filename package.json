@@ -2,6 +2,9 @@
   "name": "@bgd-labs/rpc-env",
   "version": "1.0.1",
   "private": false,
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsup",
     "test": "vitest",
@@ -43,17 +46,11 @@
     "vitest": "^2.1.3"
   },
   "tsup": {
-    "entry": [
-      "src/action.ts",
-      "src/lib.ts"
-    ],
+    "entry": ["src/action.ts", "src/lib.ts"],
     "splitting": false,
     "sourcemap": false,
     "clean": true,
     "dts": true,
-    "format": [
-      "esm",
-      "cjs"
-    ]
+    "format": ["esm", "cjs"]
   }
 }
