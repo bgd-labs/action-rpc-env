@@ -22,6 +22,10 @@ Alchemy API key
 
 If given, the action substitute missing RPC_URLs with one constructed from the given key.
 
+### Supported Environment Variables
+
+The supported environment variables are documented in [this](src/lib.test.ts) test.
+
 #### Usage
 
 ```yaml
