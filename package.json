@@ -1,6 +1,6 @@
 {
   "name": "@bgd-labs/rpc-env",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "private": false,
   "publishConfig": {
     "access": "public"
@@ -38,7 +38,7 @@
   "devDependencies": {
     "@actions/core": "^1.11.1",
     "@biomejs/biome": "^1.9.4",
-    "@types/node": "^22.8.7",
+    "@types/node": "^22.8.6",
     "lefthook": "^1.8.2",
     "tsup": "^8.3.5",
     "typescript": "^5.6.3",
@@ -46,11 +46,17 @@
     "vitest": "^2.1.4"
   },
   "tsup": {
-    "entry": ["src/action.ts", "src/lib.ts"],
+    "entry": [
+      "src/action.ts",
+      "src/lib.ts"
+    ],
     "splitting": false,
     "sourcemap": false,
     "clean": true,
     "dts": true,
-    "format": ["esm", "cjs"]
+    "format": [
+      "esm",
+      "cjs"
+    ]
   }
 }

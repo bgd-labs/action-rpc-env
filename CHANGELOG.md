@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.3](https://github.com/bgd-labs/action-rpc-env/compare/v1.0.2...v1.0.3) (2024-11-05)
+
+
+### Bug Fixes
+
+* **deps-dev:** bump viem in the dependencies group ([#18](https://github.com/bgd-labs/action-rpc-env/issues/18)) ([1b79c01](https://github.com/bgd-labs/action-rpc-env/commit/1b79c01b3200fc49944ed340e5a07dc90ffe6ecd))
+
 ## [1.0.2](https://github.com/bgd-labs/action-rpc-env/compare/v1.0.1...v1.0.2) (2024-11-01)
 
 
