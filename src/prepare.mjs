@@ -7,6 +7,11 @@ const result = data.result.data.reduce((acc, val) => {
   return acc;
 }, {});
 
+const replacer = (key, value) => {
+  if (key === "undefined") return undefined;
+  return value;
+};
+
 console.log(
-  `export const networkMap = ${JSON.stringify(result, null, 2)} as const;`,
+  `export const networkMap = ${JSON.stringify(result, replacer, 2).replace(/"([\d\.]+)"/g, "$1")} as const;`,
 );

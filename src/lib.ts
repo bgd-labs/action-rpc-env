@@ -1,30 +1,28 @@
 import { networkMap } from "./alchemyIds";
 import { ChainId } from "./chainIds";
 
-type ChainIdValue = (typeof ChainId)[keyof typeof ChainId];
+type SupportedChainIds = (typeof ChainId)[keyof typeof ChainId] &
+  keyof typeof networkMap;
+export const supportedChainIds = Object.values(ChainId).filter(
+  (id) => networkMap[id as SupportedChainIds],
+) as SupportedChainIds[];
 
-const alchemyNetworks = networkMap satisfies
-  | Record<ChainIdValue, Readonly<string>>
-  | Record<number, Readonly<string>>;
+export const getNetworkEnv = (chainId: SupportedChainIds) => {
+  const symbol = Object.entries(ChainId).find(
+    ([, value]) => value === chainId,
+  )?.[0] as keyof typeof ChainId | undefined;
 
-export const networkEnv = {
-  [ChainId.mainnet]: "RPC_MAINNET",
-  [ChainId.optimism]: "RPC_OPTIMISM",
-  [ChainId.bnb]: "RPC_BNB",
-  [ChainId.gnosis]: "RPC_GNOSIS",
-  [ChainId.polygon]: "RPC_POLYGON",
-  [ChainId.fantom]: "RPC_FANTOM",
-  [ChainId.zksync]: "RPC_ZKSYNC",
-  [ChainId.metis]: "RPC_METIS",
-  [ChainId.base]: "RPC_BASE",
-  [ChainId.arbitrum_one]: "RPC_ARBITRUM",
-  [ChainId.avalanche]: "RPC_AVALANCHE",
-  [ChainId.scroll]: "RPC_SCROLL",
-} as const satisfies Partial<{ [chainId in ChainIdValue]: Readonly<string> }>;
+  if (!symbol) {
+    throw new Error(
+      `Didn't find a viem symbol for chainId: ${chainId}. Wire it up in 'src/chainIds.ts'!`,
+    );
+  }
 
-export const supportedChainIds = Object.keys(
-  networkEnv,
-) as unknown as (keyof typeof networkEnv)[];
+  const env =
+    `RPC_${symbol.toUpperCase() as Uppercase<typeof symbol>}` as const;
+
+  return env;
+};
 
 /**
  * Return a RPC_URL for supported chains.
@@ -34,16 +32,30 @@ export const supportedChainIds = Object.keys(
  * @param alchemyKey
  * @returns the RPC_URL for the given chain ID
  */
-export const getRPCUrl = (
-  chainId: keyof typeof networkEnv,
-  alchemyKey?: string,
-) => {
-  if (process.env[networkEnv[chainId]]) {
-    return process.env[networkEnv[chainId]];
+export const getRPCUrl = (chainId: SupportedChainIds, alchemyKey?: string) => {
+  // Typescript prevents this, catching it in runtime for js-usages
+  if (!supportedChainIds.includes(chainId)) {
+    throw new Error(
+      `ChainId '${chainId}' is not supported by this library. Feel free to open an issue.`,
+    );
   }
-  if (alchemyNetworks[chainId] && alchemyKey) {
-    return `https://${alchemyNetworks[chainId]}.g.alchemy.com/v2/${alchemyKey}`;
+
+  const env = getNetworkEnv(chainId);
+
+  // User provided RPC_ URL
+  if (process.env[env]) {
+    return process.env[env];
   }
+
+  const alchemyId = networkMap[chainId];
+
+  if (!alchemyKey) {
+    throw new Error(
+      `ChainId '${chainId}' is supported by Alchemy. Either provide ${env} or an 'alchemyKey'.`,
+    );
+  }
+
+  return `https://${alchemyId}.g.alchemy.com/v2/${alchemyKey}`;
 };
 
 export { ChainId };

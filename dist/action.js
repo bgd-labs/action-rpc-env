@@ -20216,67 +20216,66 @@ var import_core = __toESM(require_core());
 
 // src/alchemyIds.ts
 var networkMap = {
-  "1": "eth-mainnet",
-  "3": "eth-ropsten",
-  "4": "eth-rinkeby",
-  "5": "eth-goerli",
-  "10": "opt-mainnet",
-  "30": "rootstock-mainnet",
-  "31": "rootstock-testnet",
-  "42": "eth-kovan",
-  "56": "bnb-mainnet",
-  "69": "opt-kovan",
-  "97": "bnb-testnet",
-  "100": "gnosis-mainnet",
-  "137": "polygon-mainnet",
-  "204": "opbnb-mainnet",
-  "250": "fantom-mainnet",
-  "252": "frax-mainnet",
-  "300": "zksync-sepolia",
-  "324": "zksync-mainnet",
-  "420": "opt-goerli",
-  "480": "worldchain-mainnet",
-  "592": "astar-mainnet",
-  "747": "flow-mainnet",
-  "1088": "metis-mainnet",
-  "1101": "polygonzkevm-mainnet",
-  "1301": "unichain-sepolia",
-  "1442": "polygonzkevm-testnet",
-  "1946": "soneium-minato",
-  "2442": "polygonzkevm-cardona",
-  "2522": "frax-sepolia",
-  "4002": "fantom-testnet",
-  "4801": "worldchain-sepolia",
-  "5611": "opbnb-testnet",
-  "7000": "zetachain-mainnet",
-  "7001": "zetachain-testnet",
-  "8453": "base-mainnet",
-  "10200": "gnosis-chiado",
-  "11011": "shape-sepolia",
-  "42161": "arb-mainnet",
-  "42170": "arbnova-mainnet",
-  "43113": "avax-fuji",
-  "43114": "avax-mainnet",
-  "59141": "linea-sepolia",
-  "59144": "linea-mainnet",
-  "63157": "geist-mainnet",
-  "80001": "polygon-mumbai",
-  "80002": "polygon-amoy",
-  "80084": "berachain-bartio",
-  "81457": "blast-mainnet",
-  "84531": "base-goerli",
-  "84532": "base-sepolia",
-  "421611": "arb-rinkeby",
-  "421613": "arb-goerli",
-  "421614": "arb-sepolia",
-  "534351": "scroll-sepolia",
-  "534352": "scroll-mainnet",
-  "7777777": "zora-mainnet",
-  "11155111": "eth-sepolia",
-  "11155420": "opt-sepolia",
-  "168587773": "blast-sepolia",
-  "999999999": "zora-sepolia",
-  "undefined": "solana-devnet"
+  1: "eth-mainnet",
+  3: "eth-ropsten",
+  4: "eth-rinkeby",
+  5: "eth-goerli",
+  10: "opt-mainnet",
+  30: "rootstock-mainnet",
+  31: "rootstock-testnet",
+  42: "eth-kovan",
+  56: "bnb-mainnet",
+  69: "opt-kovan",
+  97: "bnb-testnet",
+  100: "gnosis-mainnet",
+  137: "polygon-mainnet",
+  204: "opbnb-mainnet",
+  250: "fantom-mainnet",
+  252: "frax-mainnet",
+  300: "zksync-sepolia",
+  324: "zksync-mainnet",
+  420: "opt-goerli",
+  480: "worldchain-mainnet",
+  592: "astar-mainnet",
+  747: "flow-mainnet",
+  1088: "metis-mainnet",
+  1101: "polygonzkevm-mainnet",
+  1301: "unichain-sepolia",
+  1442: "polygonzkevm-testnet",
+  1946: "soneium-minato",
+  2442: "polygonzkevm-cardona",
+  2522: "frax-sepolia",
+  4002: "fantom-testnet",
+  4801: "worldchain-sepolia",
+  5611: "opbnb-testnet",
+  7e3: "zetachain-mainnet",
+  7001: "zetachain-testnet",
+  8453: "base-mainnet",
+  10200: "gnosis-chiado",
+  11011: "shape-sepolia",
+  42161: "arb-mainnet",
+  42170: "arbnova-mainnet",
+  43113: "avax-fuji",
+  43114: "avax-mainnet",
+  59141: "linea-sepolia",
+  59144: "linea-mainnet",
+  63157: "geist-mainnet",
+  80001: "polygon-mumbai",
+  80002: "polygon-amoy",
+  80084: "berachain-bartio",
+  81457: "blast-mainnet",
+  84531: "base-goerli",
+  84532: "base-sepolia",
+  421611: "arb-rinkeby",
+  421613: "arb-goerli",
+  421614: "arb-sepolia",
+  534351: "scroll-sepolia",
+  534352: "scroll-mainnet",
+  7777777: "zora-mainnet",
+  11155111: "eth-sepolia",
+  11155420: "opt-sepolia",
+  168587773: "blast-sepolia",
+  999999999: "zora-sepolia"
 };
 
 // node_modules/viem/_esm/utils/chain/defineChain.js
@@ -23748,37 +23747,45 @@ var ChainId = {
 };
 
 // src/lib.ts
-var alchemyNetworks = networkMap;
-var networkEnv = {
-  [ChainId.mainnet]: "RPC_MAINNET",
-  [ChainId.optimism]: "RPC_OPTIMISM",
-  [ChainId.bnb]: "RPC_BNB",
-  [ChainId.gnosis]: "RPC_GNOSIS",
-  [ChainId.polygon]: "RPC_POLYGON",
-  [ChainId.fantom]: "RPC_FANTOM",
-  [ChainId.zksync]: "RPC_ZKSYNC",
-  [ChainId.metis]: "RPC_METIS",
-  [ChainId.base]: "RPC_BASE",
-  [ChainId.arbitrum_one]: "RPC_ARBITRUM",
-  [ChainId.avalanche]: "RPC_AVALANCHE",
-  [ChainId.scroll]: "RPC_SCROLL"
-};
-var supportedChainIds = Object.keys(
-  networkEnv
+var supportedChainIds = Object.values(ChainId).filter(
+  (id) => networkMap[id]
 );
+var getNetworkEnv = (chainId) => {
+  const symbol = Object.entries(ChainId).find(
+    ([, value]) => value === chainId
+  )?.[0];
+  if (!symbol) {
+    throw new Error(
+      `Didn't find a viem symbol for chainId: ${chainId}. Wire it up in 'src/chainIds.ts'!`
+    );
+  }
+  const env = `RPC_${symbol.toUpperCase()}`;
+  return env;
+};
 var getRPCUrl = (chainId, alchemyKey2) => {
-  if (process.env[networkEnv[chainId]]) {
-    return process.env[networkEnv[chainId]];
+  if (!supportedChainIds.includes(chainId)) {
+    throw new Error(
+      `ChainId '${chainId}' is not supported by this library. Feel free to open an issue.`
+    );
   }
-  if (alchemyNetworks[chainId] && alchemyKey2) {
-    return `https://${alchemyNetworks[chainId]}.g.alchemy.com/v2/${alchemyKey2}`;
+  const env = getNetworkEnv(chainId);
+  if (process.env[env]) {
+    return process.env[env];
   }
+  const alchemyId = networkMap[chainId];
+  if (!alchemyKey2) {
+    throw new Error(
+      `ChainId '${chainId}' is supported by Alchemy. Either provide ${env} or an 'alchemyKey'.`
+    );
+  }
+  return `https://${alchemyId}.g.alchemy.com/v2/${alchemyKey2}`;
 };
 
 // src/action.ts
 var alchemyKey = (0, import_core.getInput)("ALCHEMY_API_KEY") !== "" ? (0, import_core.getInput)("ALCHEMY_API_KEY") : void 0;
 for (const chainId of supportedChainIds) {
-  const envVarName = networkEnv[chainId];
+  const envVarName = getNetworkEnv(chainId);
+  (0, import_core.debug)(`Setting ${envVarName}`);
   (0, import_core.exportVariable)(envVarName, getRPCUrl(chainId, alchemyKey));
 }
 /*! Bundled license information:
