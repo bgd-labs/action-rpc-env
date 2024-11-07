@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.0.0](https://github.com/bgd-labs/action-rpc-env/compare/v1.0.3...v2.0.0) (2024-11-07)
+
+
+### ⚠ BREAKING CHANGES
+
+* trigger a new release
+
+### Code Refactoring
+
+* trigger a new release ([f80f753](https://github.com/bgd-labs/action-rpc-env/commit/f80f753c19b983c194f759bbacbd498b85ce8237))
+
 ## [1.0.3](https://github.com/bgd-labs/action-rpc-env/compare/v1.0.2...v1.0.3) (2024-11-05)
 
 
