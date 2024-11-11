@@ -34,7 +34,7 @@ export const ChainId = {
   mumbai: polygonMumbai.id,
   avalanche: avalanche.id,
   fuji: avalancheFuji.id,
-  arbitrum_one: arbitrum.id,
+  arbitrum: arbitrum.id,
   arbitrum_goerli: arbitrumGoerli.id,
   arbitrum_sepolia: arbitrumSepolia.id,
   fantom: fantom.id,

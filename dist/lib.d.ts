@@ -68,7 +68,7 @@ declare const ChainId: {
     readonly mumbai: 80001;
     readonly avalanche: 43114;
     readonly fuji: 43113;
-    readonly arbitrum_one: 42161;
+    readonly arbitrum: 42161;
     readonly arbitrum_goerli: 421613;
     readonly arbitrum_sepolia: 421614;
     readonly fantom: 250;
@@ -92,7 +92,7 @@ declare const ChainId: {
 
 type SupportedChainIds = (typeof ChainId)[keyof typeof ChainId] & keyof typeof networkMap;
 declare const supportedChainIds: SupportedChainIds[];
-declare const getNetworkEnv: (chainId: SupportedChainIds) => "RPC_MAINNET" | "RPC_GOERLI" | "RPC_POLYGON" | "RPC_MUMBAI" | "RPC_AVALANCHE" | "RPC_FUJI" | "RPC_ARBITRUM_ONE" | "RPC_ARBITRUM_GOERLI" | "RPC_ARBITRUM_SEPOLIA" | "RPC_FANTOM" | "RPC_FANTOM_TESTNET" | "RPC_OPTIMISM" | "RPC_OPTIMISM_SEPOLIA" | "RPC_OPTIMISM_GOERLI" | "RPC_HARMONY" | "RPC_SEPOLIA" | "RPC_SCROLL" | "RPC_SCROLL_SEPOLIA" | "RPC_METIS" | "RPC_BASE" | "RPC_BASE_SEPOLIA" | "RPC_BNB" | "RPC_GNOSIS" | "RPC_ZKEVM" | "RPC_CELO" | "RPC_ZKSYNC";
+declare const getNetworkEnv: (chainId: SupportedChainIds) => "RPC_MAINNET" | "RPC_GOERLI" | "RPC_POLYGON" | "RPC_MUMBAI" | "RPC_AVALANCHE" | "RPC_FUJI" | "RPC_ARBITRUM" | "RPC_ARBITRUM_GOERLI" | "RPC_ARBITRUM_SEPOLIA" | "RPC_FANTOM" | "RPC_FANTOM_TESTNET" | "RPC_OPTIMISM" | "RPC_OPTIMISM_SEPOLIA" | "RPC_OPTIMISM_GOERLI" | "RPC_HARMONY" | "RPC_SEPOLIA" | "RPC_SCROLL" | "RPC_SCROLL_SEPOLIA" | "RPC_METIS" | "RPC_BASE" | "RPC_BASE_SEPOLIA" | "RPC_BNB" | "RPC_GNOSIS" | "RPC_ZKEVM" | "RPC_CELO" | "RPC_ZKSYNC";
 /**
  * Return a RPC_URL for supported chains.
  * If the RPC_URL environment variable is set, it will be used.

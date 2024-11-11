@@ -36,8 +36,8 @@ describe("lib", () => {
 
     expect(envs).toMatchInlineSnapshot(`
       {
+        "RPC_ARBITRUM": 42161,
         "RPC_ARBITRUM_GOERLI": 421613,
-        "RPC_ARBITRUM_ONE": 42161,
         "RPC_ARBITRUM_SEPOLIA": 421614,
         "RPC_AVALANCHE": 43114,
         "RPC_BASE": 8453,
