@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.0](https://github.com/bgd-labs/action-rpc-env/compare/v2.0.1...v2.1.0) (2024-11-21)
+
+
+### Features
+
+* expose chainList ([#31](https://github.com/bgd-labs/action-rpc-env/issues/31)) ([9ca7ca1](https://github.com/bgd-labs/action-rpc-env/commit/9ca7ca1550d02b5d89733c815bc0a0d992f8c1dd))
+
 ## [2.0.1](https://github.com/bgd-labs/action-rpc-env/compare/v2.0.0...v2.0.1) (2024-11-21)
 
 
