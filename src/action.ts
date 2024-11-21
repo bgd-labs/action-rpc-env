@@ -1,5 +1,5 @@
 import { debug, exportVariable, getInput } from "@actions/core";
-import { getNetworkEnv, getRPCUrl, supportedChainIds } from "./lib";
+import { ChainId, getNetworkEnv, getRPCUrl } from "./lib";
 
 const alchemyKey =
   getInput("ALCHEMY_API_KEY") !== "" ? getInput("ALCHEMY_API_KEY") : undefined;
@@ -9,8 +9,8 @@ const alchemyKey =
  * if the input is not empty.
  * Tries to use the input first, then constructs the url from the alchemy key.
  */
-for (const chainId of supportedChainIds) {
+for (const chainId of Object.values(ChainId)) {
   const envVarName = getNetworkEnv(chainId);
   debug(`Setting ${envVarName}`);
-  exportVariable(envVarName, getRPCUrl(chainId, alchemyKey));
+  exportVariable(envVarName, getRPCUrl(chainId, { alchemyKey: alchemyKey }));
 }

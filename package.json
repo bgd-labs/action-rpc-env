@@ -11,13 +11,8 @@
     "format": "biome check --write",
     "prepublishOnly": "npm run build"
   },
-  "files": [
-    "src/lib.ts",
-    "dist/lib.d.mts",
-    "dist/lib.d.ts",
-    "dist/lib.js",
-    "dist/lib.mjs"
-  ],
+  "files": ["src/*.ts", "dist/lib*", "dist/cli*"],
+  "bin": "./dist/cli.js",
   "main": "./dist/lib.js",
   "module": "./dist/lib.mjs",
   "types": "./dist/lib.d.ts",
@@ -42,21 +37,15 @@
     "lefthook": "^1.8.2",
     "tsup": "^8.3.5",
     "typescript": "^5.6.3",
-    "viem": "^2.21.40",
+    "viem": "^2.21.48",
     "vitest": "^2.1.4"
   },
   "tsup": {
-    "entry": [
-      "src/action.ts",
-      "src/lib.ts"
-    ],
+    "entry": ["src/action.ts", "src/lib.ts", "src/cli.ts"],
     "splitting": false,
     "sourcemap": false,
     "clean": true,
     "dts": true,
-    "format": [
-      "esm",
-      "cjs"
-    ]
+    "format": ["esm", "cjs"]
   }
 }
