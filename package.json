@@ -5,6 +5,7 @@
   "publishConfig": {
     "access": "public"
   },
+  "sideEffects": false,
   "scripts": {
     "build": "tsup",
     "test": "vitest",
@@ -38,7 +39,8 @@
     "tsup": "^8.3.5",
     "typescript": "^5.6.3",
     "viem": "^2.21.48",
-    "vitest": "^2.1.4"
+    "vitest": "^2.1.4",
+    "dotenv": "^16.4.5"
   },
   "tsup": {
     "entry": ["src/action.ts", "src/lib.ts", "src/cli.ts"],

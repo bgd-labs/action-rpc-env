@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import "dotenv/config";
 import { ChainId, getNetworkEnv, getRPCUrl } from "./lib";
 
 (function print() {

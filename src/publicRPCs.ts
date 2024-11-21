@@ -1,5 +1,9 @@
 import { ChainId } from "./chainIds";
 
+/**
+ * A manually maintained list of public rpcs.
+ * These should only be used for prs coming from forks, which should not access secrets like the alchemy api key.
+ */
 export const publicRPCs = {
   [ChainId.mainnet]: "https://eth.llamarpc.com",
   [ChainId.polygon]: "https://polygon.llamarpc.com",

@@ -23673,7 +23673,7 @@ var ChainId = {
   linea: linea.id
 };
 
-// src/public.ts
+// src/publicRPCs.ts
 var publicRPCs = {
   [ChainId.mainnet]: "https://eth.llamarpc.com",
   [ChainId.polygon]: "https://polygon.llamarpc.com",
