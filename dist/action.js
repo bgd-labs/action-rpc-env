@@ -23606,6 +23606,31 @@ var ChainId = {
   celo: celo.id,
   zksync: zksync.id
 };
+var ChainList = {
+  [ChainId.mainnet]: mainnet,
+  [ChainId.polygon]: polygon,
+  [ChainId.polygon_amoy]: polygonAmoy,
+  [ChainId.avalanche]: avalanche,
+  [ChainId.avalanche_fuji]: avalancheFuji,
+  [ChainId.arbitrum]: arbitrum,
+  [ChainId.arbitrum_sepolia]: arbitrumSepolia,
+  [ChainId.fantom]: fantom,
+  [ChainId.fantom_testnet]: fantomTestnet,
+  [ChainId.optimism]: optimism,
+  [ChainId.optimism_sepolia]: optimismSepolia,
+  [ChainId.harmony]: harmonyOne,
+  [ChainId.sepolia]: sepolia,
+  [ChainId.scroll]: scroll,
+  [ChainId.scroll_sepolia]: scrollSepolia,
+  [ChainId.metis]: metis,
+  [ChainId.base]: base,
+  [ChainId.base_sepolia]: baseSepolia,
+  [ChainId.bnb]: bsc,
+  [ChainId.gnosis]: gnosis,
+  [ChainId.zkEVM]: polygonZkEvm,
+  [ChainId.celo]: celo,
+  [ChainId.zksync]: zksync
+};
 
 // src/lib.ts
 var alchemySupportedChainIds = Object.values(ChainId).filter(

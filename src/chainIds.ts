@@ -24,32 +24,6 @@ import {
   zksync,
 } from "viem/chains";
 
-export const ChainList = {
-  mainnet: mainnet,
-  polygon: polygon,
-  polygon_amoy: polygonAmoy,
-  avalanche: avalanche,
-  avalanche_fuji: avalancheFuji,
-  arbitrum: arbitrum,
-  arbitrum_sepolia: arbitrumSepolia,
-  fantom: fantom,
-  fantom_testnet: fantomTestnet,
-  optimism: optimism,
-  optimism_sepolia: optimismSepolia,
-  harmony: harmonyOne,
-  sepolia: sepolia,
-  scroll: scroll,
-  scroll_sepolia: scrollSepolia,
-  metis: metis,
-  base: base,
-  base_sepolia: baseSepolia,
-  bnb: bsc,
-  gnosis: gnosis,
-  zkEVM: polygonZkEvm,
-  celo: celo,
-  zksync: zksync,
-};
-
 export const ChainId = {
   mainnet: mainnet.id,
   polygon: polygon.id,
@@ -75,3 +49,29 @@ export const ChainId = {
   celo: celo.id,
   zksync: zksync.id,
 } as const;
+
+export const ChainList = {
+  [ChainId.mainnet]: mainnet,
+  [ChainId.polygon]: polygon,
+  [ChainId.polygon_amoy]: polygonAmoy,
+  [ChainId.avalanche]: avalanche,
+  [ChainId.avalanche_fuji]: avalancheFuji,
+  [ChainId.arbitrum]: arbitrum,
+  [ChainId.arbitrum_sepolia]: arbitrumSepolia,
+  [ChainId.fantom]: fantom,
+  [ChainId.fantom_testnet]: fantomTestnet,
+  [ChainId.optimism]: optimism,
+  [ChainId.optimism_sepolia]: optimismSepolia,
+  [ChainId.harmony]: harmonyOne,
+  [ChainId.sepolia]: sepolia,
+  [ChainId.scroll]: scroll,
+  [ChainId.scroll_sepolia]: scrollSepolia,
+  [ChainId.metis]: metis,
+  [ChainId.base]: base,
+  [ChainId.base_sepolia]: baseSepolia,
+  [ChainId.bnb]: bsc,
+  [ChainId.gnosis]: gnosis,
+  [ChainId.zkEVM]: polygonZkEvm,
+  [ChainId.celo]: celo,
+  [ChainId.zksync]: zksync,
+};
