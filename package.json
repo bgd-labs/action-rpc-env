@@ -11,13 +11,7 @@
     "format": "biome check --write",
     "prepublishOnly": "npm run build"
   },
-  "files": [
-    "src/lib.ts",
-    "dist/lib.d.mts",
-    "dist/lib.d.ts",
-    "dist/lib.js",
-    "dist/lib.mjs"
-  ],
+  "files": ["src/*.ts", "dist/lib*", "dist/cli*"],
   "bin": "./dist/cli.js",
   "main": "./dist/lib.js",
   "module": "./dist/lib.mjs",
