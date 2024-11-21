@@ -1,5 +1,6 @@
 import { networkMap } from "./alchemyIds";
 import { ChainId, ChainList } from "./chainIds";
+import { publicRPCs } from "./public";
 
 type SupportedChainIds = (typeof ChainId)[keyof typeof ChainId];
 
@@ -53,6 +54,13 @@ export function getAlchemyRPC(chainId: SupportedChainIds, alchemyKey: string) {
   return `https://${alchemyId}.g.alchemy.com/v2/${alchemyKey}`;
 }
 
+export function getPublicRpc(chainId: SupportedChainIds) {
+  const publicRpc = publicRPCs[chainId as keyof typeof publicRPCs];
+  if (!publicRpc)
+    throw new Error(`No default public rpc for '${chainId}' configured.`);
+  return publicRpc;
+}
+
 type GetRPCUrlOptions = {
   alchemyKey?: string;
 };
@@ -89,6 +97,9 @@ export const getRPCUrl = (
       return getAlchemyRPC(chainId, options?.alchemyKey);
     } catch (e) {}
   }
+  try {
+    return getPublicRpc(chainId);
+  } catch (e) {}
 };
 
 export { ChainId, ChainList };
