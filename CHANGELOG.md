@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.1](https://github.com/bgd-labs/action-rpc-env/compare/v2.1.0...v2.1.1) (2024-11-21)
+
+
+### Bug Fixes
+
+* reverse lookup for chain objects ([#33](https://github.com/bgd-labs/action-rpc-env/issues/33)) ([2643202](https://github.com/bgd-labs/action-rpc-env/commit/26432023db42fceaaf41d275881d307953f9d17e))
+
 ## [2.1.0](https://github.com/bgd-labs/action-rpc-env/compare/v2.0.1...v2.1.0) (2024-11-21)
 
 
