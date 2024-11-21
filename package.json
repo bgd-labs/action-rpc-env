@@ -54,6 +54,7 @@
     "sourcemap": false,
     "clean": true,
     "dts": true,
+    "treeshake": true,
     "format": [
       "esm",
       "cjs"
