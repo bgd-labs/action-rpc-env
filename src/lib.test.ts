@@ -9,6 +9,8 @@ import {
   getRPCUrl,
 } from "./lib";
 
+Object.keys(process.env).map((key) => delete process.env[key]);
+
 describe("lib", () => {
   it("should use env var if given", () => {
     process.env.RPC_MAINNET = "https://rpc.mainnet.com";
