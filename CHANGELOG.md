@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.0.1](https://github.com/bgd-labs/action-rpc-env/compare/v2.0.0...v2.0.1) (2024-11-21)
+
+
+### Bug Fixes
+
+* arbitrum env ([42b121a](https://github.com/bgd-labs/action-rpc-env/commit/42b121ac9a889ab73ba0427b59c40c6aa6329355))
+* do not throw when no env is found & add bin ([#29](https://github.com/bgd-labs/action-rpc-env/issues/29)) ([dd8b6f8](https://github.com/bgd-labs/action-rpc-env/commit/dd8b6f820fcba266ad0c58aef26a0d025ab22364))
+
 ## [2.0.0](https://github.com/bgd-labs/action-rpc-env/compare/v1.0.3...v2.0.0) (2024-11-07)
 
 
