@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.2](https://github.com/bgd-labs/action-rpc-env/compare/v2.1.1...v2.1.2) (2024-11-21)
+
+
+### Bug Fixes
+
+* fallback to public rpcs ([#35](https://github.com/bgd-labs/action-rpc-env/issues/35)) ([8198f9a](https://github.com/bgd-labs/action-rpc-env/commit/8198f9a1a0d6487eaa0d4e7ad4d04258d9ca66e6))
+
 ## [2.1.1](https://github.com/bgd-labs/action-rpc-env/compare/v2.1.0...v2.1.1) (2024-11-21)
 
 
