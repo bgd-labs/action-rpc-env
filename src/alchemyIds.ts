@@ -60,5 +60,5 @@ export const networkMap = {
   11155111: "eth-sepolia",
   11155420: "opt-sepolia",
   168587773: "blast-sepolia",
-  999999999: "zora-sepolia"
+  999999999: "zora-sepolia",
 } as const;
