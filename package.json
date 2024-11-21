@@ -42,21 +42,15 @@
     "lefthook": "^1.8.2",
     "tsup": "^8.3.5",
     "typescript": "^5.6.3",
-    "viem": "^2.21.40",
+    "viem": "^2.21.48",
     "vitest": "^2.1.4"
   },
   "tsup": {
-    "entry": [
-      "src/action.ts",
-      "src/lib.ts"
-    ],
+    "entry": ["src/action.ts", "src/lib.ts"],
     "splitting": false,
     "sourcemap": false,
     "clean": true,
     "dts": true,
-    "format": [
-      "esm",
-      "cjs"
-    ]
+    "format": ["esm", "cjs"]
   }
 }

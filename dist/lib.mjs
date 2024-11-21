@@ -37,6 +37,8 @@ var networkMap = {
   8453: "base-mainnet",
   10200: "gnosis-chiado",
   11011: "shape-sepolia",
+  11124: "abstract-testnet",
+  37111: "lens-sepolia",
   42161: "arb-mainnet",
   42170: "arbnova-mainnet",
   43113: "avax-fuji",
@@ -73,7 +75,7 @@ function defineChain(chain) {
 }
 
 // node_modules/viem/_esm/errors/version.js
-var version = "2.21.40";
+var version = "2.21.48";
 
 // node_modules/viem/_esm/errors/base.js
 var errorConfig = {
@@ -510,7 +512,7 @@ function formatAuthorizationList(authorizationList) {
 
 // node_modules/viem/_esm/utils/formatters/block.js
 function formatBlock(block) {
-  const transactions = block.transactions?.map((transaction) => {
+  const transactions = (block.transactions ?? []).map((transaction) => {
     if (typeof transaction === "string")
       return transaction;
     return formatTransaction(transaction);
@@ -2833,35 +2835,6 @@ var arbitrum = /* @__PURE__ */ defineChain({
   }
 });
 
-// node_modules/viem/_esm/chains/definitions/arbitrumGoerli.js
-var arbitrumGoerli = /* @__PURE__ */ defineChain({
-  id: 421613,
-  name: "Arbitrum Goerli",
-  nativeCurrency: {
-    name: "Arbitrum Goerli Ether",
-    symbol: "ETH",
-    decimals: 18
-  },
-  rpcUrls: {
-    default: {
-      http: ["https://goerli-rollup.arbitrum.io/rpc"]
-    }
-  },
-  blockExplorers: {
-    default: {
-      name: "Arbiscan",
-      url: "https://goerli.arbiscan.io"
-    }
-  },
-  contracts: {
-    multicall3: {
-      address: "0xca11bde05977b3631167028862be2a173976ca11",
-      blockCreated: 88114
-    }
-  },
-  testnet: true
-});
-
 // node_modules/viem/_esm/chains/definitions/arbitrumSepolia.js
 var arbitrumSepolia = /* @__PURE__ */ defineChain({
   id: 421614,
@@ -3340,8 +3313,8 @@ var gnosis = /* @__PURE__ */ defineChain({
   name: "Gnosis",
   nativeCurrency: {
     decimals: 18,
-    name: "Gnosis",
-    symbol: "xDAI"
+    name: "xDAI",
+    symbol: "XDAI"
   },
   rpcUrls: {
     default: {
@@ -3362,39 +3335,6 @@ var gnosis = /* @__PURE__ */ defineChain({
       blockCreated: 21022491
     }
   }
-});
-
-// node_modules/viem/_esm/chains/definitions/goerli.js
-var goerli = /* @__PURE__ */ defineChain({
-  id: 5,
-  name: "Goerli",
-  nativeCurrency: { name: "Goerli Ether", symbol: "ETH", decimals: 18 },
-  rpcUrls: {
-    default: {
-      http: ["https://rpc.ankr.com/eth_goerli"]
-    }
-  },
-  blockExplorers: {
-    default: {
-      name: "Etherscan",
-      url: "https://goerli.etherscan.io",
-      apiUrl: "https://api-goerli.etherscan.io/api"
-    }
-  },
-  contracts: {
-    ensRegistry: {
-      address: "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e"
-    },
-    ensUniversalResolver: {
-      address: "0xfc4AC75C46C914aF5892d6d3eFFcebD7917293F1",
-      blockCreated: 10339206
-    },
-    multicall3: {
-      address: "0xca11bde05977b3631167028862be2a173976ca11",
-      blockCreated: 6507670
-    }
-  },
-  testnet: true
 });
 
 // node_modules/viem/_esm/chains/definitions/harmonyOne.js
@@ -3531,53 +3471,8 @@ var optimism = /* @__PURE__ */ defineChain({
   sourceId: sourceId3
 });
 
-// node_modules/viem/_esm/chains/definitions/optimismGoerli.js
-var sourceId4 = 5;
-var optimismGoerli = /* @__PURE__ */ defineChain({
-  ...chainConfig2,
-  id: 420,
-  name: "Optimism Goerli",
-  nativeCurrency: { name: "Goerli Ether", symbol: "ETH", decimals: 18 },
-  rpcUrls: {
-    default: {
-      http: ["https://goerli.optimism.io"]
-    }
-  },
-  blockExplorers: {
-    default: {
-      name: "Etherscan",
-      url: "https://goerli-optimism.etherscan.io",
-      apiUrl: "https://goerli-optimism.etherscan.io/api"
-    }
-  },
-  contracts: {
-    ...chainConfig2.contracts,
-    l2OutputOracle: {
-      [sourceId4]: {
-        address: "0xE6Dfba0953616Bacab0c9A8ecb3a9BBa77FC15c0"
-      }
-    },
-    multicall3: {
-      address: "0xca11bde05977b3631167028862be2a173976ca11",
-      blockCreated: 49461
-    },
-    portal: {
-      [sourceId4]: {
-        address: "0x5b47E1A08Ea6d985D6649300584e6722Ec4B1383"
-      }
-    },
-    l1StandardBridge: {
-      [sourceId4]: {
-        address: "0x636Af16bf2f682dD3109e60102b8E1A089FedAa8"
-      }
-    }
-  },
-  testnet: true,
-  sourceId: sourceId4
-});
-
 // node_modules/viem/_esm/chains/definitions/optimismSepolia.js
-var sourceId5 = 11155111;
+var sourceId4 = 11155111;
 var optimismSepolia = /* @__PURE__ */ defineChain({
   ...chainConfig2,
   id: 11155420,
@@ -3598,12 +3493,12 @@ var optimismSepolia = /* @__PURE__ */ defineChain({
   contracts: {
     ...chainConfig2.contracts,
     disputeGameFactory: {
-      [sourceId5]: {
+      [sourceId4]: {
         address: "0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1"
       }
     },
     l2OutputOracle: {
-      [sourceId5]: {
+      [sourceId4]: {
         address: "0x90E9c4f8a994a250F6aEfd61CAFb4F2e895D458F"
       }
     },
@@ -3612,18 +3507,18 @@ var optimismSepolia = /* @__PURE__ */ defineChain({
       blockCreated: 1620204
     },
     portal: {
-      [sourceId5]: {
+      [sourceId4]: {
         address: "0x16Fc5058F25648194471939df75CF27A2fdC48BC"
       }
     },
     l1StandardBridge: {
-      [sourceId5]: {
+      [sourceId4]: {
         address: "0xFBb0621E0B23b5478B630BD55a5f21f67730B0F1"
       }
     }
   },
   testnet: true,
-  sourceId: sourceId5
+  sourceId: sourceId4
 });
 
 // node_modules/viem/_esm/chains/definitions/polygon.js
@@ -3651,27 +3546,27 @@ var polygon = /* @__PURE__ */ defineChain({
   }
 });
 
-// node_modules/viem/_esm/chains/definitions/polygonMumbai.js
-var polygonMumbai = /* @__PURE__ */ defineChain({
-  id: 80001,
-  name: "Polygon Mumbai",
-  nativeCurrency: { name: "MATIC", symbol: "MATIC", decimals: 18 },
+// node_modules/viem/_esm/chains/definitions/polygonAmoy.js
+var polygonAmoy = /* @__PURE__ */ defineChain({
+  id: 80002,
+  name: "Polygon Amoy",
+  nativeCurrency: { name: "POL", symbol: "POL", decimals: 18 },
   rpcUrls: {
     default: {
-      http: ["https://rpc.ankr.com/polygon_mumbai"]
+      http: ["https://rpc-amoy.polygon.technology"]
     }
   },
   blockExplorers: {
     default: {
       name: "PolygonScan",
-      url: "https://mumbai.polygonscan.com",
-      apiUrl: "https://api-testnet.polygonscan.com/api"
+      url: "https://amoy.polygonscan.com",
+      apiUrl: "https://api-amoy.polygonscan.com/api"
     }
   },
   contracts: {
     multicall3: {
       address: "0xca11bde05977b3631167028862be2a173976ca11",
-      blockCreated: 25770160
+      blockCreated: 3127388
     }
   },
   testnet: true
@@ -3762,7 +3657,7 @@ var sepolia = /* @__PURE__ */ defineChain({
   nativeCurrency: { name: "Sepolia Ether", symbol: "ETH", decimals: 18 },
   rpcUrls: {
     default: {
-      http: ["https://rpc2.sepolia.org"]
+      http: ["https://sepolia.drpc.org"]
     }
   },
   blockExplorers: {
@@ -3829,19 +3724,16 @@ var zksync = /* @__PURE__ */ defineChain({
 // src/chainIds.ts
 var ChainId = {
   mainnet: mainnet.id,
-  goerli: goerli.id,
   polygon: polygon.id,
-  mumbai: polygonMumbai.id,
+  polygon_amoy: polygonAmoy.id,
   avalanche: avalanche.id,
-  fuji: avalancheFuji.id,
+  avalanche_fuji: avalancheFuji.id,
   arbitrum: arbitrum.id,
-  arbitrum_goerli: arbitrumGoerli.id,
   arbitrum_sepolia: arbitrumSepolia.id,
   fantom: fantom.id,
   fantom_testnet: fantomTestnet.id,
   optimism: optimism.id,
   optimism_sepolia: optimismSepolia.id,
-  optimism_goerli: optimismGoerli.id,
   harmony: harmonyOne.id,
   sepolia: sepolia.id,
   scroll: scroll.id,
@@ -3857,7 +3749,7 @@ var ChainId = {
 };
 
 // src/lib.ts
-var supportedChainIds = Object.values(ChainId).filter(
+var alchemySupportedChainIds = Object.values(ChainId).filter(
   (id) => networkMap[id]
 );
 var getNetworkEnv = (chainId) => {
@@ -3872,29 +3764,49 @@ var getNetworkEnv = (chainId) => {
   const env = `RPC_${symbol.toUpperCase()}`;
   return env;
 };
-var getRPCUrl = (chainId, alchemyKey) => {
-  if (!supportedChainIds.includes(chainId)) {
-    throw new Error(
-      `ChainId '${chainId}' is not supported by this library. Feel free to open an issue.`
-    );
-  }
+function getExplicitRPC(chainId) {
   const env = getNetworkEnv(chainId);
   if (process.env[env]) {
     return process.env[env];
   }
+  throw new Error(`Env '${env}' is not set. Please set it manually.`);
+}
+function getAlchemyRPC(chainId, alchemyKey) {
   const alchemyId = networkMap[chainId];
+  if (!alchemyId) {
+    throw new Error(`ChainId '${chainId}' is not supported by Alchemy.`);
+  }
   if (!alchemyKey) {
     throw new Error(
-      `ChainId '${chainId}' is supported by Alchemy. Either provide ${env} or an 'alchemyKey'.`
+      `ChainId '${chainId}' is supported by Alchemy, but no 'alchemyKey' was provided.`
     );
   }
   return `https://${alchemyId}.g.alchemy.com/v2/${alchemyKey}`;
+}
+var getRPCUrl = (chainId, options) => {
+  if (!Object.values(ChainId).includes(chainId)) {
+    throw new Error(
+      `ChainId '${chainId}' is not supported by this library. Feel free to open an issue.`
+    );
+  }
+  try {
+    return getExplicitRPC(chainId);
+  } catch (e) {
+  }
+  if (options?.alchemyKey) {
+    try {
+      return getAlchemyRPC(chainId, options?.alchemyKey);
+    } catch (e) {
+    }
+  }
 };
 export {
   ChainId,
+  alchemySupportedChainIds,
+  getAlchemyRPC,
+  getExplicitRPC,
   getNetworkEnv,
-  getRPCUrl,
-  supportedChainIds
+  getRPCUrl
 };
 /*! Bundled license information:
 

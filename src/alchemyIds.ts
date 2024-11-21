@@ -36,6 +36,8 @@ export const networkMap = {
   8453: "base-mainnet",
   10200: "gnosis-chiado",
   11011: "shape-sepolia",
+  11124: "abstract-testnet",
+  37111: "lens-sepolia",
   42161: "arb-mainnet",
   42170: "arbnova-mainnet",
   43113: "avax-fuji",
