@@ -23203,6 +23203,21 @@ var ChainId = {
   zksync: zksync.id
 };
 
+// src/public.ts
+var publicRPCs = {
+  [ChainId.mainnet]: "https://eth.llamarpc.com",
+  [ChainId.polygon]: "https://polygon.llamarpc.com",
+  [ChainId.arbitrum]: "https://polygon.llamarpc.com",
+  [ChainId.base]: "https://base.llamarpc.com",
+  [ChainId.bnb]: "https://binance.llamarpc.com",
+  [ChainId.metis]: "https://andromeda.metis.io/?owner=1088",
+  [ChainId.gnosis]: "https://rpc.ankr.com/gnosis",
+  [ChainId.scroll]: "https://rpc.scroll.io",
+  [ChainId.zksync]: "https://mainnet.era.zksync.io",
+  [ChainId.fantom]: "https://rpc.ftm.tools",
+  [ChainId.avalanche]: "https://api.avax.network/ext/bc/C/rpc"
+};
+
 // src/lib.ts
 Object.values(ChainId).filter(
   (id) => networkMap[id]
@@ -23238,6 +23253,12 @@ function getAlchemyRPC(chainId, alchemyKey2) {
   }
   return `https://${alchemyId}.g.alchemy.com/v2/${alchemyKey2}`;
 }
+function getPublicRpc(chainId) {
+  const publicRpc = publicRPCs[chainId];
+  if (!publicRpc)
+    throw new Error(`No default public rpc for '${chainId}' configured.`);
+  return publicRpc;
+}
 var getRPCUrl = (chainId, options) => {
   if (!Object.values(ChainId).includes(chainId)) {
     throw new Error(
@@ -23253,6 +23274,10 @@ var getRPCUrl = (chainId, options) => {
       return getAlchemyRPC(chainId, options?.alchemyKey);
     } catch (e) {
     }
+  }
+  try {
+    return getPublicRpc(chainId);
+  } catch (e) {
   }
 };
 
