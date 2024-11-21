@@ -18,6 +18,7 @@
     "dist/lib.js",
     "dist/lib.mjs"
   ],
+  "bin": "./dist/cli.js",
   "main": "./dist/lib.js",
   "module": "./dist/lib.mjs",
   "types": "./dist/lib.d.ts",
@@ -46,7 +47,7 @@
     "vitest": "^2.1.4"
   },
   "tsup": {
-    "entry": ["src/action.ts", "src/lib.ts"],
+    "entry": ["src/action.ts", "src/lib.ts", "src/cli.ts"],
     "splitting": false,
     "sourcemap": false,
     "clean": true,

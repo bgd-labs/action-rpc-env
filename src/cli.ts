@@ -1,6 +1,7 @@
+#!/usr/bin/env node
 import { ChainId, getNetworkEnv, getRPCUrl } from "./lib";
 
-function setup() {
+(function print() {
   let env = "";
   let toml = "";
   Object.entries(ChainId).map(([key, chainId]) => {
@@ -15,5 +16,4 @@ function setup() {
 
   console.log("### foundry toml ###");
   console.log(toml);
-}
-setup();
+})();
