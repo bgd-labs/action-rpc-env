@@ -24,6 +24,32 @@ import {
   zksync,
 } from "viem/chains";
 
+export const ChainList = {
+  mainnet: mainnet,
+  polygon: polygon,
+  polygon_amoy: polygonAmoy,
+  avalanche: avalanche,
+  avalanche_fuji: avalancheFuji,
+  arbitrum: arbitrum,
+  arbitrum_sepolia: arbitrumSepolia,
+  fantom: fantom,
+  fantom_testnet: fantomTestnet,
+  optimism: optimism,
+  optimism_sepolia: optimismSepolia,
+  harmony: harmonyOne,
+  sepolia: sepolia,
+  scroll: scroll,
+  scroll_sepolia: scrollSepolia,
+  metis: metis,
+  base: base,
+  base_sepolia: baseSepolia,
+  bnb: bsc,
+  gnosis: gnosis,
+  zkEVM: polygonZkEvm,
+  celo: celo,
+  zksync: zksync,
+};
+
 export const ChainId = {
   mainnet: mainnet.id,
   polygon: polygon.id,

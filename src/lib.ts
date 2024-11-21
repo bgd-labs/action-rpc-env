@@ -1,5 +1,5 @@
 import { networkMap } from "./alchemyIds";
-import { ChainId } from "./chainIds";
+import { ChainId, ChainList } from "./chainIds";
 
 type SupportedChainIds = (typeof ChainId)[keyof typeof ChainId];
 
@@ -91,4 +91,4 @@ export const getRPCUrl = (
   }
 };
 
-export { ChainId };
+export { ChainId, ChainList };
