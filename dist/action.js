@@ -20750,6 +20750,10 @@ function getSizeOfLength(length) {
 }
 
 // node_modules/viem/_esm/constants/unit.js
+var etherUnits = {
+  gwei: 9,
+  wei: 18
+};
 var gweiUnits = {
   ether: -9,
   wei: 9
@@ -20770,6 +20774,11 @@ function formatUnits(value, decimals) {
   return `${negative ? "-" : ""}${integer || "0"}${fraction ? `.${fraction}` : ""}`;
 }
 
+// node_modules/viem/_esm/utils/unit/formatEther.js
+function formatEther(wei, unit = "wei") {
+  return formatUnits(wei, etherUnits[unit]);
+}
+
 // node_modules/viem/_esm/utils/unit/formatGwei.js
 function formatGwei(wei, unit = "wei") {
   return formatUnits(wei, gweiUnits[unit]);
@@ -20785,6 +20794,14 @@ function prettyPrint(args) {
   const maxLength = entries.reduce((acc, [key]) => Math.max(acc, key.length), 0);
   return entries.map(([key, value]) => `  ${`${key}:`.padEnd(maxLength + 1)}  ${value}`).join("\n");
 }
+var FeeConflictError = class extends BaseError {
+  constructor() {
+    super([
+      "Cannot specify both a `gasPrice` and a `maxFeePerGas`/`maxPriorityFeePerGas`.",
+      "Use `maxFeePerGas`/`maxPriorityFeePerGas` for EIP-1559 compatible networks, and `gasPrice` for others."
+    ].join("\n"), { name: "FeeConflictError" });
+  }
+};
 var InvalidLegacyVError = class extends BaseError {
   constructor({ v }) {
     super(`Invalid \`v\` value "${v}". Expected 27 or 28.`, {
@@ -21328,6 +21345,29 @@ var InvalidChainIdError = class extends BaseError {
     super(typeof chainId === "number" ? `Chain ID "${chainId}" is invalid.` : "Chain ID is invalid.", { name: "InvalidChainIdError" });
   }
 };
+
+// node_modules/viem/_esm/errors/node.js
+var ExecutionRevertedError = class extends BaseError {
+  constructor({ cause, message } = {}) {
+    const reason = message?.replace("execution reverted: ", "")?.replace("execution reverted", "");
+    super(`Execution reverted ${reason ? `with reason: ${reason}` : "for an unknown reason"}.`, {
+      cause,
+      name: "ExecutionRevertedError"
+    });
+  }
+};
+Object.defineProperty(ExecutionRevertedError, "code", {
+  enumerable: true,
+  configurable: true,
+  writable: true,
+  value: 3
+});
+Object.defineProperty(ExecutionRevertedError, "nodeMessage", {
+  enumerable: true,
+  configurable: true,
+  writable: true,
+  value: /execution reverted/
+});
 var FeeCapTooHighError = class extends BaseError {
   constructor({ cause, maxFeePerGas } = {}) {
     super(`The fee cap (\`maxFeePerGas\`${maxFeePerGas ? ` = ${formatGwei(maxFeePerGas)} gwei` : ""}) cannot be higher than the maximum allowed value (2^256-1).`, {
@@ -21341,6 +21381,124 @@ Object.defineProperty(FeeCapTooHighError, "nodeMessage", {
   configurable: true,
   writable: true,
   value: /max fee per gas higher than 2\^256-1|fee cap higher than 2\^256-1/
+});
+var FeeCapTooLowError = class extends BaseError {
+  constructor({ cause, maxFeePerGas } = {}) {
+    super(`The fee cap (\`maxFeePerGas\`${maxFeePerGas ? ` = ${formatGwei(maxFeePerGas)}` : ""} gwei) cannot be lower than the block base fee.`, {
+      cause,
+      name: "FeeCapTooLowError"
+    });
+  }
+};
+Object.defineProperty(FeeCapTooLowError, "nodeMessage", {
+  enumerable: true,
+  configurable: true,
+  writable: true,
+  value: /max fee per gas less than block base fee|fee cap less than block base fee|transaction is outdated/
+});
+var NonceTooHighError = class extends BaseError {
+  constructor({ cause, nonce } = {}) {
+    super(`Nonce provided for the transaction ${nonce ? `(${nonce}) ` : ""}is higher than the next one expected.`, { cause, name: "NonceTooHighError" });
+  }
+};
+Object.defineProperty(NonceTooHighError, "nodeMessage", {
+  enumerable: true,
+  configurable: true,
+  writable: true,
+  value: /nonce too high/
+});
+var NonceTooLowError = class extends BaseError {
+  constructor({ cause, nonce } = {}) {
+    super([
+      `Nonce provided for the transaction ${nonce ? `(${nonce}) ` : ""}is lower than the current nonce of the account.`,
+      "Try increasing the nonce or find the latest nonce with `getTransactionCount`."
+    ].join("\n"), { cause, name: "NonceTooLowError" });
+  }
+};
+Object.defineProperty(NonceTooLowError, "nodeMessage", {
+  enumerable: true,
+  configurable: true,
+  writable: true,
+  value: /nonce too low|transaction already imported|already known/
+});
+var NonceMaxValueError = class extends BaseError {
+  constructor({ cause, nonce } = {}) {
+    super(`Nonce provided for the transaction ${nonce ? `(${nonce}) ` : ""}exceeds the maximum allowed nonce.`, { cause, name: "NonceMaxValueError" });
+  }
+};
+Object.defineProperty(NonceMaxValueError, "nodeMessage", {
+  enumerable: true,
+  configurable: true,
+  writable: true,
+  value: /nonce has max value/
+});
+var InsufficientFundsError = class extends BaseError {
+  constructor({ cause } = {}) {
+    super([
+      "The total cost (gas * gas fee + value) of executing this transaction exceeds the balance of the account."
+    ].join("\n"), {
+      cause,
+      metaMessages: [
+        "This error could arise when the account does not have enough funds to:",
+        " - pay for the total gas fee,",
+        " - pay for the value to send.",
+        " ",
+        "The cost of the transaction is calculated as `gas * gas fee + value`, where:",
+        " - `gas` is the amount of gas needed for transaction to execute,",
+        " - `gas fee` is the gas fee,",
+        " - `value` is the amount of ether to send to the recipient."
+      ],
+      name: "InsufficientFundsError"
+    });
+  }
+};
+Object.defineProperty(InsufficientFundsError, "nodeMessage", {
+  enumerable: true,
+  configurable: true,
+  writable: true,
+  value: /insufficient funds|exceeds transaction sender account balance/
+});
+var IntrinsicGasTooHighError = class extends BaseError {
+  constructor({ cause, gas } = {}) {
+    super(`The amount of gas ${gas ? `(${gas}) ` : ""}provided for the transaction exceeds the limit allowed for the block.`, {
+      cause,
+      name: "IntrinsicGasTooHighError"
+    });
+  }
+};
+Object.defineProperty(IntrinsicGasTooHighError, "nodeMessage", {
+  enumerable: true,
+  configurable: true,
+  writable: true,
+  value: /intrinsic gas too high|gas limit reached/
+});
+var IntrinsicGasTooLowError = class extends BaseError {
+  constructor({ cause, gas } = {}) {
+    super(`The amount of gas ${gas ? `(${gas}) ` : ""}provided for the transaction is too low.`, {
+      cause,
+      name: "IntrinsicGasTooLowError"
+    });
+  }
+};
+Object.defineProperty(IntrinsicGasTooLowError, "nodeMessage", {
+  enumerable: true,
+  configurable: true,
+  writable: true,
+  value: /intrinsic gas too low/
+});
+var TransactionTypeNotSupportedError = class extends BaseError {
+  constructor({ cause }) {
+    super("The transaction type is not supported for this chain.", {
+      cause,
+      name: "TransactionTypeNotSupportedError"
+    });
+  }
+};
+Object.defineProperty(TransactionTypeNotSupportedError, "nodeMessage", {
+  enumerable: true,
+  configurable: true,
+  writable: true,
+  value: /transaction type not valid/
 });
 var TipAboveFeeCapError = class extends BaseError {
   constructor({ cause, maxPriorityFeePerGas, maxFeePerGas } = {}) {
@@ -21358,6 +21516,14 @@ Object.defineProperty(TipAboveFeeCapError, "nodeMessage", {
   writable: true,
   value: /max priority fee per gas higher than max fee per gas|tip higher than fee cap/
 });
+var UnknownNodeError = class extends BaseError {
+  constructor({ cause }) {
+    super(`An error occurred while executing: ${cause?.shortMessage}`, {
+      cause,
+      name: "UnknownNodeError"
+    });
+  }
+};
 
 // node_modules/viem/_esm/utils/lru.js
 var LruMap = class extends Map {
@@ -22820,6 +22986,307 @@ var harmonyOne = /* @__PURE__ */ defineChain({
   }
 });
 
+// node_modules/viem/_esm/accounts/utils/parseAccount.js
+function parseAccount(account) {
+  if (typeof account === "string")
+    return { address: account, type: "json-rpc" };
+  return account;
+}
+
+// node_modules/viem/_esm/errors/account.js
+var AccountNotFoundError = class extends BaseError {
+  constructor({ docsPath } = {}) {
+    super([
+      "Could not find an Account to execute with this Action.",
+      "Please provide an Account with the `account` argument on the Action, or by supplying an `account` to the Client."
+    ].join("\n"), {
+      docsPath,
+      docsSlug: "account",
+      name: "AccountNotFoundError"
+    });
+  }
+};
+
+// node_modules/viem/_esm/errors/stateOverride.js
+function prettyStateMapping(stateMapping) {
+  return stateMapping.reduce((pretty, { slot, value }) => {
+    return `${pretty}        ${slot}: ${value}
+`;
+  }, "");
+}
+function prettyStateOverride(stateOverride) {
+  return stateOverride.reduce((pretty, { address, ...state }) => {
+    let val = `${pretty}    ${address}:
+`;
+    if (state.nonce)
+      val += `      nonce: ${state.nonce}
+`;
+    if (state.balance)
+      val += `      balance: ${state.balance}
+`;
+    if (state.code)
+      val += `      code: ${state.code}
+`;
+    if (state.state) {
+      val += "      state:\n";
+      val += prettyStateMapping(state.state);
+    }
+    if (state.stateDiff) {
+      val += "      stateDiff:\n";
+      val += prettyStateMapping(state.stateDiff);
+    }
+    return val;
+  }, "  State Override:\n").slice(0, -1);
+}
+
+// node_modules/viem/_esm/errors/contract.js
+var CallExecutionError = class extends BaseError {
+  constructor(cause, { account: account_, docsPath, chain, data, gas, gasPrice, maxFeePerGas, maxPriorityFeePerGas, nonce, to, value, stateOverride }) {
+    const account = account_ ? parseAccount(account_) : void 0;
+    let prettyArgs = prettyPrint({
+      from: account?.address,
+      to,
+      value: typeof value !== "undefined" && `${formatEther(value)} ${chain?.nativeCurrency?.symbol || "ETH"}`,
+      data,
+      gas,
+      gasPrice: typeof gasPrice !== "undefined" && `${formatGwei(gasPrice)} gwei`,
+      maxFeePerGas: typeof maxFeePerGas !== "undefined" && `${formatGwei(maxFeePerGas)} gwei`,
+      maxPriorityFeePerGas: typeof maxPriorityFeePerGas !== "undefined" && `${formatGwei(maxPriorityFeePerGas)} gwei`,
+      nonce
+    });
+    if (stateOverride) {
+      prettyArgs += `
+${prettyStateOverride(stateOverride)}`;
+    }
+    super(cause.shortMessage, {
+      cause,
+      docsPath,
+      metaMessages: [
+        ...cause.metaMessages ? [...cause.metaMessages, " "] : [],
+        "Raw Call Arguments:",
+        prettyArgs
+      ].filter(Boolean),
+      name: "CallExecutionError"
+    });
+    Object.defineProperty(this, "cause", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: void 0
+    });
+    this.cause = cause;
+  }
+};
+
+// node_modules/viem/_esm/utils/errors/getNodeError.js
+function getNodeError(err, args) {
+  const message = (err.details || "").toLowerCase();
+  const executionRevertedError = err instanceof BaseError ? err.walk((e) => e?.code === ExecutionRevertedError.code) : err;
+  if (executionRevertedError instanceof BaseError)
+    return new ExecutionRevertedError({
+      cause: err,
+      message: executionRevertedError.details
+    });
+  if (ExecutionRevertedError.nodeMessage.test(message))
+    return new ExecutionRevertedError({
+      cause: err,
+      message: err.details
+    });
+  if (FeeCapTooHighError.nodeMessage.test(message))
+    return new FeeCapTooHighError({
+      cause: err,
+      maxFeePerGas: args?.maxFeePerGas
+    });
+  if (FeeCapTooLowError.nodeMessage.test(message))
+    return new FeeCapTooLowError({
+      cause: err,
+      maxFeePerGas: args?.maxFeePerGas
+    });
+  if (NonceTooHighError.nodeMessage.test(message))
+    return new NonceTooHighError({ cause: err, nonce: args?.nonce });
+  if (NonceTooLowError.nodeMessage.test(message))
+    return new NonceTooLowError({ cause: err, nonce: args?.nonce });
+  if (NonceMaxValueError.nodeMessage.test(message))
+    return new NonceMaxValueError({ cause: err, nonce: args?.nonce });
+  if (InsufficientFundsError.nodeMessage.test(message))
+    return new InsufficientFundsError({ cause: err });
+  if (IntrinsicGasTooHighError.nodeMessage.test(message))
+    return new IntrinsicGasTooHighError({ cause: err, gas: args?.gas });
+  if (IntrinsicGasTooLowError.nodeMessage.test(message))
+    return new IntrinsicGasTooLowError({ cause: err, gas: args?.gas });
+  if (TransactionTypeNotSupportedError.nodeMessage.test(message))
+    return new TransactionTypeNotSupportedError({ cause: err });
+  if (TipAboveFeeCapError.nodeMessage.test(message))
+    return new TipAboveFeeCapError({
+      cause: err,
+      maxFeePerGas: args?.maxFeePerGas,
+      maxPriorityFeePerGas: args?.maxPriorityFeePerGas
+    });
+  return new UnknownNodeError({
+    cause: err
+  });
+}
+
+// node_modules/viem/_esm/utils/errors/getCallError.js
+function getCallError(err, { docsPath, ...args }) {
+  const cause = (() => {
+    const cause2 = getNodeError(err, args);
+    if (cause2 instanceof UnknownNodeError)
+      return err;
+    return cause2;
+  })();
+  return new CallExecutionError(cause, {
+    docsPath,
+    ...args
+  });
+}
+
+// node_modules/viem/_esm/utils/formatters/extract.js
+function extract(value_, { format }) {
+  if (!format)
+    return {};
+  const value = {};
+  function extract_(formatted2) {
+    const keys = Object.keys(formatted2);
+    for (const key of keys) {
+      if (key in value_)
+        value[key] = value_[key];
+      if (formatted2[key] && typeof formatted2[key] === "object" && !Array.isArray(formatted2[key]))
+        extract_(formatted2[key]);
+    }
+  }
+  const formatted = format(value_ || {});
+  extract_(formatted);
+  return value;
+}
+
+// node_modules/viem/_esm/utils/transaction/assertRequest.js
+function assertRequest(args) {
+  const { account: account_, gasPrice, maxFeePerGas, maxPriorityFeePerGas, to } = args;
+  const account = account_ ? parseAccount(account_) : void 0;
+  if (account && !isAddress(account.address))
+    throw new InvalidAddressError({ address: account.address });
+  if (to && !isAddress(to))
+    throw new InvalidAddressError({ address: to });
+  if (typeof gasPrice !== "undefined" && (typeof maxFeePerGas !== "undefined" || typeof maxPriorityFeePerGas !== "undefined"))
+    throw new FeeConflictError();
+  if (maxFeePerGas && maxFeePerGas > maxUint256)
+    throw new FeeCapTooHighError({ maxFeePerGas });
+  if (maxPriorityFeePerGas && maxFeePerGas && maxPriorityFeePerGas > maxFeePerGas)
+    throw new TipAboveFeeCapError({ maxFeePerGas, maxPriorityFeePerGas });
+}
+
+// node_modules/viem/_esm/linea/actions/estimateGas.js
+async function estimateGas(client, args) {
+  const { account: account_ = client.account } = args;
+  if (!account_)
+    throw new AccountNotFoundError();
+  const account = parseAccount(account_);
+  try {
+    const { accessList, blockNumber, blockTag, data, gas, gasPrice, maxFeePerGas, maxPriorityFeePerGas, nonce, to, value, ...rest } = args;
+    const blockNumberHex = blockNumber ? numberToHex(blockNumber) : void 0;
+    const block = blockNumberHex || blockTag;
+    assertRequest(args);
+    const chainFormat = client.chain?.formatters?.transactionRequest?.format;
+    const format = chainFormat || formatTransactionRequest;
+    const request = format({
+      // Pick out extra data that might exist on the chain's transaction request type.
+      ...extract(rest, { format: chainFormat }),
+      from: account?.address,
+      accessList,
+      data,
+      gas,
+      gasPrice,
+      maxFeePerGas,
+      maxPriorityFeePerGas,
+      nonce,
+      to,
+      value
+    });
+    const { baseFeePerGas, gasLimit, priorityFeePerGas } = await client.request({
+      method: "linea_estimateGas",
+      params: block ? [request, block] : [request]
+    });
+    return {
+      baseFeePerGas: BigInt(baseFeePerGas),
+      gasLimit: BigInt(gasLimit),
+      priorityFeePerGas: BigInt(priorityFeePerGas)
+    };
+  } catch (err) {
+    throw getCallError(err, {
+      ...args,
+      account,
+      chain: client.chain
+    });
+  }
+}
+
+// node_modules/viem/_esm/linea/chainConfig.js
+var chainConfig4 = {
+  fees: {
+    estimateFeesPerGas,
+    async maxPriorityFeePerGas({ block, client, request }) {
+      const response = await estimateFeesPerGas({
+        block,
+        client,
+        multiply: (x) => x,
+        request,
+        type: "eip1559"
+      });
+      if (!response?.maxPriorityFeePerGas)
+        return null;
+      return response.maxPriorityFeePerGas;
+    }
+  }
+};
+async function estimateFeesPerGas({ client, multiply, request, type }) {
+  try {
+    const response = await estimateGas(client, {
+      ...request,
+      account: request?.account
+    });
+    const { priorityFeePerGas: maxPriorityFeePerGas } = response;
+    const baseFeePerGas = multiply(BigInt(response.baseFeePerGas));
+    const maxFeePerGas = baseFeePerGas + maxPriorityFeePerGas;
+    if (type === "legacy")
+      return { gasPrice: maxFeePerGas };
+    return {
+      maxFeePerGas,
+      maxPriorityFeePerGas
+    };
+  } catch {
+    return null;
+  }
+}
+
+// node_modules/viem/_esm/chains/definitions/linea.js
+var linea = /* @__PURE__ */ defineChain({
+  ...chainConfig4,
+  id: 59144,
+  name: "Linea Mainnet",
+  nativeCurrency: { name: "Linea Ether", symbol: "ETH", decimals: 18 },
+  rpcUrls: {
+    default: {
+      http: ["https://rpc.linea.build"],
+      webSocket: ["wss://rpc.linea.build"]
+    }
+  },
+  blockExplorers: {
+    default: {
+      name: "Etherscan",
+      url: "https://lineascan.build",
+      apiUrl: "https://api.lineascan.build/api"
+    }
+  },
+  contracts: {
+    multicall3: {
+      address: "0xcA11bde05977b3631167028862bE2a173976CA11",
+      blockCreated: 42
+    }
+  },
+  testnet: false
+});
+
 // node_modules/viem/_esm/chains/definitions/mainnet.js
 var mainnet = /* @__PURE__ */ defineChain({
   id: 1,
@@ -23202,7 +23669,8 @@ var ChainId = {
   gnosis: gnosis.id,
   zkEVM: polygonZkEvm.id,
   celo: celo.id,
-  zksync: zksync.id
+  zksync: zksync.id,
+  linea: linea.id
 };
 
 // src/public.ts
@@ -23217,7 +23685,8 @@ var publicRPCs = {
   [ChainId.scroll]: "https://rpc.scroll.io",
   [ChainId.zksync]: "https://mainnet.era.zksync.io",
   [ChainId.fantom]: "https://rpc.ftm.tools",
-  [ChainId.avalanche]: "https://api.avax.network/ext/bc/C/rpc"
+  [ChainId.avalanche]: "https://api.avax.network/ext/bc/C/rpc",
+  [ChainId.linea]: "https://rpc.linea.build"
 };
 
 // src/lib.ts

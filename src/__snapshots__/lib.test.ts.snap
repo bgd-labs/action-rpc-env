@@ -28,6 +28,8 @@ exports[`should return alchemy supported chain 43113 > avax-fuji 1`] = `"https:/
 
 exports[`should return alchemy supported chain 43114 > avax-mainnet 1`] = `"https://avax-mainnet.g.alchemy.com/v2/abc"`;
 
+exports[`should return alchemy supported chain 59144 > linea-mainnet 1`] = `"https://linea-mainnet.g.alchemy.com/v2/abc"`;
+
 exports[`should return alchemy supported chain 80002 > polygon-amoy 1`] = `"https://polygon-amoy.g.alchemy.com/v2/abc"`;
 
 exports[`should return alchemy supported chain 84532 > base-sepolia 1`] = `"https://base-sepolia.g.alchemy.com/v2/abc"`;

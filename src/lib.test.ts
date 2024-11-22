@@ -66,6 +66,7 @@ describe("lib", () => {
         "RPC_FANTOM_TESTNET": 4002,
         "RPC_GNOSIS": 100,
         "RPC_HARMONY": 1666600000,
+        "RPC_LINEA": 59144,
         "RPC_MAINNET": 1,
         "RPC_METIS": 1088,
         "RPC_OPTIMISM": 10,
