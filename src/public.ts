@@ -12,4 +12,5 @@ export const publicRPCs = {
   [ChainId.zksync]: "https://mainnet.era.zksync.io",
   [ChainId.fantom]: "https://rpc.ftm.tools",
   [ChainId.avalanche]: "https://api.avax.network/ext/bc/C/rpc",
+  [ChainId.linea]: "https://rpc.linea.build",
 } as const;

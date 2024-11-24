@@ -11,6 +11,7 @@ import {
   fantomTestnet,
   gnosis,
   harmonyOne,
+  linea,
   mainnet,
   metis,
   optimism,
@@ -48,6 +49,7 @@ export const ChainId = {
   zkEVM: polygonZkEvm.id,
   celo: celo.id,
   zksync: zksync.id,
+  linea: linea.id,
 } as const;
 
 export const ChainList = {
@@ -74,4 +76,5 @@ export const ChainList = {
   [ChainId.zkEVM]: polygonZkEvm,
   [ChainId.celo]: celo,
   [ChainId.zksync]: zksync,
+  [ChainId.linea]: linea,
 };
