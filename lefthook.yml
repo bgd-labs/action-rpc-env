@@ -3,7 +3,7 @@ pre-commit:
   commands:
     build:
       glob: "*.{ts,package-lock.json}"
-      run: node src/prepare.mjs > src/alchemyIds.ts && git add src/alchemyIds.ts && npm run build && git add dist/*
+      run: node src/prepare.mjs > src/alchemyIds.ts && git add src/alchemyIds.ts && npm run build && git add .
       # yes we're actually committing the build output, because github actions works like that
       stage_fixed: true
     format:

@@ -7,7 +7,11 @@ import { ChainId, getNetworkEnv, getRPCUrl } from "./lib";
   let toml = "";
   Object.entries(ChainId).map(([key, chainId]) => {
     const networkEnv = getNetworkEnv(chainId);
-    const rpc = getRPCUrl(chainId, { alchemyKey: process.env.ALCHEMY_API_KEY });
+    const rpc = getRPCUrl(chainId, {
+      alchemyKey: process.env.ALCHEMY_API_KEY,
+      quicknodeToken: process.env.QUICKNODE_TOKEN,
+      quicknodeEndpointName: process.env.QUICKNODE_ENDPOINT_NAME,
+    });
     env += `${networkEnv}=${rpc || ""}\n`;
     toml += `${key}="\${${networkEnv}}"\n`;
   });

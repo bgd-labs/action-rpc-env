@@ -1,7 +1,7 @@
 import { networkMap } from "./alchemyIds";
 import { ChainId, ChainList } from "./chainIds";
-import { quicknodeNetworkMap } from "./quicknodeIds";
 import { publicRPCs } from "./publicRPCs";
+import { quicknodeNetworkMap } from "./quicknodeIds";
 
 type SupportedChainIds = (typeof ChainId)[keyof typeof ChainId];
 
