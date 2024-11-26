@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.2.0](https://github.com/bgd-labs/action-rpc-env/compare/v2.1.2...v2.2.0) (2024-11-26)
+
+
+### Features
+
+* add config for linea ([#39](https://github.com/bgd-labs/action-rpc-env/issues/39)) ([d8de31a](https://github.com/bgd-labs/action-rpc-env/commit/d8de31a47fb0657a7dbb6fb7ffe3e83e6c3a9293))
+* initial quicknode support ([#38](https://github.com/bgd-labs/action-rpc-env/issues/38)) ([6b70b22](https://github.com/bgd-labs/action-rpc-env/commit/6b70b222a0737572d6cd7fc3cdb0b5dbe474ad52))
+
 ## [2.1.2](https://github.com/bgd-labs/action-rpc-env/compare/v2.1.1...v2.1.2) (2024-11-21)
 
 
