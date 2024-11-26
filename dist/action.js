@@ -23689,6 +23689,73 @@ var publicRPCs = {
   [ChainId.linea]: "https://rpc.linea.build"
 };
 
+// src/quicknodeIds.ts
+var quicknodeNetworkMap = {
+  1: "mainnet",
+  10: "optimism",
+  56: "bsc",
+  97: "bsc-testnet",
+  100: "xdai",
+  130: "unichain-mainnet",
+  137: "matic",
+  164: "omni-omega",
+  166: "omni-mainnet",
+  250: "fantom",
+  295: "hedera-mainnet",
+  296: "hedera-testnet",
+  300: "zksync-sepolia",
+  324: "zksync-mainnet",
+  545: "flow-testnet",
+  747: "flow-mainnet",
+  1001: "kaia-kairos",
+  1101: "zkevm-mainnet",
+  1301: "unichain-sepolia",
+  1328: "sei-atlantic",
+  1329: "sei-pacific",
+  1513: "story-testnet",
+  1516: "story-odyssey",
+  1993: "b3-sepolia",
+  2442: "zkevm-cardona",
+  2741: "abstract-mainnet",
+  2810: "morph-holesky",
+  2818: "morph-mainnet",
+  5e3: "mantle-mainnet",
+  5003: "mantle-sepolia",
+  6805: "race-mainnet",
+  6806: "race-sepolia",
+  7560: "cyber-mainnet",
+  8217: "kaia-mainnet",
+  8333: "b3-mainnet",
+  8453: "base-mainnet",
+  11124: "abstract-testnet",
+  13371: "imx-mainnet",
+  13473: "imx-testnet",
+  17e3: "ethereum-holesky",
+  42161: "arbitrum-mainnet",
+  42170: "nova-mainnet",
+  42220: "celo-mainnet",
+  43113: "avalanche-testnet",
+  43114: "avalanche-mainnet",
+  59144: "linea-mainnet",
+  80002: "matic-amoy",
+  80084: "bera-bartio",
+  80085: "bera-artio",
+  81457: "blast-mainnet",
+  84532: "base-sepolia",
+  325e3: "camp-sepolia",
+  421613: "arbitrum-goerli",
+  421614: "arbitrum-sepolia",
+  534351: "scroll-testnet",
+  534352: "scroll-mainnet",
+  660279: "xai-mainnet",
+  763373: "ink-sepolia",
+  11155111: "ethereum-sepolia",
+  11155420: "optimism-sepolia",
+  111557560: "cyber-sepolia",
+  168587773: "blast-sepolia",
+  37714555429: "xai-testnet"
+};
+
 // src/lib.ts
 Object.values(ChainId).filter(
   (id) => networkMap[id]
@@ -23730,6 +23797,26 @@ function getPublicRpc(chainId) {
     throw new Error(`No default public rpc for '${chainId}' configured.`);
   return publicRpc;
 }
+function getQuickNodeRpc(chainId, options) {
+  const quickNodeSlug = quicknodeNetworkMap[chainId];
+  if (!quickNodeSlug) {
+    throw new Error(`ChainId '${chainId}' is not supported by Quicknode.`);
+  }
+  if (!options.quicknodeEndpointName) {
+    throw new Error(
+      `ChainId '${chainId}' is supported by Quicknode, but no 'quicknodeEndpointName' was provided.`
+    );
+  }
+  if (!options.quicknodeToken) {
+    throw new Error(
+      `ChainId '${chainId}' is supported by Quicknode, but no 'quicknodeToken' was provided.`
+    );
+  }
+  if (chainId === ChainId.mainnet) {
+    return `https://${options.quicknodeEndpointName}.quiknode.pro/${options.quicknodeToken}`;
+  }
+  return `https://${options.quicknodeEndpointName}.${quickNodeSlug}.quiknode.pro/${options.quicknodeToken}`;
+}
 var getRPCUrl = (chainId, options) => {
   if (!Object.values(ChainId).includes(chainId)) {
     throw new Error(
@@ -23743,6 +23830,15 @@ var getRPCUrl = (chainId, options) => {
   if (options?.alchemyKey) {
     try {
       return getAlchemyRPC(chainId, options?.alchemyKey);
+    } catch (e) {
+    }
+  }
+  if (options?.quicknodeEndpointName && options.quicknodeToken) {
+    try {
+      return getQuickNodeRpc(chainId, {
+        quicknodeToken: options.quicknodeToken,
+        quicknodeEndpointName: options.quicknodeEndpointName
+      });
     } catch (e) {
     }
   }

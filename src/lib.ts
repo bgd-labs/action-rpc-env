@@ -1,6 +1,7 @@
 import { networkMap } from "./alchemyIds";
 import { ChainId, ChainList } from "./chainIds";
 import { publicRPCs } from "./public";
+import { quicknodeNetworkMap } from "./quicknodeIds";
 
 type SupportedChainIds = (typeof ChainId)[keyof typeof ChainId];
 
@@ -61,8 +62,38 @@ export function getPublicRpc(chainId: SupportedChainIds) {
   return publicRpc;
 }
 
+export function getQuickNodeRpc(
+  chainId: SupportedChainIds,
+  options: { quicknodeEndpointName: string; quicknodeToken: string },
+) {
+  const quickNodeSlug =
+    quicknodeNetworkMap[chainId as keyof typeof quicknodeNetworkMap];
+  if (!quickNodeSlug) {
+    throw new Error(`ChainId '${chainId}' is not supported by Quicknode.`);
+  }
+
+  // Typescript prevents this, catching it in runtime for js-usages
+  if (!options.quicknodeEndpointName) {
+    throw new Error(
+      `ChainId '${chainId}' is supported by Quicknode, but no 'quicknodeEndpointName' was provided.`,
+    );
+  }
+  if (!options.quicknodeToken) {
+    throw new Error(
+      `ChainId '${chainId}' is supported by Quicknode, but no 'quicknodeToken' was provided.`,
+    );
+  }
+  // for mainnet the api slug provided apparently is wrong and the network for whatever reason has no slug at all
+  if (chainId === ChainId.mainnet) {
+    return `https://${options.quicknodeEndpointName}.quiknode.pro/${options.quicknodeToken}`;
+  }
+  return `https://${options.quicknodeEndpointName}.${quickNodeSlug}.quiknode.pro/${options.quicknodeToken}`;
+}
+
 type GetRPCUrlOptions = {
   alchemyKey?: string;
+  quicknodeEndpointName?: string;
+  quicknodeToken?: string;
 };
 
 /**
@@ -95,6 +126,14 @@ export const getRPCUrl = (
   if (options?.alchemyKey) {
     try {
       return getAlchemyRPC(chainId, options?.alchemyKey);
+    } catch (e) {}
+  }
+  if (options?.quicknodeEndpointName && options.quicknodeToken) {
+    try {
+      return getQuickNodeRpc(chainId, {
+        quicknodeToken: options.quicknodeToken,
+        quicknodeEndpointName: options.quicknodeEndpointName,
+      });
     } catch (e) {}
   }
   try {
