@@ -23848,10 +23848,15 @@ var getRPCUrl = (chainId, options) => {
 
 // src/action.ts
 var alchemyKey = (0, import_core.getInput)("ALCHEMY_API_KEY") !== "" ? (0, import_core.getInput)("ALCHEMY_API_KEY") : void 0;
+var quicknodeToken = (0, import_core.getInput)("QUICKNODE_TOKEN") !== "" ? (0, import_core.getInput)("QUICKNODE_TOKEN") : "5196b99cdae04535ecd62906c3b618876686618a";
+var quicknodeEndpointName = (0, import_core.getInput)("QUICKNODE_ENDPOINT_NAME") !== "" ? (0, import_core.getInput)("QUICKNODE_ENDPOINT_NAME") : "quaint-still-liquid";
 for (const chainId of Object.values(ChainId)) {
   const envVarName = getNetworkEnv(chainId);
   (0, import_core.debug)(`Setting ${envVarName}`);
-  (0, import_core.exportVariable)(envVarName, getRPCUrl(chainId, { alchemyKey }));
+  (0, import_core.exportVariable)(
+    envVarName,
+    getRPCUrl(chainId, { alchemyKey, quicknodeToken, quicknodeEndpointName })
+  );
 }
 /*! Bundled license information:
 
