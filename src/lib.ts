@@ -1,6 +1,6 @@
 import { networkMap } from "./alchemyIds";
 import { ChainId, ChainList } from "./chainIds";
-import { publicRPCs } from "./public";
+import { publicRPCs } from "./publicRPCs";
 import { quicknodeNetworkMap } from "./quicknodeIds";
 
 type SupportedChainIds = (typeof ChainId)[keyof typeof ChainId];
@@ -141,4 +141,4 @@ export const getRPCUrl = (
   } catch (e) {}
 };
 
-export { ChainId, ChainList };
+export { ChainId, ChainList, type SupportedChainIds };

@@ -444,7 +444,7 @@ const quickNodeApiResponse = {
 };
 
 const quicknodeNetworkMap = quickNodeApiResponse.data.reduce((acc, network) => {
-  network.networks.forEach((nw) => {
+  network.networks.map((nw) => {
     if (nw.chain_id) {
       acc[nw.chain_id] = nw.slug;
     }
