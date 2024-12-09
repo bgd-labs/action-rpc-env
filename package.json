@@ -34,13 +34,13 @@
   "devDependencies": {
     "@actions/core": "^1.11.1",
     "@biomejs/biome": "^1.9.4",
-    "@types/node": "^22.10.0",
-    "lefthook": "^1.8.4",
+    "@types/node": "^22.10.1",
+    "lefthook": "^1.9.0",
     "tsup": "^8.3.5",
     "typescript": "^5.7.2",
     "viem": "^2.21.48",
-    "vitest": "^2.1.6",
-    "dotenv": "^16.4.5"
+    "vitest": "^2.1.8",
+    "dotenv": "^16.4.7"
   },
   "tsup": {
     "entry": ["src/action.ts", "src/lib.ts", "src/cli.ts"],
