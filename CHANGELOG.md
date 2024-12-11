@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.2.1](https://github.com/bgd-labs/action-rpc-env/compare/v2.2.0...v2.2.1) (2024-12-11)
+
+
+### Bug Fixes
+
+* add default quicknode ([#45](https://github.com/bgd-labs/action-rpc-env/issues/45)) ([cd4ea52](https://github.com/bgd-labs/action-rpc-env/commit/cd4ea52c62bf054252840745e63566cf97cbe99d))
+
 ## [2.2.0](https://github.com/bgd-labs/action-rpc-env/compare/v2.1.2...v2.2.0) (2024-11-26)
 
 
