@@ -1,3 +1,10 @@
+import {
+  http,
+  type Client,
+  type ClientConfig,
+  type HttpTransportConfig,
+  createClient,
+} from "viem";
 import { networkMap } from "./alchemyIds";
 import { ChainId, ChainList } from "./chainIds";
 import { publicRPCs } from "./publicRPCs";
@@ -140,5 +147,41 @@ export const getRPCUrl = (
     return getPublicRpc(chainId);
   } catch (e) {}
 };
+
+const clientCache: Record<number, Client> = {};
+
+/**
+ * Returns a viem client for the given chain with the supplied config.
+ * @param chainId
+ * @param param1
+ * @returns A viem Client
+ */
+export function getClient(
+  chainId: number,
+  {
+    httpConfig,
+    clientConfig,
+    forceRebuildClient,
+  }: {
+    httpConfig?: Partial<HttpTransportConfig>;
+    clientConfig?: Partial<ClientConfig>;
+    // If supplied will create a new client, omitting the cache.
+    // This can be useful when creating client with different configs.
+    forceRebuildClient?: boolean;
+  },
+) {
+  if (!clientCache[chainId] || forceRebuildClient) {
+    const rpcURL = getRPCUrl(chainId as keyof typeof ChainList, {
+      alchemyKey: process.env.ALCHEMY_API_KEY,
+    });
+
+    clientCache[chainId] = createClient({
+      chain: ChainList[chainId as keyof typeof ChainList],
+      transport: http(rpcURL, httpConfig),
+      ...clientConfig,
+    });
+  }
+  return clientCache[chainId];
+}
 
 export { ChainId, ChainList, type SupportedChainIds };
