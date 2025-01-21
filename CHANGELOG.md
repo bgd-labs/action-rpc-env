@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.3.0](https://github.com/bgd-labs/action-rpc-env/compare/v2.2.1...v2.3.0) (2025-01-21)
+
+
+### Features
+
+* add getClient ([#63](https://github.com/bgd-labs/action-rpc-env/issues/63)) ([ab43752](https://github.com/bgd-labs/action-rpc-env/commit/ab437522fa8ad0c3d824405c73ce07acf69e3ace))
+
 ## [2.2.1](https://github.com/bgd-labs/action-rpc-env/compare/v2.2.0...v2.2.1) (2024-12-11)
 
 

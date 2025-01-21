@@ -1,6 +1,6 @@
 {
   "name": "@bgd-labs/rpc-env",
-  "version": "2.2.1",
+  "version": "2.3.0",
   "private": false,
   "publishConfig": {
     "access": "public"
@@ -12,7 +12,11 @@
     "format": "biome check --write",
     "prepublishOnly": "npm run build"
   },
-  "files": ["src/*.ts", "dist/lib*", "dist/cli*"],
+  "files": [
+    "src/*.ts",
+    "dist/lib*",
+    "dist/cli*"
+  ],
   "bin": "./dist/cli.js",
   "main": "./dist/lib.js",
   "module": "./dist/lib.mjs",
@@ -43,12 +47,19 @@
     "dotenv": "^16.4.7"
   },
   "tsup": {
-    "entry": ["src/action.ts", "src/lib.ts", "src/cli.ts"],
+    "entry": [
+      "src/action.ts",
+      "src/lib.ts",
+      "src/cli.ts"
+    ],
     "splitting": false,
     "sourcemap": false,
     "clean": true,
     "dts": true,
     "treeshake": true,
-    "format": ["esm", "cjs"]
+    "format": [
+      "esm",
+      "cjs"
+    ]
   }
 }
