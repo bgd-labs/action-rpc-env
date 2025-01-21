@@ -16,6 +16,9 @@ var __require = /* @__PURE__ */ ((x) => typeof require !== "undefined" ? require
   if (typeof require !== "undefined") return require.apply(this, arguments);
   throw Error('Dynamic require of "' + x + '" is not supported');
 });
+var __esm = (fn, res) => function __init() {
+  return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
+};
 var __commonJS = (cb, mod) => function __require2() {
   return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
 };
@@ -19721,184 +19724,6 @@ Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
   }
 });
 
-// src/action.ts
-var import_core = __toESM(require_core());
-
-// src/alchemyIds.ts
-var networkMap = {
-  1: "eth-mainnet",
-  3: "eth-ropsten",
-  4: "eth-rinkeby",
-  5: "eth-goerli",
-  10: "opt-mainnet",
-  30: "rootstock-mainnet",
-  31: "rootstock-testnet",
-  42: "eth-kovan",
-  56: "bnb-mainnet",
-  69: "opt-kovan",
-  97: "bnb-testnet",
-  100: "gnosis-mainnet",
-  137: "polygon-mainnet",
-  204: "opbnb-mainnet",
-  250: "fantom-mainnet",
-  252: "frax-mainnet",
-  300: "zksync-sepolia",
-  324: "zksync-mainnet",
-  420: "opt-goerli",
-  480: "worldchain-mainnet",
-  592: "astar-mainnet",
-  747: "flow-mainnet",
-  1088: "metis-mainnet",
-  1101: "polygonzkevm-mainnet",
-  1301: "unichain-sepolia",
-  1442: "polygonzkevm-testnet",
-  1946: "soneium-minato",
-  2442: "polygonzkevm-cardona",
-  2522: "frax-sepolia",
-  4002: "fantom-testnet",
-  4801: "worldchain-sepolia",
-  5611: "opbnb-testnet",
-  7e3: "zetachain-mainnet",
-  7001: "zetachain-testnet",
-  8453: "base-mainnet",
-  10200: "gnosis-chiado",
-  11011: "shape-sepolia",
-  11124: "abstract-testnet",
-  37111: "lens-sepolia",
-  42161: "arb-mainnet",
-  42170: "arbnova-mainnet",
-  43113: "avax-fuji",
-  43114: "avax-mainnet",
-  59141: "linea-sepolia",
-  59144: "linea-mainnet",
-  63157: "geist-mainnet",
-  80001: "polygon-mumbai",
-  80002: "polygon-amoy",
-  80084: "berachain-bartio",
-  81457: "blast-mainnet",
-  84531: "base-goerli",
-  84532: "base-sepolia",
-  421611: "arb-rinkeby",
-  421613: "arb-goerli",
-  421614: "arb-sepolia",
-  534351: "scroll-sepolia",
-  534352: "scroll-mainnet",
-  7777777: "zora-mainnet",
-  11155111: "eth-sepolia",
-  11155420: "opt-sepolia",
-  168587773: "blast-sepolia",
-  999999999: "zora-sepolia"
-};
-
-// node_modules/viem/_esm/utils/chain/defineChain.js
-function defineChain(chain) {
-  return {
-    formatters: void 0,
-    fees: void 0,
-    serializers: void 0,
-    ...chain
-  };
-}
-
-// node_modules/viem/_esm/errors/version.js
-var version = "2.21.48";
-
-// node_modules/viem/_esm/errors/base.js
-var errorConfig = {
-  getDocsUrl: ({ docsBaseUrl, docsPath = "", docsSlug }) => docsPath ? `${docsBaseUrl ?? "https://viem.sh"}${docsPath}${docsSlug ? `#${docsSlug}` : ""}` : void 0,
-  version: `viem@${version}`
-};
-var BaseError = class _BaseError extends Error {
-  constructor(shortMessage, args = {}) {
-    const details = (() => {
-      if (args.cause instanceof _BaseError)
-        return args.cause.details;
-      if (args.cause?.message)
-        return args.cause.message;
-      return args.details;
-    })();
-    const docsPath = (() => {
-      if (args.cause instanceof _BaseError)
-        return args.cause.docsPath || args.docsPath;
-      return args.docsPath;
-    })();
-    const docsUrl = errorConfig.getDocsUrl?.({ ...args, docsPath });
-    const message = [
-      shortMessage || "An error occurred.",
-      "",
-      ...args.metaMessages ? [...args.metaMessages, ""] : [],
-      ...docsUrl ? [`Docs: ${docsUrl}`] : [],
-      ...details ? [`Details: ${details}`] : [],
-      ...errorConfig.version ? [`Version: ${errorConfig.version}`] : []
-    ].join("\n");
-    super(message, args.cause ? { cause: args.cause } : void 0);
-    Object.defineProperty(this, "details", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, "docsPath", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, "metaMessages", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, "shortMessage", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, "version", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: void 0
-    });
-    Object.defineProperty(this, "name", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: "BaseError"
-    });
-    this.details = details;
-    this.docsPath = docsPath;
-    this.metaMessages = args.metaMessages;
-    this.name = args.name ?? this.name;
-    this.shortMessage = shortMessage;
-    this.version = version;
-  }
-  walk(fn) {
-    return walk(this, fn);
-  }
-};
-function walk(err, fn) {
-  if (fn?.(err))
-    return err;
-  if (err && typeof err === "object" && "cause" in err && err.cause !== void 0)
-    return walk(err.cause, fn);
-  return fn ? null : err;
-}
-
-// node_modules/viem/_esm/errors/encoding.js
-var IntegerOutOfRangeError = class extends BaseError {
-  constructor({ max, min, signed, size: size2, value }) {
-    super(`Number "${value}" is not in safe ${size2 ? `${size2 * 8}-bit ${signed ? "signed" : "unsigned"} ` : ""}integer range ${max ? `(${min} to ${max})` : `(above ${min})`}`, { name: "IntegerOutOfRangeError" });
-  }
-};
-var SizeOverflowError = class extends BaseError {
-  constructor({ givenSize, maxSize }) {
-    super(`Size cannot exceed ${maxSize} bytes. Given size: ${givenSize} bytes.`, { name: "SizeOverflowError" });
-  }
-};
-
 // node_modules/viem/_esm/utils/data/isHex.js
 function isHex(value, { strict = true } = {}) {
   if (!value)
@@ -19907,6 +19732,10 @@ function isHex(value, { strict = true } = {}) {
     return false;
   return strict ? /^0x[0-9a-fA-F]*$/.test(value) : value.startsWith("0x");
 }
+var init_isHex = __esm({
+  "node_modules/viem/_esm/utils/data/isHex.js"() {
+  }
+});
 
 // node_modules/viem/_esm/utils/data/size.js
 function size(value) {
@@ -19914,37 +19743,127 @@ function size(value) {
     return Math.ceil((value.length - 2) / 2);
   return value.length;
 }
+var init_size = __esm({
+  "node_modules/viem/_esm/utils/data/size.js"() {
+    init_isHex();
+  }
+});
 
-// node_modules/viem/_esm/utils/data/trim.js
-function trim(hexOrBytes, { dir = "left" } = {}) {
-  let data = typeof hexOrBytes === "string" ? hexOrBytes.replace("0x", "") : hexOrBytes;
-  let sliceLength = 0;
-  for (let i = 0; i < data.length - 1; i++) {
-    if (data[dir === "left" ? i : data.length - i - 1].toString() === "0")
-      sliceLength++;
-    else
-      break;
+// node_modules/viem/_esm/errors/version.js
+var version;
+var init_version = __esm({
+  "node_modules/viem/_esm/errors/version.js"() {
+    version = "2.21.48";
   }
-  data = dir === "left" ? data.slice(sliceLength) : data.slice(0, data.length - sliceLength);
-  if (typeof hexOrBytes === "string") {
-    if (data.length === 1 && dir === "right")
-      data = `${data}0`;
-    return `0x${data.length % 2 === 1 ? `0${data}` : data}`;
-  }
-  return data;
+});
+
+// node_modules/viem/_esm/errors/base.js
+function walk(err, fn) {
+  if (fn?.(err))
+    return err;
+  if (err && typeof err === "object" && "cause" in err && err.cause !== void 0)
+    return walk(err.cause, fn);
+  return fn ? null : err;
 }
+var errorConfig, BaseError;
+var init_base = __esm({
+  "node_modules/viem/_esm/errors/base.js"() {
+    init_version();
+    errorConfig = {
+      getDocsUrl: ({ docsBaseUrl, docsPath = "", docsSlug }) => docsPath ? `${docsBaseUrl ?? "https://viem.sh"}${docsPath}${docsSlug ? `#${docsSlug}` : ""}` : void 0,
+      version: `viem@${version}`
+    };
+    BaseError = class _BaseError extends Error {
+      constructor(shortMessage, args = {}) {
+        const details = (() => {
+          if (args.cause instanceof _BaseError)
+            return args.cause.details;
+          if (args.cause?.message)
+            return args.cause.message;
+          return args.details;
+        })();
+        const docsPath = (() => {
+          if (args.cause instanceof _BaseError)
+            return args.cause.docsPath || args.docsPath;
+          return args.docsPath;
+        })();
+        const docsUrl = errorConfig.getDocsUrl?.({ ...args, docsPath });
+        const message = [
+          shortMessage || "An error occurred.",
+          "",
+          ...args.metaMessages ? [...args.metaMessages, ""] : [],
+          ...docsUrl ? [`Docs: ${docsUrl}`] : [],
+          ...details ? [`Details: ${details}`] : [],
+          ...errorConfig.version ? [`Version: ${errorConfig.version}`] : []
+        ].join("\n");
+        super(message, args.cause ? { cause: args.cause } : void 0);
+        Object.defineProperty(this, "details", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: void 0
+        });
+        Object.defineProperty(this, "docsPath", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: void 0
+        });
+        Object.defineProperty(this, "metaMessages", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: void 0
+        });
+        Object.defineProperty(this, "shortMessage", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: void 0
+        });
+        Object.defineProperty(this, "version", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: void 0
+        });
+        Object.defineProperty(this, "name", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: "BaseError"
+        });
+        this.details = details;
+        this.docsPath = docsPath;
+        this.metaMessages = args.metaMessages;
+        this.name = args.name ?? this.name;
+        this.shortMessage = shortMessage;
+        this.version = version;
+      }
+      walk(fn) {
+        return walk(this, fn);
+      }
+    };
+  }
+});
 
 // node_modules/viem/_esm/errors/data.js
-var SliceOffsetOutOfBoundsError = class extends BaseError {
-  constructor({ offset, position, size: size2 }) {
-    super(`Slice ${position === "start" ? "starting" : "ending"} at offset "${offset}" is out-of-bounds (size: ${size2}).`, { name: "SliceOffsetOutOfBoundsError" });
+var SliceOffsetOutOfBoundsError, SizeExceedsPaddingSizeError;
+var init_data = __esm({
+  "node_modules/viem/_esm/errors/data.js"() {
+    init_base();
+    SliceOffsetOutOfBoundsError = class extends BaseError {
+      constructor({ offset, position, size: size2 }) {
+        super(`Slice ${position === "start" ? "starting" : "ending"} at offset "${offset}" is out-of-bounds (size: ${size2}).`, { name: "SliceOffsetOutOfBoundsError" });
+      }
+    };
+    SizeExceedsPaddingSizeError = class extends BaseError {
+      constructor({ size: size2, targetSize, type }) {
+        super(`${type.charAt(0).toUpperCase()}${type.slice(1).toLowerCase()} size (${size2}) exceeds padding size (${targetSize}).`, { name: "SizeExceedsPaddingSizeError" });
+      }
+    };
   }
-};
-var SizeExceedsPaddingSizeError = class extends BaseError {
-  constructor({ size: size2, targetSize, type }) {
-    super(`${type.charAt(0).toUpperCase()}${type.slice(1).toLowerCase()} size (${size2}) exceeds padding size (${targetSize}).`, { name: "SizeExceedsPaddingSizeError" });
-  }
-};
+});
 
 // node_modules/viem/_esm/utils/data/pad.js
 function pad(hexOrBytes, { dir, size: size2 = 32 } = {}) {
@@ -19980,9 +19899,85 @@ function padBytes(bytes2, { dir, size: size2 = 32 } = {}) {
   }
   return paddedBytes;
 }
+var init_pad = __esm({
+  "node_modules/viem/_esm/utils/data/pad.js"() {
+    init_data();
+  }
+});
+
+// node_modules/viem/_esm/errors/encoding.js
+var IntegerOutOfRangeError, SizeOverflowError;
+var init_encoding = __esm({
+  "node_modules/viem/_esm/errors/encoding.js"() {
+    init_base();
+    IntegerOutOfRangeError = class extends BaseError {
+      constructor({ max, min, signed, size: size2, value }) {
+        super(`Number "${value}" is not in safe ${size2 ? `${size2 * 8}-bit ${signed ? "signed" : "unsigned"} ` : ""}integer range ${max ? `(${min} to ${max})` : `(above ${min})`}`, { name: "IntegerOutOfRangeError" });
+      }
+    };
+    SizeOverflowError = class extends BaseError {
+      constructor({ givenSize, maxSize }) {
+        super(`Size cannot exceed ${maxSize} bytes. Given size: ${givenSize} bytes.`, { name: "SizeOverflowError" });
+      }
+    };
+  }
+});
+
+// node_modules/viem/_esm/utils/data/trim.js
+function trim(hexOrBytes, { dir = "left" } = {}) {
+  let data = typeof hexOrBytes === "string" ? hexOrBytes.replace("0x", "") : hexOrBytes;
+  let sliceLength = 0;
+  for (let i = 0; i < data.length - 1; i++) {
+    if (data[dir === "left" ? i : data.length - i - 1].toString() === "0")
+      sliceLength++;
+    else
+      break;
+  }
+  data = dir === "left" ? data.slice(sliceLength) : data.slice(0, data.length - sliceLength);
+  if (typeof hexOrBytes === "string") {
+    if (data.length === 1 && dir === "right")
+      data = `${data}0`;
+    return `0x${data.length % 2 === 1 ? `0${data}` : data}`;
+  }
+  return data;
+}
+var init_trim = __esm({
+  "node_modules/viem/_esm/utils/data/trim.js"() {
+  }
+});
+
+// node_modules/viem/_esm/utils/encoding/fromHex.js
+function assertSize(hexOrBytes, { size: size2 }) {
+  if (size(hexOrBytes) > size2)
+    throw new SizeOverflowError({
+      givenSize: size(hexOrBytes),
+      maxSize: size2
+    });
+}
+function hexToBigInt(hex, opts = {}) {
+  const { signed } = opts;
+  if (opts.size)
+    assertSize(hex, { size: opts.size });
+  const value = BigInt(hex);
+  if (!signed)
+    return value;
+  const size2 = (hex.length - 2) / 2;
+  const max = (1n << BigInt(size2) * 8n - 1n) - 1n;
+  if (value <= max)
+    return value;
+  return value - BigInt(`0x${"f".padStart(size2 * 2, "f")}`) - 1n;
+}
+function hexToNumber(hex, opts = {}) {
+  return Number(hexToBigInt(hex, opts));
+}
+var init_fromHex = __esm({
+  "node_modules/viem/_esm/utils/encoding/fromHex.js"() {
+    init_encoding();
+    init_size();
+  }
+});
 
 // node_modules/viem/_esm/utils/encoding/toHex.js
-var hexes = /* @__PURE__ */ Array.from({ length: 256 }, (_v, i) => i.toString(16).padStart(2, "0"));
 function toHex(value, opts = {}) {
   if (typeof value === "number" || typeof value === "bigint")
     return numberToHex(value, opts);
@@ -20041,14 +20036,22 @@ function numberToHex(value_, opts = {}) {
     return pad(hex, { size: size2 });
   return hex;
 }
-var encoder = /* @__PURE__ */ new TextEncoder();
 function stringToHex(value_, opts = {}) {
   const value = encoder.encode(value_);
   return bytesToHex(value, opts);
 }
+var hexes, encoder;
+var init_toHex = __esm({
+  "node_modules/viem/_esm/utils/encoding/toHex.js"() {
+    init_encoding();
+    init_pad();
+    init_fromHex();
+    hexes = /* @__PURE__ */ Array.from({ length: 256 }, (_v, i) => i.toString(16).padStart(2, "0"));
+    encoder = /* @__PURE__ */ new TextEncoder();
+  }
+});
 
 // node_modules/viem/_esm/utils/encoding/toBytes.js
-var encoder2 = /* @__PURE__ */ new TextEncoder();
 function toBytes(value, opts = {}) {
   if (typeof value === "number" || typeof value === "bigint")
     return numberToBytes(value, opts);
@@ -20067,14 +20070,6 @@ function boolToBytes(value, opts = {}) {
   }
   return bytes2;
 }
-var charCodeMap = {
-  zero: 48,
-  nine: 57,
-  A: 65,
-  F: 70,
-  a: 97,
-  f: 102
-};
 function charCodeToBase16(char) {
   if (char >= charCodeMap.zero && char <= charCodeMap.nine)
     return char - charCodeMap.zero;
@@ -20117,31 +20112,1160 @@ function stringToBytes(value, opts = {}) {
   }
   return bytes2;
 }
+var encoder2, charCodeMap;
+var init_toBytes = __esm({
+  "node_modules/viem/_esm/utils/encoding/toBytes.js"() {
+    init_base();
+    init_isHex();
+    init_pad();
+    init_fromHex();
+    init_toHex();
+    encoder2 = /* @__PURE__ */ new TextEncoder();
+    charCodeMap = {
+      zero: 48,
+      nine: 57,
+      A: 65,
+      F: 70,
+      a: 97,
+      f: 102
+    };
+  }
+});
 
-// node_modules/viem/_esm/utils/encoding/fromHex.js
-function assertSize(hexOrBytes, { size: size2 }) {
-  if (size(hexOrBytes) > size2)
-    throw new SizeOverflowError({
-      givenSize: size(hexOrBytes),
-      maxSize: size2
+// node_modules/@noble/hashes/esm/_assert.js
+function number(n) {
+  if (!Number.isSafeInteger(n) || n < 0)
+    throw new Error(`positive integer expected, not ${n}`);
+}
+function isBytes(a) {
+  return a instanceof Uint8Array || a != null && typeof a === "object" && a.constructor.name === "Uint8Array";
+}
+function bytes(b, ...lengths) {
+  if (!isBytes(b))
+    throw new Error("Uint8Array expected");
+  if (lengths.length > 0 && !lengths.includes(b.length))
+    throw new Error(`Uint8Array expected of length ${lengths}, not of length=${b.length}`);
+}
+function exists(instance, checkFinished = true) {
+  if (instance.destroyed)
+    throw new Error("Hash instance has been destroyed");
+  if (checkFinished && instance.finished)
+    throw new Error("Hash#digest() has already been called");
+}
+function output(out, instance) {
+  bytes(out);
+  const min = instance.outputLen;
+  if (out.length < min) {
+    throw new Error(`digestInto() expects output buffer of length at least ${min}`);
+  }
+}
+var init_assert = __esm({
+  "node_modules/@noble/hashes/esm/_assert.js"() {
+  }
+});
+
+// node_modules/@noble/hashes/esm/_u64.js
+function fromBig(n, le = false) {
+  if (le)
+    return { h: Number(n & U32_MASK64), l: Number(n >> _32n & U32_MASK64) };
+  return { h: Number(n >> _32n & U32_MASK64) | 0, l: Number(n & U32_MASK64) | 0 };
+}
+function split(lst, le = false) {
+  let Ah = new Uint32Array(lst.length);
+  let Al = new Uint32Array(lst.length);
+  for (let i = 0; i < lst.length; i++) {
+    const { h, l } = fromBig(lst[i], le);
+    [Ah[i], Al[i]] = [h, l];
+  }
+  return [Ah, Al];
+}
+var U32_MASK64, _32n, rotlSH, rotlSL, rotlBH, rotlBL;
+var init_u64 = __esm({
+  "node_modules/@noble/hashes/esm/_u64.js"() {
+    U32_MASK64 = /* @__PURE__ */ BigInt(2 ** 32 - 1);
+    _32n = /* @__PURE__ */ BigInt(32);
+    rotlSH = (h, l, s) => h << s | l >>> 32 - s;
+    rotlSL = (h, l, s) => l << s | h >>> 32 - s;
+    rotlBH = (h, l, s) => l << s - 32 | h >>> 64 - s;
+    rotlBL = (h, l, s) => h << s - 32 | l >>> 64 - s;
+  }
+});
+
+// node_modules/@noble/hashes/esm/utils.js
+function byteSwap32(arr) {
+  for (let i = 0; i < arr.length; i++) {
+    arr[i] = byteSwap(arr[i]);
+  }
+}
+function utf8ToBytes(str) {
+  if (typeof str !== "string")
+    throw new Error(`utf8ToBytes expected string, got ${typeof str}`);
+  return new Uint8Array(new TextEncoder().encode(str));
+}
+function toBytes2(data) {
+  if (typeof data === "string")
+    data = utf8ToBytes(data);
+  bytes(data);
+  return data;
+}
+function wrapConstructor(hashCons) {
+  const hashC = (msg) => hashCons().update(toBytes2(msg)).digest();
+  const tmp = hashCons();
+  hashC.outputLen = tmp.outputLen;
+  hashC.blockLen = tmp.blockLen;
+  hashC.create = () => hashCons();
+  return hashC;
+}
+var u32, createView, rotr, isLE, byteSwap, Hash;
+var init_utils = __esm({
+  "node_modules/@noble/hashes/esm/utils.js"() {
+    init_assert();
+    u32 = (arr) => new Uint32Array(arr.buffer, arr.byteOffset, Math.floor(arr.byteLength / 4));
+    createView = (arr) => new DataView(arr.buffer, arr.byteOffset, arr.byteLength);
+    rotr = (word, shift) => word << 32 - shift | word >>> shift;
+    isLE = new Uint8Array(new Uint32Array([287454020]).buffer)[0] === 68;
+    byteSwap = (word) => word << 24 & 4278190080 | word << 8 & 16711680 | word >>> 8 & 65280 | word >>> 24 & 255;
+    Hash = class {
+      // Safe version that clones internal state
+      clone() {
+        return this._cloneInto();
+      }
+    };
+  }
+});
+
+// node_modules/@noble/hashes/esm/sha3.js
+function keccakP(s, rounds = 24) {
+  const B = new Uint32Array(5 * 2);
+  for (let round = 24 - rounds; round < 24; round++) {
+    for (let x = 0; x < 10; x++)
+      B[x] = s[x] ^ s[x + 10] ^ s[x + 20] ^ s[x + 30] ^ s[x + 40];
+    for (let x = 0; x < 10; x += 2) {
+      const idx1 = (x + 8) % 10;
+      const idx0 = (x + 2) % 10;
+      const B0 = B[idx0];
+      const B1 = B[idx0 + 1];
+      const Th = rotlH(B0, B1, 1) ^ B[idx1];
+      const Tl = rotlL(B0, B1, 1) ^ B[idx1 + 1];
+      for (let y = 0; y < 50; y += 10) {
+        s[x + y] ^= Th;
+        s[x + y + 1] ^= Tl;
+      }
+    }
+    let curH = s[2];
+    let curL = s[3];
+    for (let t = 0; t < 24; t++) {
+      const shift = SHA3_ROTL[t];
+      const Th = rotlH(curH, curL, shift);
+      const Tl = rotlL(curH, curL, shift);
+      const PI = SHA3_PI[t];
+      curH = s[PI];
+      curL = s[PI + 1];
+      s[PI] = Th;
+      s[PI + 1] = Tl;
+    }
+    for (let y = 0; y < 50; y += 10) {
+      for (let x = 0; x < 10; x++)
+        B[x] = s[y + x];
+      for (let x = 0; x < 10; x++)
+        s[y + x] ^= ~B[(x + 2) % 10] & B[(x + 4) % 10];
+    }
+    s[0] ^= SHA3_IOTA_H[round];
+    s[1] ^= SHA3_IOTA_L[round];
+  }
+  B.fill(0);
+}
+var SHA3_PI, SHA3_ROTL, _SHA3_IOTA, _0n, _1n, _2n, _7n, _256n, _0x71n, SHA3_IOTA_H, SHA3_IOTA_L, rotlH, rotlL, Keccak, gen, keccak_256;
+var init_sha3 = __esm({
+  "node_modules/@noble/hashes/esm/sha3.js"() {
+    init_assert();
+    init_u64();
+    init_utils();
+    SHA3_PI = [];
+    SHA3_ROTL = [];
+    _SHA3_IOTA = [];
+    _0n = /* @__PURE__ */ BigInt(0);
+    _1n = /* @__PURE__ */ BigInt(1);
+    _2n = /* @__PURE__ */ BigInt(2);
+    _7n = /* @__PURE__ */ BigInt(7);
+    _256n = /* @__PURE__ */ BigInt(256);
+    _0x71n = /* @__PURE__ */ BigInt(113);
+    for (let round = 0, R = _1n, x = 1, y = 0; round < 24; round++) {
+      [x, y] = [y, (2 * x + 3 * y) % 5];
+      SHA3_PI.push(2 * (5 * y + x));
+      SHA3_ROTL.push((round + 1) * (round + 2) / 2 % 64);
+      let t = _0n;
+      for (let j = 0; j < 7; j++) {
+        R = (R << _1n ^ (R >> _7n) * _0x71n) % _256n;
+        if (R & _2n)
+          t ^= _1n << (_1n << /* @__PURE__ */ BigInt(j)) - _1n;
+      }
+      _SHA3_IOTA.push(t);
+    }
+    [SHA3_IOTA_H, SHA3_IOTA_L] = /* @__PURE__ */ split(_SHA3_IOTA, true);
+    rotlH = (h, l, s) => s > 32 ? rotlBH(h, l, s) : rotlSH(h, l, s);
+    rotlL = (h, l, s) => s > 32 ? rotlBL(h, l, s) : rotlSL(h, l, s);
+    Keccak = class _Keccak extends Hash {
+      // NOTE: we accept arguments in bytes instead of bits here.
+      constructor(blockLen, suffix, outputLen, enableXOF = false, rounds = 24) {
+        super();
+        this.blockLen = blockLen;
+        this.suffix = suffix;
+        this.outputLen = outputLen;
+        this.enableXOF = enableXOF;
+        this.rounds = rounds;
+        this.pos = 0;
+        this.posOut = 0;
+        this.finished = false;
+        this.destroyed = false;
+        number(outputLen);
+        if (0 >= this.blockLen || this.blockLen >= 200)
+          throw new Error("Sha3 supports only keccak-f1600 function");
+        this.state = new Uint8Array(200);
+        this.state32 = u32(this.state);
+      }
+      keccak() {
+        if (!isLE)
+          byteSwap32(this.state32);
+        keccakP(this.state32, this.rounds);
+        if (!isLE)
+          byteSwap32(this.state32);
+        this.posOut = 0;
+        this.pos = 0;
+      }
+      update(data) {
+        exists(this);
+        const { blockLen, state } = this;
+        data = toBytes2(data);
+        const len = data.length;
+        for (let pos = 0; pos < len; ) {
+          const take = Math.min(blockLen - this.pos, len - pos);
+          for (let i = 0; i < take; i++)
+            state[this.pos++] ^= data[pos++];
+          if (this.pos === blockLen)
+            this.keccak();
+        }
+        return this;
+      }
+      finish() {
+        if (this.finished)
+          return;
+        this.finished = true;
+        const { state, suffix, pos, blockLen } = this;
+        state[pos] ^= suffix;
+        if ((suffix & 128) !== 0 && pos === blockLen - 1)
+          this.keccak();
+        state[blockLen - 1] ^= 128;
+        this.keccak();
+      }
+      writeInto(out) {
+        exists(this, false);
+        bytes(out);
+        this.finish();
+        const bufferOut = this.state;
+        const { blockLen } = this;
+        for (let pos = 0, len = out.length; pos < len; ) {
+          if (this.posOut >= blockLen)
+            this.keccak();
+          const take = Math.min(blockLen - this.posOut, len - pos);
+          out.set(bufferOut.subarray(this.posOut, this.posOut + take), pos);
+          this.posOut += take;
+          pos += take;
+        }
+        return out;
+      }
+      xofInto(out) {
+        if (!this.enableXOF)
+          throw new Error("XOF is not possible for this instance");
+        return this.writeInto(out);
+      }
+      xof(bytes2) {
+        number(bytes2);
+        return this.xofInto(new Uint8Array(bytes2));
+      }
+      digestInto(out) {
+        output(out, this);
+        if (this.finished)
+          throw new Error("digest() was already called");
+        this.writeInto(out);
+        this.destroy();
+        return out;
+      }
+      digest() {
+        return this.digestInto(new Uint8Array(this.outputLen));
+      }
+      destroy() {
+        this.destroyed = true;
+        this.state.fill(0);
+      }
+      _cloneInto(to) {
+        const { blockLen, suffix, outputLen, rounds, enableXOF } = this;
+        to || (to = new _Keccak(blockLen, suffix, outputLen, enableXOF, rounds));
+        to.state32.set(this.state32);
+        to.pos = this.pos;
+        to.posOut = this.posOut;
+        to.finished = this.finished;
+        to.rounds = rounds;
+        to.suffix = suffix;
+        to.outputLen = outputLen;
+        to.enableXOF = enableXOF;
+        to.destroyed = this.destroyed;
+        return to;
+      }
+    };
+    gen = (suffix, blockLen, outputLen) => wrapConstructor(() => new Keccak(blockLen, suffix, outputLen));
+    keccak_256 = /* @__PURE__ */ gen(1, 136, 256 / 8);
+  }
+});
+
+// node_modules/viem/_esm/utils/hash/keccak256.js
+function keccak256(value, to_) {
+  const bytes2 = keccak_256(isHex(value, { strict: false }) ? toBytes(value) : value);
+  return bytes2;
+}
+var init_keccak256 = __esm({
+  "node_modules/viem/_esm/utils/hash/keccak256.js"() {
+    init_sha3();
+    init_isHex();
+    init_toBytes();
+    init_toHex();
+  }
+});
+
+// node_modules/viem/_esm/errors/address.js
+var InvalidAddressError;
+var init_address = __esm({
+  "node_modules/viem/_esm/errors/address.js"() {
+    init_base();
+    InvalidAddressError = class extends BaseError {
+      constructor({ address }) {
+        super(`Address "${address}" is invalid.`, {
+          metaMessages: [
+            "- Address must be a hex value of 20 bytes (40 hex characters).",
+            "- Address must match its checksum counterpart."
+          ],
+          name: "InvalidAddressError"
+        });
+      }
+    };
+  }
+});
+
+// node_modules/viem/_esm/utils/lru.js
+var LruMap;
+var init_lru = __esm({
+  "node_modules/viem/_esm/utils/lru.js"() {
+    LruMap = class extends Map {
+      constructor(size2) {
+        super();
+        Object.defineProperty(this, "maxSize", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: void 0
+        });
+        this.maxSize = size2;
+      }
+      get(key) {
+        const value = super.get(key);
+        if (super.has(key) && value !== void 0) {
+          this.delete(key);
+          super.set(key, value);
+        }
+        return value;
+      }
+      set(key, value) {
+        super.set(key, value);
+        if (this.maxSize && this.size > this.maxSize) {
+          const firstKey = this.keys().next().value;
+          if (firstKey)
+            this.delete(firstKey);
+        }
+        return this;
+      }
+    };
+  }
+});
+
+// node_modules/viem/_esm/utils/address/getAddress.js
+function checksumAddress(address_, chainId) {
+  if (checksumAddressCache.has(`${address_}.${chainId}`))
+    return checksumAddressCache.get(`${address_}.${chainId}`);
+  const hexAddress = address_.substring(2).toLowerCase();
+  const hash = keccak256(stringToBytes(hexAddress));
+  const address = (hexAddress).split("");
+  for (let i = 0; i < 40; i += 2) {
+    if (hash[i >> 1] >> 4 >= 8 && address[i]) {
+      address[i] = address[i].toUpperCase();
+    }
+    if ((hash[i >> 1] & 15) >= 8 && address[i + 1]) {
+      address[i + 1] = address[i + 1].toUpperCase();
+    }
+  }
+  const result = `0x${address.join("")}`;
+  checksumAddressCache.set(`${address_}.${chainId}`, result);
+  return result;
+}
+var checksumAddressCache;
+var init_getAddress = __esm({
+  "node_modules/viem/_esm/utils/address/getAddress.js"() {
+    init_toBytes();
+    init_keccak256();
+    init_lru();
+    checksumAddressCache = /* @__PURE__ */ new LruMap(8192);
+  }
+});
+
+// node_modules/viem/_esm/utils/address/isAddress.js
+function isAddress(address, options) {
+  const { strict = true } = options ?? {};
+  const cacheKey = `${address}.${strict}`;
+  if (isAddressCache.has(cacheKey))
+    return isAddressCache.get(cacheKey);
+  const result = (() => {
+    if (!addressRegex.test(address))
+      return false;
+    if (address.toLowerCase() === address)
+      return true;
+    if (strict)
+      return checksumAddress(address) === address;
+    return true;
+  })();
+  isAddressCache.set(cacheKey, result);
+  return result;
+}
+var addressRegex, isAddressCache;
+var init_isAddress = __esm({
+  "node_modules/viem/_esm/utils/address/isAddress.js"() {
+    init_lru();
+    init_getAddress();
+    addressRegex = /^0x[a-fA-F0-9]{40}$/;
+    isAddressCache = /* @__PURE__ */ new LruMap(8192);
+  }
+});
+
+// node_modules/viem/_esm/utils/data/concat.js
+function concatHex(values) {
+  return `0x${values.reduce((acc, x) => acc + x.replace("0x", ""), "")}`;
+}
+var init_concat = __esm({
+  "node_modules/viem/_esm/utils/data/concat.js"() {
+  }
+});
+
+// node_modules/viem/_esm/utils/data/slice.js
+function slice(value, start, end, { strict } = {}) {
+  if (isHex(value, { strict: false }))
+    return sliceHex(value, start, end, {
+      strict
     });
+  return sliceBytes(value, start, end, {
+    strict
+  });
 }
-function hexToBigInt(hex, opts = {}) {
-  const { signed } = opts;
-  if (opts.size)
-    assertSize(hex, { size: opts.size });
-  const value = BigInt(hex);
-  if (!signed)
-    return value;
-  const size2 = (hex.length - 2) / 2;
-  const max = (1n << BigInt(size2) * 8n - 1n) - 1n;
-  if (value <= max)
-    return value;
-  return value - BigInt(`0x${"f".padStart(size2 * 2, "f")}`) - 1n;
+function assertEndOffset(value, start, end) {
+  if (size(value) !== end - start) {
+    throw new SliceOffsetOutOfBoundsError({
+      offset: end,
+      position: "end",
+      size: size(value)
+    });
+  }
 }
-function hexToNumber(hex, opts = {}) {
-  return Number(hexToBigInt(hex, opts));
+function sliceBytes(value_, start, end, { strict } = {}) {
+  const value = value_.slice(start, end);
+  if (strict)
+    assertEndOffset(value, start, end);
+  return value;
 }
+function sliceHex(value_, start, end, { strict } = {}) {
+  const value = `0x${value_.replace("0x", "").slice((start) * 2, (end) * 2)}`;
+  if (strict)
+    assertEndOffset(value, start, end);
+  return value;
+}
+var init_slice = __esm({
+  "node_modules/viem/_esm/utils/data/slice.js"() {
+    init_data();
+    init_isHex();
+    init_size();
+  }
+});
+
+// node_modules/viem/_esm/accounts/utils/parseAccount.js
+function parseAccount(account) {
+  if (typeof account === "string")
+    return { address: account, type: "json-rpc" };
+  return account;
+}
+var init_parseAccount = __esm({
+  "node_modules/viem/_esm/accounts/utils/parseAccount.js"() {
+  }
+});
+
+// node_modules/viem/_esm/errors/cursor.js
+var NegativeOffsetError, PositionOutOfBoundsError, RecursiveReadLimitExceededError;
+var init_cursor = __esm({
+  "node_modules/viem/_esm/errors/cursor.js"() {
+    init_base();
+    NegativeOffsetError = class extends BaseError {
+      constructor({ offset }) {
+        super(`Offset \`${offset}\` cannot be negative.`, {
+          name: "NegativeOffsetError"
+        });
+      }
+    };
+    PositionOutOfBoundsError = class extends BaseError {
+      constructor({ length, position }) {
+        super(`Position \`${position}\` is out of bounds (\`0 < position < ${length}\`).`, { name: "PositionOutOfBoundsError" });
+      }
+    };
+    RecursiveReadLimitExceededError = class extends BaseError {
+      constructor({ count, limit }) {
+        super(`Recursive read limit of \`${limit}\` exceeded (recursive read count: \`${count}\`).`, { name: "RecursiveReadLimitExceededError" });
+      }
+    };
+  }
+});
+
+// node_modules/viem/_esm/utils/cursor.js
+function createCursor(bytes2, { recursiveReadLimit = 8192 } = {}) {
+  const cursor = Object.create(staticCursor);
+  cursor.bytes = bytes2;
+  cursor.dataView = new DataView(bytes2.buffer, bytes2.byteOffset, bytes2.byteLength);
+  cursor.positionReadCount = /* @__PURE__ */ new Map();
+  cursor.recursiveReadLimit = recursiveReadLimit;
+  return cursor;
+}
+var staticCursor;
+var init_cursor2 = __esm({
+  "node_modules/viem/_esm/utils/cursor.js"() {
+    init_cursor();
+    staticCursor = {
+      bytes: new Uint8Array(),
+      dataView: new DataView(new ArrayBuffer(0)),
+      position: 0,
+      positionReadCount: /* @__PURE__ */ new Map(),
+      recursiveReadCount: 0,
+      recursiveReadLimit: Number.POSITIVE_INFINITY,
+      assertReadLimit() {
+        if (this.recursiveReadCount >= this.recursiveReadLimit)
+          throw new RecursiveReadLimitExceededError({
+            count: this.recursiveReadCount + 1,
+            limit: this.recursiveReadLimit
+          });
+      },
+      assertPosition(position) {
+        if (position < 0 || position > this.bytes.length - 1)
+          throw new PositionOutOfBoundsError({
+            length: this.bytes.length,
+            position
+          });
+      },
+      decrementPosition(offset) {
+        if (offset < 0)
+          throw new NegativeOffsetError({ offset });
+        const position = this.position - offset;
+        this.assertPosition(position);
+        this.position = position;
+      },
+      getReadCount(position) {
+        return this.positionReadCount.get(position || this.position) || 0;
+      },
+      incrementPosition(offset) {
+        if (offset < 0)
+          throw new NegativeOffsetError({ offset });
+        const position = this.position + offset;
+        this.assertPosition(position);
+        this.position = position;
+      },
+      inspectByte(position_) {
+        const position = position_ ?? this.position;
+        this.assertPosition(position);
+        return this.bytes[position];
+      },
+      inspectBytes(length, position_) {
+        const position = position_ ?? this.position;
+        this.assertPosition(position + length - 1);
+        return this.bytes.subarray(position, position + length);
+      },
+      inspectUint8(position_) {
+        const position = position_ ?? this.position;
+        this.assertPosition(position);
+        return this.bytes[position];
+      },
+      inspectUint16(position_) {
+        const position = position_ ?? this.position;
+        this.assertPosition(position + 1);
+        return this.dataView.getUint16(position);
+      },
+      inspectUint24(position_) {
+        const position = position_ ?? this.position;
+        this.assertPosition(position + 2);
+        return (this.dataView.getUint16(position) << 8) + this.dataView.getUint8(position + 2);
+      },
+      inspectUint32(position_) {
+        const position = position_ ?? this.position;
+        this.assertPosition(position + 3);
+        return this.dataView.getUint32(position);
+      },
+      pushByte(byte) {
+        this.assertPosition(this.position);
+        this.bytes[this.position] = byte;
+        this.position++;
+      },
+      pushBytes(bytes2) {
+        this.assertPosition(this.position + bytes2.length - 1);
+        this.bytes.set(bytes2, this.position);
+        this.position += bytes2.length;
+      },
+      pushUint8(value) {
+        this.assertPosition(this.position);
+        this.bytes[this.position] = value;
+        this.position++;
+      },
+      pushUint16(value) {
+        this.assertPosition(this.position + 1);
+        this.dataView.setUint16(this.position, value);
+        this.position += 2;
+      },
+      pushUint24(value) {
+        this.assertPosition(this.position + 2);
+        this.dataView.setUint16(this.position, value >> 8);
+        this.dataView.setUint8(this.position + 2, value & ~4294967040);
+        this.position += 3;
+      },
+      pushUint32(value) {
+        this.assertPosition(this.position + 3);
+        this.dataView.setUint32(this.position, value);
+        this.position += 4;
+      },
+      readByte() {
+        this.assertReadLimit();
+        this._touch();
+        const value = this.inspectByte();
+        this.position++;
+        return value;
+      },
+      readBytes(length, size2) {
+        this.assertReadLimit();
+        this._touch();
+        const value = this.inspectBytes(length);
+        this.position += size2 ?? length;
+        return value;
+      },
+      readUint8() {
+        this.assertReadLimit();
+        this._touch();
+        const value = this.inspectUint8();
+        this.position += 1;
+        return value;
+      },
+      readUint16() {
+        this.assertReadLimit();
+        this._touch();
+        const value = this.inspectUint16();
+        this.position += 2;
+        return value;
+      },
+      readUint24() {
+        this.assertReadLimit();
+        this._touch();
+        const value = this.inspectUint24();
+        this.position += 3;
+        return value;
+      },
+      readUint32() {
+        this.assertReadLimit();
+        this._touch();
+        const value = this.inspectUint32();
+        this.position += 4;
+        return value;
+      },
+      get remaining() {
+        return this.bytes.length - this.position;
+      },
+      setPosition(position) {
+        const oldPosition = this.position;
+        this.assertPosition(position);
+        this.position = position;
+        return () => this.position = oldPosition;
+      },
+      _touch() {
+        if (this.recursiveReadLimit === Number.POSITIVE_INFINITY)
+          return;
+        const count = this.getReadCount();
+        this.positionReadCount.set(this.position, count + 1);
+        if (count > 0)
+          this.recursiveReadCount++;
+      }
+    };
+  }
+});
+
+// node_modules/viem/_esm/constants/unit.js
+var etherUnits, gweiUnits;
+var init_unit = __esm({
+  "node_modules/viem/_esm/constants/unit.js"() {
+    etherUnits = {
+      gwei: 9,
+      wei: 18
+    };
+    gweiUnits = {
+      ether: -9,
+      wei: 9
+    };
+  }
+});
+
+// node_modules/viem/_esm/utils/unit/formatUnits.js
+function formatUnits(value, decimals) {
+  let display = value.toString();
+  const negative = display.startsWith("-");
+  if (negative)
+    display = display.slice(1);
+  display = display.padStart(decimals, "0");
+  let [integer, fraction] = [
+    display.slice(0, display.length - decimals),
+    display.slice(display.length - decimals)
+  ];
+  fraction = fraction.replace(/(0+)$/, "");
+  return `${negative ? "-" : ""}${integer || "0"}${fraction ? `.${fraction}` : ""}`;
+}
+var init_formatUnits = __esm({
+  "node_modules/viem/_esm/utils/unit/formatUnits.js"() {
+  }
+});
+
+// node_modules/viem/_esm/utils/unit/formatEther.js
+function formatEther(wei, unit = "wei") {
+  return formatUnits(wei, etherUnits[unit]);
+}
+var init_formatEther = __esm({
+  "node_modules/viem/_esm/utils/unit/formatEther.js"() {
+    init_unit();
+    init_formatUnits();
+  }
+});
+
+// node_modules/viem/_esm/utils/unit/formatGwei.js
+function formatGwei(wei, unit = "wei") {
+  return formatUnits(wei, gweiUnits[unit]);
+}
+var init_formatGwei = __esm({
+  "node_modules/viem/_esm/utils/unit/formatGwei.js"() {
+    init_unit();
+    init_formatUnits();
+  }
+});
+
+// node_modules/viem/_esm/errors/stateOverride.js
+function prettyStateMapping(stateMapping) {
+  return stateMapping.reduce((pretty, { slot, value }) => {
+    return `${pretty}        ${slot}: ${value}
+`;
+  }, "");
+}
+function prettyStateOverride(stateOverride) {
+  return stateOverride.reduce((pretty, { address, ...state }) => {
+    let val = `${pretty}    ${address}:
+`;
+    if (state.nonce)
+      val += `      nonce: ${state.nonce}
+`;
+    if (state.balance)
+      val += `      balance: ${state.balance}
+`;
+    if (state.code)
+      val += `      code: ${state.code}
+`;
+    if (state.state) {
+      val += "      state:\n";
+      val += prettyStateMapping(state.state);
+    }
+    if (state.stateDiff) {
+      val += "      stateDiff:\n";
+      val += prettyStateMapping(state.stateDiff);
+    }
+    return val;
+  }, "  State Override:\n").slice(0, -1);
+}
+var init_stateOverride = __esm({
+  "node_modules/viem/_esm/errors/stateOverride.js"() {
+  }
+});
+
+// node_modules/viem/_esm/errors/transaction.js
+function prettyPrint(args) {
+  const entries = Object.entries(args).map(([key, value]) => {
+    if (value === void 0 || value === false)
+      return null;
+    return [key, value];
+  }).filter(Boolean);
+  const maxLength = entries.reduce((acc, [key]) => Math.max(acc, key.length), 0);
+  return entries.map(([key, value]) => `  ${`${key}:`.padEnd(maxLength + 1)}  ${value}`).join("\n");
+}
+var FeeConflictError, InvalidLegacyVError, InvalidSerializableTransactionError, InvalidStorageKeySizeError;
+var init_transaction = __esm({
+  "node_modules/viem/_esm/errors/transaction.js"() {
+    init_base();
+    FeeConflictError = class extends BaseError {
+      constructor() {
+        super([
+          "Cannot specify both a `gasPrice` and a `maxFeePerGas`/`maxPriorityFeePerGas`.",
+          "Use `maxFeePerGas`/`maxPriorityFeePerGas` for EIP-1559 compatible networks, and `gasPrice` for others."
+        ].join("\n"), { name: "FeeConflictError" });
+      }
+    };
+    InvalidLegacyVError = class extends BaseError {
+      constructor({ v }) {
+        super(`Invalid \`v\` value "${v}". Expected 27 or 28.`, {
+          name: "InvalidLegacyVError"
+        });
+      }
+    };
+    InvalidSerializableTransactionError = class extends BaseError {
+      constructor({ transaction }) {
+        super("Cannot infer a transaction type from provided transaction.", {
+          metaMessages: [
+            "Provided Transaction:",
+            "{",
+            prettyPrint(transaction),
+            "}",
+            "",
+            "To infer the type, either provide:",
+            "- a `type` to the Transaction, or",
+            "- an EIP-1559 Transaction with `maxFeePerGas`, or",
+            "- an EIP-2930 Transaction with `gasPrice` & `accessList`, or",
+            "- an EIP-4844 Transaction with `blobs`, `blobVersionedHashes`, `sidecars`, or",
+            "- an EIP-7702 Transaction with `authorizationList`, or",
+            "- a Legacy Transaction with `gasPrice`"
+          ],
+          name: "InvalidSerializableTransactionError"
+        });
+      }
+    };
+    InvalidStorageKeySizeError = class extends BaseError {
+      constructor({ storageKey }) {
+        super(`Size for storage key "${storageKey}" is invalid. Expected 32 bytes. Got ${Math.floor((storageKey.length - 2) / 2)} bytes.`, { name: "InvalidStorageKeySizeError" });
+      }
+    };
+  }
+});
+
+// node_modules/viem/_esm/errors/contract.js
+var CallExecutionError;
+var init_contract = __esm({
+  "node_modules/viem/_esm/errors/contract.js"() {
+    init_parseAccount();
+    init_formatEther();
+    init_formatGwei();
+    init_base();
+    init_stateOverride();
+    init_transaction();
+    CallExecutionError = class extends BaseError {
+      constructor(cause, { account: account_, docsPath, chain, data, gas, gasPrice, maxFeePerGas, maxPriorityFeePerGas, nonce, to, value, stateOverride }) {
+        const account = account_ ? parseAccount(account_) : void 0;
+        let prettyArgs = prettyPrint({
+          from: account?.address,
+          to,
+          value: typeof value !== "undefined" && `${formatEther(value)} ${chain?.nativeCurrency?.symbol || "ETH"}`,
+          data,
+          gas,
+          gasPrice: typeof gasPrice !== "undefined" && `${formatGwei(gasPrice)} gwei`,
+          maxFeePerGas: typeof maxFeePerGas !== "undefined" && `${formatGwei(maxFeePerGas)} gwei`,
+          maxPriorityFeePerGas: typeof maxPriorityFeePerGas !== "undefined" && `${formatGwei(maxPriorityFeePerGas)} gwei`,
+          nonce
+        });
+        if (stateOverride) {
+          prettyArgs += `
+${prettyStateOverride(stateOverride)}`;
+        }
+        super(cause.shortMessage, {
+          cause,
+          docsPath,
+          metaMessages: [
+            ...cause.metaMessages ? [...cause.metaMessages, " "] : [],
+            "Raw Call Arguments:",
+            prettyArgs
+          ].filter(Boolean),
+          name: "CallExecutionError"
+        });
+        Object.defineProperty(this, "cause", {
+          enumerable: true,
+          configurable: true,
+          writable: true,
+          value: void 0
+        });
+        this.cause = cause;
+      }
+    };
+  }
+});
+
+// node_modules/viem/_esm/errors/node.js
+var ExecutionRevertedError, FeeCapTooHighError, FeeCapTooLowError, NonceTooHighError, NonceTooLowError, NonceMaxValueError, InsufficientFundsError, IntrinsicGasTooHighError, IntrinsicGasTooLowError, TransactionTypeNotSupportedError, TipAboveFeeCapError, UnknownNodeError;
+var init_node = __esm({
+  "node_modules/viem/_esm/errors/node.js"() {
+    init_formatGwei();
+    init_base();
+    ExecutionRevertedError = class extends BaseError {
+      constructor({ cause, message } = {}) {
+        const reason = message?.replace("execution reverted: ", "")?.replace("execution reverted", "");
+        super(`Execution reverted ${reason ? `with reason: ${reason}` : "for an unknown reason"}.`, {
+          cause,
+          name: "ExecutionRevertedError"
+        });
+      }
+    };
+    Object.defineProperty(ExecutionRevertedError, "code", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: 3
+    });
+    Object.defineProperty(ExecutionRevertedError, "nodeMessage", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: /execution reverted/
+    });
+    FeeCapTooHighError = class extends BaseError {
+      constructor({ cause, maxFeePerGas } = {}) {
+        super(`The fee cap (\`maxFeePerGas\`${maxFeePerGas ? ` = ${formatGwei(maxFeePerGas)} gwei` : ""}) cannot be higher than the maximum allowed value (2^256-1).`, {
+          cause,
+          name: "FeeCapTooHighError"
+        });
+      }
+    };
+    Object.defineProperty(FeeCapTooHighError, "nodeMessage", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: /max fee per gas higher than 2\^256-1|fee cap higher than 2\^256-1/
+    });
+    FeeCapTooLowError = class extends BaseError {
+      constructor({ cause, maxFeePerGas } = {}) {
+        super(`The fee cap (\`maxFeePerGas\`${maxFeePerGas ? ` = ${formatGwei(maxFeePerGas)}` : ""} gwei) cannot be lower than the block base fee.`, {
+          cause,
+          name: "FeeCapTooLowError"
+        });
+      }
+    };
+    Object.defineProperty(FeeCapTooLowError, "nodeMessage", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: /max fee per gas less than block base fee|fee cap less than block base fee|transaction is outdated/
+    });
+    NonceTooHighError = class extends BaseError {
+      constructor({ cause, nonce } = {}) {
+        super(`Nonce provided for the transaction ${nonce ? `(${nonce}) ` : ""}is higher than the next one expected.`, { cause, name: "NonceTooHighError" });
+      }
+    };
+    Object.defineProperty(NonceTooHighError, "nodeMessage", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: /nonce too high/
+    });
+    NonceTooLowError = class extends BaseError {
+      constructor({ cause, nonce } = {}) {
+        super([
+          `Nonce provided for the transaction ${nonce ? `(${nonce}) ` : ""}is lower than the current nonce of the account.`,
+          "Try increasing the nonce or find the latest nonce with `getTransactionCount`."
+        ].join("\n"), { cause, name: "NonceTooLowError" });
+      }
+    };
+    Object.defineProperty(NonceTooLowError, "nodeMessage", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: /nonce too low|transaction already imported|already known/
+    });
+    NonceMaxValueError = class extends BaseError {
+      constructor({ cause, nonce } = {}) {
+        super(`Nonce provided for the transaction ${nonce ? `(${nonce}) ` : ""}exceeds the maximum allowed nonce.`, { cause, name: "NonceMaxValueError" });
+      }
+    };
+    Object.defineProperty(NonceMaxValueError, "nodeMessage", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: /nonce has max value/
+    });
+    InsufficientFundsError = class extends BaseError {
+      constructor({ cause } = {}) {
+        super([
+          "The total cost (gas * gas fee + value) of executing this transaction exceeds the balance of the account."
+        ].join("\n"), {
+          cause,
+          metaMessages: [
+            "This error could arise when the account does not have enough funds to:",
+            " - pay for the total gas fee,",
+            " - pay for the value to send.",
+            " ",
+            "The cost of the transaction is calculated as `gas * gas fee + value`, where:",
+            " - `gas` is the amount of gas needed for transaction to execute,",
+            " - `gas fee` is the gas fee,",
+            " - `value` is the amount of ether to send to the recipient."
+          ],
+          name: "InsufficientFundsError"
+        });
+      }
+    };
+    Object.defineProperty(InsufficientFundsError, "nodeMessage", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: /insufficient funds|exceeds transaction sender account balance/
+    });
+    IntrinsicGasTooHighError = class extends BaseError {
+      constructor({ cause, gas } = {}) {
+        super(`The amount of gas ${gas ? `(${gas}) ` : ""}provided for the transaction exceeds the limit allowed for the block.`, {
+          cause,
+          name: "IntrinsicGasTooHighError"
+        });
+      }
+    };
+    Object.defineProperty(IntrinsicGasTooHighError, "nodeMessage", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: /intrinsic gas too high|gas limit reached/
+    });
+    IntrinsicGasTooLowError = class extends BaseError {
+      constructor({ cause, gas } = {}) {
+        super(`The amount of gas ${gas ? `(${gas}) ` : ""}provided for the transaction is too low.`, {
+          cause,
+          name: "IntrinsicGasTooLowError"
+        });
+      }
+    };
+    Object.defineProperty(IntrinsicGasTooLowError, "nodeMessage", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: /intrinsic gas too low/
+    });
+    TransactionTypeNotSupportedError = class extends BaseError {
+      constructor({ cause }) {
+        super("The transaction type is not supported for this chain.", {
+          cause,
+          name: "TransactionTypeNotSupportedError"
+        });
+      }
+    };
+    Object.defineProperty(TransactionTypeNotSupportedError, "nodeMessage", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: /transaction type not valid/
+    });
+    TipAboveFeeCapError = class extends BaseError {
+      constructor({ cause, maxPriorityFeePerGas, maxFeePerGas } = {}) {
+        super([
+          `The provided tip (\`maxPriorityFeePerGas\`${maxPriorityFeePerGas ? ` = ${formatGwei(maxPriorityFeePerGas)} gwei` : ""}) cannot be higher than the fee cap (\`maxFeePerGas\`${maxFeePerGas ? ` = ${formatGwei(maxFeePerGas)} gwei` : ""}).`
+        ].join("\n"), {
+          cause,
+          name: "TipAboveFeeCapError"
+        });
+      }
+    };
+    Object.defineProperty(TipAboveFeeCapError, "nodeMessage", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: /max priority fee per gas higher than max fee per gas|tip higher than fee cap/
+    });
+    UnknownNodeError = class extends BaseError {
+      constructor({ cause }) {
+        super(`An error occurred while executing: ${cause?.shortMessage}`, {
+          cause,
+          name: "UnknownNodeError"
+        });
+      }
+    };
+  }
+});
+
+// node_modules/viem/_esm/utils/errors/getNodeError.js
+function getNodeError(err, args) {
+  const message = (err.details || "").toLowerCase();
+  const executionRevertedError = err instanceof BaseError ? err.walk((e) => e?.code === ExecutionRevertedError.code) : err;
+  if (executionRevertedError instanceof BaseError)
+    return new ExecutionRevertedError({
+      cause: err,
+      message: executionRevertedError.details
+    });
+  if (ExecutionRevertedError.nodeMessage.test(message))
+    return new ExecutionRevertedError({
+      cause: err,
+      message: err.details
+    });
+  if (FeeCapTooHighError.nodeMessage.test(message))
+    return new FeeCapTooHighError({
+      cause: err,
+      maxFeePerGas: args?.maxFeePerGas
+    });
+  if (FeeCapTooLowError.nodeMessage.test(message))
+    return new FeeCapTooLowError({
+      cause: err,
+      maxFeePerGas: args?.maxFeePerGas
+    });
+  if (NonceTooHighError.nodeMessage.test(message))
+    return new NonceTooHighError({ cause: err, nonce: args?.nonce });
+  if (NonceTooLowError.nodeMessage.test(message))
+    return new NonceTooLowError({ cause: err, nonce: args?.nonce });
+  if (NonceMaxValueError.nodeMessage.test(message))
+    return new NonceMaxValueError({ cause: err, nonce: args?.nonce });
+  if (InsufficientFundsError.nodeMessage.test(message))
+    return new InsufficientFundsError({ cause: err });
+  if (IntrinsicGasTooHighError.nodeMessage.test(message))
+    return new IntrinsicGasTooHighError({ cause: err, gas: args?.gas });
+  if (IntrinsicGasTooLowError.nodeMessage.test(message))
+    return new IntrinsicGasTooLowError({ cause: err, gas: args?.gas });
+  if (TransactionTypeNotSupportedError.nodeMessage.test(message))
+    return new TransactionTypeNotSupportedError({ cause: err });
+  if (TipAboveFeeCapError.nodeMessage.test(message))
+    return new TipAboveFeeCapError({
+      cause: err,
+      maxFeePerGas: args?.maxFeePerGas,
+      maxPriorityFeePerGas: args?.maxPriorityFeePerGas
+    });
+  return new UnknownNodeError({
+    cause: err
+  });
+}
+var init_getNodeError = __esm({
+  "node_modules/viem/_esm/utils/errors/getNodeError.js"() {
+    init_base();
+    init_node();
+  }
+});
+
+// node_modules/viem/_esm/utils/formatters/extract.js
+function extract(value_, { format }) {
+  if (!format)
+    return {};
+  const value = {};
+  function extract_(formatted2) {
+    const keys = Object.keys(formatted2);
+    for (const key of keys) {
+      if (key in value_)
+        value[key] = value_[key];
+      if (formatted2[key] && typeof formatted2[key] === "object" && !Array.isArray(formatted2[key]))
+        extract_(formatted2[key]);
+    }
+  }
+  const formatted = format(value_ || {});
+  extract_(formatted);
+  return value;
+}
+var init_extract = __esm({
+  "node_modules/viem/_esm/utils/formatters/extract.js"() {
+  }
+});
 
 // node_modules/viem/_esm/utils/formatters/formatter.js
 function defineFormatter(type, format) {
@@ -20164,157 +21288,16 @@ function defineFormatter(type, format) {
     };
   };
 }
-
-// node_modules/viem/_esm/utils/formatters/transaction.js
-var transactionType = {
-  "0x0": "legacy",
-  "0x1": "eip2930",
-  "0x2": "eip1559",
-  "0x3": "eip4844",
-  "0x4": "eip7702"
-};
-function formatTransaction(transaction) {
-  const transaction_ = {
-    ...transaction,
-    blockHash: transaction.blockHash ? transaction.blockHash : null,
-    blockNumber: transaction.blockNumber ? BigInt(transaction.blockNumber) : null,
-    chainId: transaction.chainId ? hexToNumber(transaction.chainId) : void 0,
-    gas: transaction.gas ? BigInt(transaction.gas) : void 0,
-    gasPrice: transaction.gasPrice ? BigInt(transaction.gasPrice) : void 0,
-    maxFeePerBlobGas: transaction.maxFeePerBlobGas ? BigInt(transaction.maxFeePerBlobGas) : void 0,
-    maxFeePerGas: transaction.maxFeePerGas ? BigInt(transaction.maxFeePerGas) : void 0,
-    maxPriorityFeePerGas: transaction.maxPriorityFeePerGas ? BigInt(transaction.maxPriorityFeePerGas) : void 0,
-    nonce: transaction.nonce ? hexToNumber(transaction.nonce) : void 0,
-    to: transaction.to ? transaction.to : null,
-    transactionIndex: transaction.transactionIndex ? Number(transaction.transactionIndex) : null,
-    type: transaction.type ? transactionType[transaction.type] : void 0,
-    typeHex: transaction.type ? transaction.type : void 0,
-    value: transaction.value ? BigInt(transaction.value) : void 0,
-    v: transaction.v ? BigInt(transaction.v) : void 0
-  };
-  if (transaction.authorizationList)
-    transaction_.authorizationList = formatAuthorizationList(transaction.authorizationList);
-  transaction_.yParity = (() => {
-    if (transaction.yParity)
-      return Number(transaction.yParity);
-    if (typeof transaction_.v === "bigint") {
-      if (transaction_.v === 0n || transaction_.v === 27n)
-        return 0;
-      if (transaction_.v === 1n || transaction_.v === 28n)
-        return 1;
-      if (transaction_.v >= 35n)
-        return transaction_.v % 2n === 0n ? 1 : 0;
-    }
-    return void 0;
-  })();
-  if (transaction_.type === "legacy") {
-    delete transaction_.accessList;
-    delete transaction_.maxFeePerBlobGas;
-    delete transaction_.maxFeePerGas;
-    delete transaction_.maxPriorityFeePerGas;
-    delete transaction_.yParity;
+var init_formatter = __esm({
+  "node_modules/viem/_esm/utils/formatters/formatter.js"() {
   }
-  if (transaction_.type === "eip2930") {
-    delete transaction_.maxFeePerBlobGas;
-    delete transaction_.maxFeePerGas;
-    delete transaction_.maxPriorityFeePerGas;
-  }
-  if (transaction_.type === "eip1559") {
-    delete transaction_.maxFeePerBlobGas;
-  }
-  return transaction_;
-}
-var defineTransaction = /* @__PURE__ */ defineFormatter("transaction", formatTransaction);
-function formatAuthorizationList(authorizationList) {
-  return authorizationList.map((authorization) => ({
-    contractAddress: authorization.address,
-    chainId: Number(authorization.chainId),
-    nonce: Number(authorization.nonce),
-    r: authorization.r,
-    s: authorization.s,
-    yParity: Number(authorization.yParity)
-  }));
-}
-
-// node_modules/viem/_esm/utils/formatters/block.js
-function formatBlock(block) {
-  const transactions = (block.transactions ?? []).map((transaction) => {
-    if (typeof transaction === "string")
-      return transaction;
-    return formatTransaction(transaction);
-  });
-  return {
-    ...block,
-    baseFeePerGas: block.baseFeePerGas ? BigInt(block.baseFeePerGas) : null,
-    blobGasUsed: block.blobGasUsed ? BigInt(block.blobGasUsed) : void 0,
-    difficulty: block.difficulty ? BigInt(block.difficulty) : void 0,
-    excessBlobGas: block.excessBlobGas ? BigInt(block.excessBlobGas) : void 0,
-    gasLimit: block.gasLimit ? BigInt(block.gasLimit) : void 0,
-    gasUsed: block.gasUsed ? BigInt(block.gasUsed) : void 0,
-    hash: block.hash ? block.hash : null,
-    logsBloom: block.logsBloom ? block.logsBloom : null,
-    nonce: block.nonce ? block.nonce : null,
-    number: block.number ? BigInt(block.number) : null,
-    size: block.size ? BigInt(block.size) : void 0,
-    timestamp: block.timestamp ? BigInt(block.timestamp) : void 0,
-    transactions,
-    totalDifficulty: block.totalDifficulty ? BigInt(block.totalDifficulty) : null
-  };
-}
-var defineBlock = /* @__PURE__ */ defineFormatter("block", formatBlock);
-
-// node_modules/viem/_esm/utils/formatters/log.js
-function formatLog(log, { args, eventName } = {}) {
-  return {
-    ...log,
-    blockHash: log.blockHash ? log.blockHash : null,
-    blockNumber: log.blockNumber ? BigInt(log.blockNumber) : null,
-    logIndex: log.logIndex ? Number(log.logIndex) : null,
-    transactionHash: log.transactionHash ? log.transactionHash : null,
-    transactionIndex: log.transactionIndex ? Number(log.transactionIndex) : null,
-    ...eventName ? { args, eventName } : {}
-  };
-}
-
-// node_modules/viem/_esm/utils/formatters/transactionReceipt.js
-var receiptStatuses = {
-  "0x0": "reverted",
-  "0x1": "success"
-};
-function formatTransactionReceipt(transactionReceipt) {
-  const receipt = {
-    ...transactionReceipt,
-    blockNumber: transactionReceipt.blockNumber ? BigInt(transactionReceipt.blockNumber) : null,
-    contractAddress: transactionReceipt.contractAddress ? transactionReceipt.contractAddress : null,
-    cumulativeGasUsed: transactionReceipt.cumulativeGasUsed ? BigInt(transactionReceipt.cumulativeGasUsed) : null,
-    effectiveGasPrice: transactionReceipt.effectiveGasPrice ? BigInt(transactionReceipt.effectiveGasPrice) : null,
-    gasUsed: transactionReceipt.gasUsed ? BigInt(transactionReceipt.gasUsed) : null,
-    logs: transactionReceipt.logs ? transactionReceipt.logs.map((log) => formatLog(log)) : null,
-    to: transactionReceipt.to ? transactionReceipt.to : null,
-    transactionIndex: transactionReceipt.transactionIndex ? hexToNumber(transactionReceipt.transactionIndex) : null,
-    status: transactionReceipt.status ? receiptStatuses[transactionReceipt.status] : null,
-    type: transactionReceipt.type ? transactionType[transactionReceipt.type] || transactionReceipt.type : null
-  };
-  if (transactionReceipt.blobGasPrice)
-    receipt.blobGasPrice = BigInt(transactionReceipt.blobGasPrice);
-  if (transactionReceipt.blobGasUsed)
-    receipt.blobGasUsed = BigInt(transactionReceipt.blobGasUsed);
-  return receipt;
-}
-var defineTransactionReceipt = /* @__PURE__ */ defineFormatter("transactionReceipt", formatTransactionReceipt);
+});
 
 // node_modules/viem/_esm/utils/formatters/transactionRequest.js
-var rpcTransactionType = {
-  legacy: "0x0",
-  eip2930: "0x1",
-  eip1559: "0x2",
-  eip4844: "0x3",
-  eip7702: "0x4"
-};
 function formatTransactionRequest(request) {
   const rpcRequest = {};
   if (typeof request.authorizationList !== "undefined")
-    rpcRequest.authorizationList = formatAuthorizationList2(request.authorizationList);
+    rpcRequest.authorizationList = formatAuthorizationList(request.authorizationList);
   if (typeof request.accessList !== "undefined")
     rpcRequest.accessList = request.accessList;
   if (typeof request.blobVersionedHashes !== "undefined")
@@ -20349,8 +21332,7 @@ function formatTransactionRequest(request) {
     rpcRequest.value = numberToHex(request.value);
   return rpcRequest;
 }
-var defineTransactionRequest = /* @__PURE__ */ defineFormatter("transactionRequest", formatTransactionRequest);
-function formatAuthorizationList2(authorizationList) {
+function formatAuthorizationList(authorizationList) {
   return authorizationList.map((authorization) => ({
     address: authorization.contractAddress,
     r: authorization.r,
@@ -20361,306 +21343,365 @@ function formatAuthorizationList2(authorizationList) {
     ...typeof authorization.v !== "undefined" && typeof authorization.yParity === "undefined" ? { v: numberToHex(authorization.v) } : {}
   }));
 }
-var maxUint16 = 2n ** 16n - 1n;
-var maxUint256 = 2n ** 256n - 1n;
+var rpcTransactionType, defineTransactionRequest;
+var init_transactionRequest = __esm({
+  "node_modules/viem/_esm/utils/formatters/transactionRequest.js"() {
+    init_toHex();
+    init_formatter();
+    rpcTransactionType = {
+      legacy: "0x0",
+      eip2930: "0x1",
+      eip1559: "0x2",
+      eip4844: "0x3",
+      eip7702: "0x4"
+    };
+    defineTransactionRequest = /* @__PURE__ */ defineFormatter("transactionRequest", formatTransactionRequest);
+  }
+});
 
-// node_modules/viem/_esm/zksync/constants/number.js
-var gasPerPubdataDefault = 50000n;
-var maxBytecodeSize = maxUint16 * 32n;
+// node_modules/viem/_esm/constants/number.js
+var maxUint16, maxUint256;
+var init_number = __esm({
+  "node_modules/viem/_esm/constants/number.js"() {
+    maxUint16 = 2n ** 16n - 1n;
+    maxUint256 = 2n ** 256n - 1n;
+  }
+});
 
-// node_modules/viem/_esm/zksync/formatters.js
-var formatters = {
-  block: /* @__PURE__ */ defineBlock({
-    format(args) {
-      const transactions = args.transactions?.map((transaction) => {
-        if (typeof transaction === "string")
-          return transaction;
-        const formatted = formatters.transaction?.format(transaction);
-        if (formatted.typeHex === "0x71")
-          formatted.type = "eip712";
-        else if (formatted.typeHex === "0xff")
-          formatted.type = "priority";
-        return formatted;
-      });
-      return {
-        l1BatchNumber: args.l1BatchNumber ? hexToBigInt(args.l1BatchNumber) : null,
-        l1BatchTimestamp: args.l1BatchTimestamp ? hexToBigInt(args.l1BatchTimestamp) : null,
-        transactions
-      };
-    }
-  }),
-  transaction: /* @__PURE__ */ defineTransaction({
-    format(args) {
-      const transaction = {};
-      if (args.type === "0x71")
-        transaction.type = "eip712";
-      else if (args.type === "0xff")
-        transaction.type = "priority";
-      return {
-        ...transaction,
-        l1BatchNumber: args.l1BatchNumber ? hexToBigInt(args.l1BatchNumber) : null,
-        l1BatchTxIndex: args.l1BatchTxIndex ? hexToBigInt(args.l1BatchTxIndex) : null
-      };
-    }
-  }),
-  transactionReceipt: /* @__PURE__ */ defineTransactionReceipt({
-    format(args) {
-      return {
-        l1BatchNumber: args.l1BatchNumber ? hexToBigInt(args.l1BatchNumber) : null,
-        l1BatchTxIndex: args.l1BatchTxIndex ? hexToBigInt(args.l1BatchTxIndex) : null,
-        logs: args.logs.map((log) => {
-          return {
-            ...formatLog(log),
-            l1BatchNumber: log.l1BatchNumber ? hexToBigInt(log.l1BatchNumber) : null,
-            transactionLogIndex: hexToNumber(log.transactionLogIndex),
-            logType: log.logType
-          };
-        }),
-        l2ToL1Logs: args.l2ToL1Logs.map((l2ToL1Log) => {
-          return {
-            blockNumber: hexToBigInt(l2ToL1Log.blockHash),
-            blockHash: l2ToL1Log.blockHash,
-            l1BatchNumber: hexToBigInt(l2ToL1Log.l1BatchNumber),
-            transactionIndex: hexToBigInt(l2ToL1Log.transactionIndex),
-            shardId: hexToBigInt(l2ToL1Log.shardId),
-            isService: l2ToL1Log.isService,
-            sender: l2ToL1Log.sender,
-            key: l2ToL1Log.key,
-            value: l2ToL1Log.value,
-            transactionHash: l2ToL1Log.transactionHash,
-            logIndex: hexToBigInt(l2ToL1Log.logIndex)
-          };
-        })
-      };
-    }
-  }),
-  transactionRequest: /* @__PURE__ */ defineTransactionRequest({
-    exclude: [
-      "customSignature",
-      "factoryDeps",
-      "gasPerPubdata",
-      "paymaster",
-      "paymasterInput"
-    ],
-    format(args) {
-      if (args.gasPerPubdata || args.paymaster && args.paymasterInput || args.factoryDeps || args.customSignature)
-        return {
-          eip712Meta: {
-            ...args.gasPerPubdata ? { gasPerPubdata: toHex(args.gasPerPubdata) } : { gasPerPubdata: toHex(gasPerPubdataDefault) },
-            ...args.paymaster && args.paymasterInput ? {
-              paymasterParams: {
-                paymaster: args.paymaster,
-                paymasterInput: Array.from(hexToBytes(args.paymasterInput))
-              }
-            } : {},
-            ...args.factoryDeps ? {
-              factoryDeps: args.factoryDeps.map((dep) => Array.from(hexToBytes(dep)))
-            } : {},
-            ...args.customSignature ? {
-              customSignature: Array.from(hexToBytes(args.customSignature))
-            } : {}
-          },
-          type: "0x71"
-        };
-      return {};
-    }
-  })
-};
-
-// node_modules/viem/_esm/utils/data/concat.js
-function concatHex(values) {
-  return `0x${values.reduce((acc, x) => acc + x.replace("0x", ""), "")}`;
+// node_modules/viem/_esm/utils/transaction/assertRequest.js
+function assertRequest(args) {
+  const { account: account_, gasPrice, maxFeePerGas, maxPriorityFeePerGas, to } = args;
+  const account = account_ ? parseAccount(account_) : void 0;
+  if (account && !isAddress(account.address))
+    throw new InvalidAddressError({ address: account.address });
+  if (to && !isAddress(to))
+    throw new InvalidAddressError({ address: to });
+  if (typeof gasPrice !== "undefined" && (typeof maxFeePerGas !== "undefined" || typeof maxPriorityFeePerGas !== "undefined"))
+    throw new FeeConflictError();
+  if (maxFeePerGas && maxFeePerGas > maxUint256)
+    throw new FeeCapTooHighError({ maxFeePerGas });
+  if (maxPriorityFeePerGas && maxFeePerGas && maxPriorityFeePerGas > maxFeePerGas)
+    throw new TipAboveFeeCapError({ maxFeePerGas, maxPriorityFeePerGas });
 }
+var init_assertRequest = __esm({
+  "node_modules/viem/_esm/utils/transaction/assertRequest.js"() {
+    init_parseAccount();
+    init_number();
+    init_address();
+    init_node();
+    init_transaction();
+    init_isAddress();
+  }
+});
 
-// node_modules/viem/_esm/errors/cursor.js
-var NegativeOffsetError = class extends BaseError {
-  constructor({ offset }) {
-    super(`Offset \`${offset}\` cannot be negative.`, {
-      name: "NegativeOffsetError"
-    });
-  }
-};
-var PositionOutOfBoundsError = class extends BaseError {
-  constructor({ length, position }) {
-    super(`Position \`${position}\` is out of bounds (\`0 < position < ${length}\`).`, { name: "PositionOutOfBoundsError" });
-  }
-};
-var RecursiveReadLimitExceededError = class extends BaseError {
-  constructor({ count, limit }) {
-    super(`Recursive read limit of \`${limit}\` exceeded (recursive read count: \`${count}\`).`, { name: "RecursiveReadLimitExceededError" });
-  }
-};
-
-// node_modules/viem/_esm/utils/cursor.js
-var staticCursor = {
-  bytes: new Uint8Array(),
-  dataView: new DataView(new ArrayBuffer(0)),
-  position: 0,
-  positionReadCount: /* @__PURE__ */ new Map(),
-  recursiveReadCount: 0,
-  recursiveReadLimit: Number.POSITIVE_INFINITY,
-  assertReadLimit() {
-    if (this.recursiveReadCount >= this.recursiveReadLimit)
-      throw new RecursiveReadLimitExceededError({
-        count: this.recursiveReadCount + 1,
-        limit: this.recursiveReadLimit
-      });
-  },
-  assertPosition(position) {
-    if (position < 0 || position > this.bytes.length - 1)
-      throw new PositionOutOfBoundsError({
-        length: this.bytes.length,
-        position
-      });
-  },
-  decrementPosition(offset) {
-    if (offset < 0)
-      throw new NegativeOffsetError({ offset });
-    const position = this.position - offset;
-    this.assertPosition(position);
-    this.position = position;
-  },
-  getReadCount(position) {
-    return this.positionReadCount.get(position || this.position) || 0;
-  },
-  incrementPosition(offset) {
-    if (offset < 0)
-      throw new NegativeOffsetError({ offset });
-    const position = this.position + offset;
-    this.assertPosition(position);
-    this.position = position;
-  },
-  inspectByte(position_) {
-    const position = position_ ?? this.position;
-    this.assertPosition(position);
-    return this.bytes[position];
-  },
-  inspectBytes(length, position_) {
-    const position = position_ ?? this.position;
-    this.assertPosition(position + length - 1);
-    return this.bytes.subarray(position, position + length);
-  },
-  inspectUint8(position_) {
-    const position = position_ ?? this.position;
-    this.assertPosition(position);
-    return this.bytes[position];
-  },
-  inspectUint16(position_) {
-    const position = position_ ?? this.position;
-    this.assertPosition(position + 1);
-    return this.dataView.getUint16(position);
-  },
-  inspectUint24(position_) {
-    const position = position_ ?? this.position;
-    this.assertPosition(position + 2);
-    return (this.dataView.getUint16(position) << 8) + this.dataView.getUint8(position + 2);
-  },
-  inspectUint32(position_) {
-    const position = position_ ?? this.position;
-    this.assertPosition(position + 3);
-    return this.dataView.getUint32(position);
-  },
-  pushByte(byte) {
-    this.assertPosition(this.position);
-    this.bytes[this.position] = byte;
-    this.position++;
-  },
-  pushBytes(bytes2) {
-    this.assertPosition(this.position + bytes2.length - 1);
-    this.bytes.set(bytes2, this.position);
-    this.position += bytes2.length;
-  },
-  pushUint8(value) {
-    this.assertPosition(this.position);
-    this.bytes[this.position] = value;
-    this.position++;
-  },
-  pushUint16(value) {
-    this.assertPosition(this.position + 1);
-    this.dataView.setUint16(this.position, value);
-    this.position += 2;
-  },
-  pushUint24(value) {
-    this.assertPosition(this.position + 2);
-    this.dataView.setUint16(this.position, value >> 8);
-    this.dataView.setUint8(this.position + 2, value & ~4294967040);
-    this.position += 3;
-  },
-  pushUint32(value) {
-    this.assertPosition(this.position + 3);
-    this.dataView.setUint32(this.position, value);
-    this.position += 4;
-  },
-  readByte() {
-    this.assertReadLimit();
-    this._touch();
-    const value = this.inspectByte();
-    this.position++;
-    return value;
-  },
-  readBytes(length, size2) {
-    this.assertReadLimit();
-    this._touch();
-    const value = this.inspectBytes(length);
-    this.position += size2 ?? length;
-    return value;
-  },
-  readUint8() {
-    this.assertReadLimit();
-    this._touch();
-    const value = this.inspectUint8();
-    this.position += 1;
-    return value;
-  },
-  readUint16() {
-    this.assertReadLimit();
-    this._touch();
-    const value = this.inspectUint16();
-    this.position += 2;
-    return value;
-  },
-  readUint24() {
-    this.assertReadLimit();
-    this._touch();
-    const value = this.inspectUint24();
-    this.position += 3;
-    return value;
-  },
-  readUint32() {
-    this.assertReadLimit();
-    this._touch();
-    const value = this.inspectUint32();
-    this.position += 4;
-    return value;
-  },
-  get remaining() {
-    return this.bytes.length - this.position;
-  },
-  setPosition(position) {
-    const oldPosition = this.position;
-    this.assertPosition(position);
-    this.position = position;
-    return () => this.position = oldPosition;
-  },
-  _touch() {
-    if (this.recursiveReadLimit === Number.POSITIVE_INFINITY)
-      return;
-    const count = this.getReadCount();
-    this.positionReadCount.set(this.position, count + 1);
-    if (count > 0)
-      this.recursiveReadCount++;
-  }
-};
-function createCursor(bytes2, { recursiveReadLimit = 8192 } = {}) {
-  const cursor = Object.create(staticCursor);
-  cursor.bytes = bytes2;
-  cursor.dataView = new DataView(bytes2.buffer, bytes2.byteOffset, bytes2.byteLength);
-  cursor.positionReadCount = /* @__PURE__ */ new Map();
-  cursor.recursiveReadLimit = recursiveReadLimit;
-  return cursor;
+// node_modules/@noble/hashes/esm/_md.js
+function setBigUint64(view, byteOffset, value, isLE2) {
+  if (typeof view.setBigUint64 === "function")
+    return view.setBigUint64(byteOffset, value, isLE2);
+  const _32n2 = BigInt(32);
+  const _u32_max = BigInt(4294967295);
+  const wh = Number(value >> _32n2 & _u32_max);
+  const wl = Number(value & _u32_max);
+  const h = isLE2 ? 4 : 0;
+  const l = isLE2 ? 0 : 4;
+  view.setUint32(byteOffset + h, wh, isLE2);
+  view.setUint32(byteOffset + l, wl, isLE2);
 }
+var Chi, Maj, HashMD;
+var init_md = __esm({
+  "node_modules/@noble/hashes/esm/_md.js"() {
+    init_assert();
+    init_utils();
+    Chi = (a, b, c) => a & b ^ ~a & c;
+    Maj = (a, b, c) => a & b ^ a & c ^ b & c;
+    HashMD = class extends Hash {
+      constructor(blockLen, outputLen, padOffset, isLE2) {
+        super();
+        this.blockLen = blockLen;
+        this.outputLen = outputLen;
+        this.padOffset = padOffset;
+        this.isLE = isLE2;
+        this.finished = false;
+        this.length = 0;
+        this.pos = 0;
+        this.destroyed = false;
+        this.buffer = new Uint8Array(blockLen);
+        this.view = createView(this.buffer);
+      }
+      update(data) {
+        exists(this);
+        const { view, buffer, blockLen } = this;
+        data = toBytes2(data);
+        const len = data.length;
+        for (let pos = 0; pos < len; ) {
+          const take = Math.min(blockLen - this.pos, len - pos);
+          if (take === blockLen) {
+            const dataView = createView(data);
+            for (; blockLen <= len - pos; pos += blockLen)
+              this.process(dataView, pos);
+            continue;
+          }
+          buffer.set(data.subarray(pos, pos + take), this.pos);
+          this.pos += take;
+          pos += take;
+          if (this.pos === blockLen) {
+            this.process(view, 0);
+            this.pos = 0;
+          }
+        }
+        this.length += data.length;
+        this.roundClean();
+        return this;
+      }
+      digestInto(out) {
+        exists(this);
+        output(out, this);
+        this.finished = true;
+        const { buffer, view, blockLen, isLE: isLE2 } = this;
+        let { pos } = this;
+        buffer[pos++] = 128;
+        this.buffer.subarray(pos).fill(0);
+        if (this.padOffset > blockLen - pos) {
+          this.process(view, 0);
+          pos = 0;
+        }
+        for (let i = pos; i < blockLen; i++)
+          buffer[i] = 0;
+        setBigUint64(view, blockLen - 8, BigInt(this.length * 8), isLE2);
+        this.process(view, 0);
+        const oview = createView(out);
+        const len = this.outputLen;
+        if (len % 4)
+          throw new Error("_sha2: outputLen should be aligned to 32bit");
+        const outLen = len / 4;
+        const state = this.get();
+        if (outLen > state.length)
+          throw new Error("_sha2: outputLen bigger than state");
+        for (let i = 0; i < outLen; i++)
+          oview.setUint32(4 * i, state[i], isLE2);
+      }
+      digest() {
+        const { buffer, outputLen } = this;
+        this.digestInto(buffer);
+        const res = buffer.slice(0, outputLen);
+        this.destroy();
+        return res;
+      }
+      _cloneInto(to) {
+        to || (to = new this.constructor());
+        to.set(...this.get());
+        const { blockLen, buffer, length, finished, destroyed, pos } = this;
+        to.length = length;
+        to.pos = pos;
+        to.finished = finished;
+        to.destroyed = destroyed;
+        if (length % blockLen)
+          to.buffer.set(buffer);
+        return to;
+      }
+    };
+  }
+});
+
+// node_modules/@noble/hashes/esm/sha256.js
+var SHA256_K, SHA256_IV, SHA256_W, SHA256, sha256;
+var init_sha256 = __esm({
+  "node_modules/@noble/hashes/esm/sha256.js"() {
+    init_md();
+    init_utils();
+    SHA256_K = /* @__PURE__ */ new Uint32Array([
+      1116352408,
+      1899447441,
+      3049323471,
+      3921009573,
+      961987163,
+      1508970993,
+      2453635748,
+      2870763221,
+      3624381080,
+      310598401,
+      607225278,
+      1426881987,
+      1925078388,
+      2162078206,
+      2614888103,
+      3248222580,
+      3835390401,
+      4022224774,
+      264347078,
+      604807628,
+      770255983,
+      1249150122,
+      1555081692,
+      1996064986,
+      2554220882,
+      2821834349,
+      2952996808,
+      3210313671,
+      3336571891,
+      3584528711,
+      113926993,
+      338241895,
+      666307205,
+      773529912,
+      1294757372,
+      1396182291,
+      1695183700,
+      1986661051,
+      2177026350,
+      2456956037,
+      2730485921,
+      2820302411,
+      3259730800,
+      3345764771,
+      3516065817,
+      3600352804,
+      4094571909,
+      275423344,
+      430227734,
+      506948616,
+      659060556,
+      883997877,
+      958139571,
+      1322822218,
+      1537002063,
+      1747873779,
+      1955562222,
+      2024104815,
+      2227730452,
+      2361852424,
+      2428436474,
+      2756734187,
+      3204031479,
+      3329325298
+    ]);
+    SHA256_IV = /* @__PURE__ */ new Uint32Array([
+      1779033703,
+      3144134277,
+      1013904242,
+      2773480762,
+      1359893119,
+      2600822924,
+      528734635,
+      1541459225
+    ]);
+    SHA256_W = /* @__PURE__ */ new Uint32Array(64);
+    SHA256 = class extends HashMD {
+      constructor() {
+        super(64, 32, 8, false);
+        this.A = SHA256_IV[0] | 0;
+        this.B = SHA256_IV[1] | 0;
+        this.C = SHA256_IV[2] | 0;
+        this.D = SHA256_IV[3] | 0;
+        this.E = SHA256_IV[4] | 0;
+        this.F = SHA256_IV[5] | 0;
+        this.G = SHA256_IV[6] | 0;
+        this.H = SHA256_IV[7] | 0;
+      }
+      get() {
+        const { A, B, C, D, E, F, G, H } = this;
+        return [A, B, C, D, E, F, G, H];
+      }
+      // prettier-ignore
+      set(A, B, C, D, E, F, G, H) {
+        this.A = A | 0;
+        this.B = B | 0;
+        this.C = C | 0;
+        this.D = D | 0;
+        this.E = E | 0;
+        this.F = F | 0;
+        this.G = G | 0;
+        this.H = H | 0;
+      }
+      process(view, offset) {
+        for (let i = 0; i < 16; i++, offset += 4)
+          SHA256_W[i] = view.getUint32(offset, false);
+        for (let i = 16; i < 64; i++) {
+          const W15 = SHA256_W[i - 15];
+          const W2 = SHA256_W[i - 2];
+          const s0 = rotr(W15, 7) ^ rotr(W15, 18) ^ W15 >>> 3;
+          const s1 = rotr(W2, 17) ^ rotr(W2, 19) ^ W2 >>> 10;
+          SHA256_W[i] = s1 + SHA256_W[i - 7] + s0 + SHA256_W[i - 16] | 0;
+        }
+        let { A, B, C, D, E, F, G, H } = this;
+        for (let i = 0; i < 64; i++) {
+          const sigma1 = rotr(E, 6) ^ rotr(E, 11) ^ rotr(E, 25);
+          const T1 = H + sigma1 + Chi(E, F, G) + SHA256_K[i] + SHA256_W[i] | 0;
+          const sigma0 = rotr(A, 2) ^ rotr(A, 13) ^ rotr(A, 22);
+          const T2 = sigma0 + Maj(A, B, C) | 0;
+          H = G;
+          G = F;
+          F = E;
+          E = D + T1 | 0;
+          D = C;
+          C = B;
+          B = A;
+          A = T1 + T2 | 0;
+        }
+        A = A + this.A | 0;
+        B = B + this.B | 0;
+        C = C + this.C | 0;
+        D = D + this.D | 0;
+        E = E + this.E | 0;
+        F = F + this.F | 0;
+        G = G + this.G | 0;
+        H = H + this.H | 0;
+        this.set(A, B, C, D, E, F, G, H);
+      }
+      roundClean() {
+        SHA256_W.fill(0);
+      }
+      destroy() {
+        this.set(0, 0, 0, 0, 0, 0, 0, 0);
+        this.buffer.fill(0);
+      }
+    };
+    sha256 = /* @__PURE__ */ wrapConstructor(() => new SHA256());
+  }
+});
+
+// node_modules/viem/_esm/errors/chain.js
+var InvalidChainIdError;
+var init_chain = __esm({
+  "node_modules/viem/_esm/errors/chain.js"() {
+    init_base();
+    InvalidChainIdError = class extends BaseError {
+      constructor({ chainId }) {
+        super(typeof chainId === "number" ? `Chain ID "${chainId}" is invalid.` : "Chain ID is invalid.", { name: "InvalidChainIdError" });
+      }
+    };
+  }
+});
+
+// node_modules/viem/_esm/utils/errors/getCallError.js
+function getCallError(err, { docsPath, ...args }) {
+  const cause = (() => {
+    const cause2 = getNodeError(err, args);
+    if (cause2 instanceof UnknownNodeError)
+      return err;
+    return cause2;
+  })();
+  return new CallExecutionError(cause, {
+    docsPath,
+    ...args
+  });
+}
+var init_getCallError = __esm({
+  "node_modules/viem/_esm/utils/errors/getCallError.js"() {
+    init_contract();
+    init_node();
+    init_getNodeError();
+  }
+});
+
+// src/action.ts
+var import_core = __toESM(require_core());
 
 // node_modules/viem/_esm/utils/encoding/toRlp.js
+init_base();
+init_cursor2();
+init_toBytes();
+init_toHex();
 function toRlp(bytes2, to = "hex") {
   const encodable = getEncodable(bytes2);
   const cursor = createCursor(new Uint8Array(encodable.length));
@@ -20749,94 +21790,112 @@ function getSizeOfLength(length) {
   throw new BaseError("Length is too large.");
 }
 
-// node_modules/viem/_esm/constants/unit.js
-var etherUnits = {
-  gwei: 9,
-  wei: 18
-};
-var gweiUnits = {
-  ether: -9,
-  wei: 9
-};
+// node_modules/viem/_esm/utils/formatters/block.js
+init_formatter();
 
-// node_modules/viem/_esm/utils/unit/formatUnits.js
-function formatUnits(value, decimals) {
-  let display = value.toString();
-  const negative = display.startsWith("-");
-  if (negative)
-    display = display.slice(1);
-  display = display.padStart(decimals, "0");
-  let [integer, fraction] = [
-    display.slice(0, display.length - decimals),
-    display.slice(display.length - decimals)
-  ];
-  fraction = fraction.replace(/(0+)$/, "");
-  return `${negative ? "-" : ""}${integer || "0"}${fraction ? `.${fraction}` : ""}`;
+// node_modules/viem/_esm/utils/formatters/transaction.js
+init_fromHex();
+init_formatter();
+var transactionType = {
+  "0x0": "legacy",
+  "0x1": "eip2930",
+  "0x2": "eip1559",
+  "0x3": "eip4844",
+  "0x4": "eip7702"
+};
+function formatTransaction(transaction) {
+  const transaction_ = {
+    ...transaction,
+    blockHash: transaction.blockHash ? transaction.blockHash : null,
+    blockNumber: transaction.blockNumber ? BigInt(transaction.blockNumber) : null,
+    chainId: transaction.chainId ? hexToNumber(transaction.chainId) : void 0,
+    gas: transaction.gas ? BigInt(transaction.gas) : void 0,
+    gasPrice: transaction.gasPrice ? BigInt(transaction.gasPrice) : void 0,
+    maxFeePerBlobGas: transaction.maxFeePerBlobGas ? BigInt(transaction.maxFeePerBlobGas) : void 0,
+    maxFeePerGas: transaction.maxFeePerGas ? BigInt(transaction.maxFeePerGas) : void 0,
+    maxPriorityFeePerGas: transaction.maxPriorityFeePerGas ? BigInt(transaction.maxPriorityFeePerGas) : void 0,
+    nonce: transaction.nonce ? hexToNumber(transaction.nonce) : void 0,
+    to: transaction.to ? transaction.to : null,
+    transactionIndex: transaction.transactionIndex ? Number(transaction.transactionIndex) : null,
+    type: transaction.type ? transactionType[transaction.type] : void 0,
+    typeHex: transaction.type ? transaction.type : void 0,
+    value: transaction.value ? BigInt(transaction.value) : void 0,
+    v: transaction.v ? BigInt(transaction.v) : void 0
+  };
+  if (transaction.authorizationList)
+    transaction_.authorizationList = formatAuthorizationList2(transaction.authorizationList);
+  transaction_.yParity = (() => {
+    if (transaction.yParity)
+      return Number(transaction.yParity);
+    if (typeof transaction_.v === "bigint") {
+      if (transaction_.v === 0n || transaction_.v === 27n)
+        return 0;
+      if (transaction_.v === 1n || transaction_.v === 28n)
+        return 1;
+      if (transaction_.v >= 35n)
+        return transaction_.v % 2n === 0n ? 1 : 0;
+    }
+    return void 0;
+  })();
+  if (transaction_.type === "legacy") {
+    delete transaction_.accessList;
+    delete transaction_.maxFeePerBlobGas;
+    delete transaction_.maxFeePerGas;
+    delete transaction_.maxPriorityFeePerGas;
+    delete transaction_.yParity;
+  }
+  if (transaction_.type === "eip2930") {
+    delete transaction_.maxFeePerBlobGas;
+    delete transaction_.maxFeePerGas;
+    delete transaction_.maxPriorityFeePerGas;
+  }
+  if (transaction_.type === "eip1559") {
+    delete transaction_.maxFeePerBlobGas;
+  }
+  return transaction_;
+}
+var defineTransaction = /* @__PURE__ */ defineFormatter("transaction", formatTransaction);
+function formatAuthorizationList2(authorizationList) {
+  return authorizationList.map((authorization) => ({
+    contractAddress: authorization.address,
+    chainId: Number(authorization.chainId),
+    nonce: Number(authorization.nonce),
+    r: authorization.r,
+    s: authorization.s,
+    yParity: Number(authorization.yParity)
+  }));
 }
 
-// node_modules/viem/_esm/utils/unit/formatEther.js
-function formatEther(wei, unit = "wei") {
-  return formatUnits(wei, etherUnits[unit]);
+// node_modules/viem/_esm/utils/formatters/block.js
+function formatBlock(block) {
+  const transactions = (block.transactions ?? []).map((transaction) => {
+    if (typeof transaction === "string")
+      return transaction;
+    return formatTransaction(transaction);
+  });
+  return {
+    ...block,
+    baseFeePerGas: block.baseFeePerGas ? BigInt(block.baseFeePerGas) : null,
+    blobGasUsed: block.blobGasUsed ? BigInt(block.blobGasUsed) : void 0,
+    difficulty: block.difficulty ? BigInt(block.difficulty) : void 0,
+    excessBlobGas: block.excessBlobGas ? BigInt(block.excessBlobGas) : void 0,
+    gasLimit: block.gasLimit ? BigInt(block.gasLimit) : void 0,
+    gasUsed: block.gasUsed ? BigInt(block.gasUsed) : void 0,
+    hash: block.hash ? block.hash : null,
+    logsBloom: block.logsBloom ? block.logsBloom : null,
+    nonce: block.nonce ? block.nonce : null,
+    number: block.number ? BigInt(block.number) : null,
+    size: block.size ? BigInt(block.size) : void 0,
+    timestamp: block.timestamp ? BigInt(block.timestamp) : void 0,
+    transactions,
+    totalDifficulty: block.totalDifficulty ? BigInt(block.totalDifficulty) : null
+  };
 }
-
-// node_modules/viem/_esm/utils/unit/formatGwei.js
-function formatGwei(wei, unit = "wei") {
-  return formatUnits(wei, gweiUnits[unit]);
-}
-
-// node_modules/viem/_esm/errors/transaction.js
-function prettyPrint(args) {
-  const entries = Object.entries(args).map(([key, value]) => {
-    if (value === void 0 || value === false)
-      return null;
-    return [key, value];
-  }).filter(Boolean);
-  const maxLength = entries.reduce((acc, [key]) => Math.max(acc, key.length), 0);
-  return entries.map(([key, value]) => `  ${`${key}:`.padEnd(maxLength + 1)}  ${value}`).join("\n");
-}
-var FeeConflictError = class extends BaseError {
-  constructor() {
-    super([
-      "Cannot specify both a `gasPrice` and a `maxFeePerGas`/`maxPriorityFeePerGas`.",
-      "Use `maxFeePerGas`/`maxPriorityFeePerGas` for EIP-1559 compatible networks, and `gasPrice` for others."
-    ].join("\n"), { name: "FeeConflictError" });
-  }
-};
-var InvalidLegacyVError = class extends BaseError {
-  constructor({ v }) {
-    super(`Invalid \`v\` value "${v}". Expected 27 or 28.`, {
-      name: "InvalidLegacyVError"
-    });
-  }
-};
-var InvalidSerializableTransactionError = class extends BaseError {
-  constructor({ transaction }) {
-    super("Cannot infer a transaction type from provided transaction.", {
-      metaMessages: [
-        "Provided Transaction:",
-        "{",
-        prettyPrint(transaction),
-        "}",
-        "",
-        "To infer the type, either provide:",
-        "- a `type` to the Transaction, or",
-        "- an EIP-1559 Transaction with `maxFeePerGas`, or",
-        "- an EIP-2930 Transaction with `gasPrice` & `accessList`, or",
-        "- an EIP-4844 Transaction with `blobs`, `blobVersionedHashes`, `sidecars`, or",
-        "- an EIP-7702 Transaction with `authorizationList`, or",
-        "- a Legacy Transaction with `gasPrice`"
-      ],
-      name: "InvalidSerializableTransactionError"
-    });
-  }
-};
-var InvalidStorageKeySizeError = class extends BaseError {
-  constructor({ storageKey }) {
-    super(`Size for storage key "${storageKey}" is invalid. Expected 32 bytes. Got ${Math.floor((storageKey.length - 2) / 2)} bytes.`, { name: "InvalidStorageKeySizeError" });
-  }
-};
+var defineBlock = /* @__PURE__ */ defineFormatter("block", formatBlock);
 
 // node_modules/viem/_esm/utils/blob/blobsToCommitments.js
+init_toBytes();
+init_toHex();
 function blobsToCommitments(parameters) {
   const { kzg } = parameters;
   const to = parameters.to ?? (typeof parameters.blobs[0] === "string" ? "hex" : "bytes");
@@ -20848,6 +21907,8 @@ function blobsToCommitments(parameters) {
 }
 
 // node_modules/viem/_esm/utils/blob/blobsToProofs.js
+init_toBytes();
+init_toHex();
 function blobsToProofs(parameters) {
   const { kzg } = parameters;
   const to = parameters.to ?? (typeof parameters.blobs[0] === "string" ? "hex" : "bytes");
@@ -20862,324 +21923,14 @@ function blobsToProofs(parameters) {
   return to === "bytes" ? proofs : proofs.map((x) => bytesToHex(x));
 }
 
-// node_modules/@noble/hashes/esm/_assert.js
-function number(n) {
-  if (!Number.isSafeInteger(n) || n < 0)
-    throw new Error(`positive integer expected, not ${n}`);
-}
-function isBytes(a) {
-  return a instanceof Uint8Array || a != null && typeof a === "object" && a.constructor.name === "Uint8Array";
-}
-function bytes(b, ...lengths) {
-  if (!isBytes(b))
-    throw new Error("Uint8Array expected");
-  if (lengths.length > 0 && !lengths.includes(b.length))
-    throw new Error(`Uint8Array expected of length ${lengths}, not of length=${b.length}`);
-}
-function exists(instance, checkFinished = true) {
-  if (instance.destroyed)
-    throw new Error("Hash instance has been destroyed");
-  if (checkFinished && instance.finished)
-    throw new Error("Hash#digest() has already been called");
-}
-function output(out, instance) {
-  bytes(out);
-  const min = instance.outputLen;
-  if (out.length < min) {
-    throw new Error(`digestInto() expects output buffer of length at least ${min}`);
-  }
-}
-
-// node_modules/@noble/hashes/esm/utils.js
-var u32 = (arr) => new Uint32Array(arr.buffer, arr.byteOffset, Math.floor(arr.byteLength / 4));
-var createView = (arr) => new DataView(arr.buffer, arr.byteOffset, arr.byteLength);
-var rotr = (word, shift) => word << 32 - shift | word >>> shift;
-var isLE = new Uint8Array(new Uint32Array([287454020]).buffer)[0] === 68;
-var byteSwap = (word) => word << 24 & 4278190080 | word << 8 & 16711680 | word >>> 8 & 65280 | word >>> 24 & 255;
-function byteSwap32(arr) {
-  for (let i = 0; i < arr.length; i++) {
-    arr[i] = byteSwap(arr[i]);
-  }
-}
-function utf8ToBytes(str) {
-  if (typeof str !== "string")
-    throw new Error(`utf8ToBytes expected string, got ${typeof str}`);
-  return new Uint8Array(new TextEncoder().encode(str));
-}
-function toBytes2(data) {
-  if (typeof data === "string")
-    data = utf8ToBytes(data);
-  bytes(data);
-  return data;
-}
-var Hash = class {
-  // Safe version that clones internal state
-  clone() {
-    return this._cloneInto();
-  }
-};
-function wrapConstructor(hashCons) {
-  const hashC = (msg) => hashCons().update(toBytes2(msg)).digest();
-  const tmp = hashCons();
-  hashC.outputLen = tmp.outputLen;
-  hashC.blockLen = tmp.blockLen;
-  hashC.create = () => hashCons();
-  return hashC;
-}
-
-// node_modules/@noble/hashes/esm/_md.js
-function setBigUint64(view, byteOffset, value, isLE2) {
-  if (typeof view.setBigUint64 === "function")
-    return view.setBigUint64(byteOffset, value, isLE2);
-  const _32n2 = BigInt(32);
-  const _u32_max = BigInt(4294967295);
-  const wh = Number(value >> _32n2 & _u32_max);
-  const wl = Number(value & _u32_max);
-  const h = isLE2 ? 4 : 0;
-  const l = isLE2 ? 0 : 4;
-  view.setUint32(byteOffset + h, wh, isLE2);
-  view.setUint32(byteOffset + l, wl, isLE2);
-}
-var Chi = (a, b, c) => a & b ^ ~a & c;
-var Maj = (a, b, c) => a & b ^ a & c ^ b & c;
-var HashMD = class extends Hash {
-  constructor(blockLen, outputLen, padOffset, isLE2) {
-    super();
-    this.blockLen = blockLen;
-    this.outputLen = outputLen;
-    this.padOffset = padOffset;
-    this.isLE = isLE2;
-    this.finished = false;
-    this.length = 0;
-    this.pos = 0;
-    this.destroyed = false;
-    this.buffer = new Uint8Array(blockLen);
-    this.view = createView(this.buffer);
-  }
-  update(data) {
-    exists(this);
-    const { view, buffer, blockLen } = this;
-    data = toBytes2(data);
-    const len = data.length;
-    for (let pos = 0; pos < len; ) {
-      const take = Math.min(blockLen - this.pos, len - pos);
-      if (take === blockLen) {
-        const dataView = createView(data);
-        for (; blockLen <= len - pos; pos += blockLen)
-          this.process(dataView, pos);
-        continue;
-      }
-      buffer.set(data.subarray(pos, pos + take), this.pos);
-      this.pos += take;
-      pos += take;
-      if (this.pos === blockLen) {
-        this.process(view, 0);
-        this.pos = 0;
-      }
-    }
-    this.length += data.length;
-    this.roundClean();
-    return this;
-  }
-  digestInto(out) {
-    exists(this);
-    output(out, this);
-    this.finished = true;
-    const { buffer, view, blockLen, isLE: isLE2 } = this;
-    let { pos } = this;
-    buffer[pos++] = 128;
-    this.buffer.subarray(pos).fill(0);
-    if (this.padOffset > blockLen - pos) {
-      this.process(view, 0);
-      pos = 0;
-    }
-    for (let i = pos; i < blockLen; i++)
-      buffer[i] = 0;
-    setBigUint64(view, blockLen - 8, BigInt(this.length * 8), isLE2);
-    this.process(view, 0);
-    const oview = createView(out);
-    const len = this.outputLen;
-    if (len % 4)
-      throw new Error("_sha2: outputLen should be aligned to 32bit");
-    const outLen = len / 4;
-    const state = this.get();
-    if (outLen > state.length)
-      throw new Error("_sha2: outputLen bigger than state");
-    for (let i = 0; i < outLen; i++)
-      oview.setUint32(4 * i, state[i], isLE2);
-  }
-  digest() {
-    const { buffer, outputLen } = this;
-    this.digestInto(buffer);
-    const res = buffer.slice(0, outputLen);
-    this.destroy();
-    return res;
-  }
-  _cloneInto(to) {
-    to || (to = new this.constructor());
-    to.set(...this.get());
-    const { blockLen, buffer, length, finished, destroyed, pos } = this;
-    to.length = length;
-    to.pos = pos;
-    to.finished = finished;
-    to.destroyed = destroyed;
-    if (length % blockLen)
-      to.buffer.set(buffer);
-    return to;
-  }
-};
-
-// node_modules/@noble/hashes/esm/sha256.js
-var SHA256_K = /* @__PURE__ */ new Uint32Array([
-  1116352408,
-  1899447441,
-  3049323471,
-  3921009573,
-  961987163,
-  1508970993,
-  2453635748,
-  2870763221,
-  3624381080,
-  310598401,
-  607225278,
-  1426881987,
-  1925078388,
-  2162078206,
-  2614888103,
-  3248222580,
-  3835390401,
-  4022224774,
-  264347078,
-  604807628,
-  770255983,
-  1249150122,
-  1555081692,
-  1996064986,
-  2554220882,
-  2821834349,
-  2952996808,
-  3210313671,
-  3336571891,
-  3584528711,
-  113926993,
-  338241895,
-  666307205,
-  773529912,
-  1294757372,
-  1396182291,
-  1695183700,
-  1986661051,
-  2177026350,
-  2456956037,
-  2730485921,
-  2820302411,
-  3259730800,
-  3345764771,
-  3516065817,
-  3600352804,
-  4094571909,
-  275423344,
-  430227734,
-  506948616,
-  659060556,
-  883997877,
-  958139571,
-  1322822218,
-  1537002063,
-  1747873779,
-  1955562222,
-  2024104815,
-  2227730452,
-  2361852424,
-  2428436474,
-  2756734187,
-  3204031479,
-  3329325298
-]);
-var SHA256_IV = /* @__PURE__ */ new Uint32Array([
-  1779033703,
-  3144134277,
-  1013904242,
-  2773480762,
-  1359893119,
-  2600822924,
-  528734635,
-  1541459225
-]);
-var SHA256_W = /* @__PURE__ */ new Uint32Array(64);
-var SHA256 = class extends HashMD {
-  constructor() {
-    super(64, 32, 8, false);
-    this.A = SHA256_IV[0] | 0;
-    this.B = SHA256_IV[1] | 0;
-    this.C = SHA256_IV[2] | 0;
-    this.D = SHA256_IV[3] | 0;
-    this.E = SHA256_IV[4] | 0;
-    this.F = SHA256_IV[5] | 0;
-    this.G = SHA256_IV[6] | 0;
-    this.H = SHA256_IV[7] | 0;
-  }
-  get() {
-    const { A, B, C, D, E, F, G, H } = this;
-    return [A, B, C, D, E, F, G, H];
-  }
-  // prettier-ignore
-  set(A, B, C, D, E, F, G, H) {
-    this.A = A | 0;
-    this.B = B | 0;
-    this.C = C | 0;
-    this.D = D | 0;
-    this.E = E | 0;
-    this.F = F | 0;
-    this.G = G | 0;
-    this.H = H | 0;
-  }
-  process(view, offset) {
-    for (let i = 0; i < 16; i++, offset += 4)
-      SHA256_W[i] = view.getUint32(offset, false);
-    for (let i = 16; i < 64; i++) {
-      const W15 = SHA256_W[i - 15];
-      const W2 = SHA256_W[i - 2];
-      const s0 = rotr(W15, 7) ^ rotr(W15, 18) ^ W15 >>> 3;
-      const s1 = rotr(W2, 17) ^ rotr(W2, 19) ^ W2 >>> 10;
-      SHA256_W[i] = s1 + SHA256_W[i - 7] + s0 + SHA256_W[i - 16] | 0;
-    }
-    let { A, B, C, D, E, F, G, H } = this;
-    for (let i = 0; i < 64; i++) {
-      const sigma1 = rotr(E, 6) ^ rotr(E, 11) ^ rotr(E, 25);
-      const T1 = H + sigma1 + Chi(E, F, G) + SHA256_K[i] + SHA256_W[i] | 0;
-      const sigma0 = rotr(A, 2) ^ rotr(A, 13) ^ rotr(A, 22);
-      const T2 = sigma0 + Maj(A, B, C) | 0;
-      H = G;
-      G = F;
-      F = E;
-      E = D + T1 | 0;
-      D = C;
-      C = B;
-      B = A;
-      A = T1 + T2 | 0;
-    }
-    A = A + this.A | 0;
-    B = B + this.B | 0;
-    C = C + this.C | 0;
-    D = D + this.D | 0;
-    E = E + this.E | 0;
-    F = F + this.F | 0;
-    G = G + this.G | 0;
-    H = H + this.H | 0;
-    this.set(A, B, C, D, E, F, G, H);
-  }
-  roundClean() {
-    SHA256_W.fill(0);
-  }
-  destroy() {
-    this.set(0, 0, 0, 0, 0, 0, 0, 0);
-    this.buffer.fill(0);
-  }
-};
-var sha256 = /* @__PURE__ */ wrapConstructor(() => new SHA256());
+// node_modules/viem/_esm/utils/blob/commitmentToVersionedHash.js
+init_toHex();
 
 // node_modules/viem/_esm/utils/hash/sha256.js
+init_sha256();
+init_isHex();
+init_toBytes();
+init_toHex();
 function sha2562(value, to_) {
   const to = to_ || "hex";
   const bytes2 = sha256(isHex(value, { strict: false }) ? toBytes(value) : value);
@@ -21225,6 +21976,7 @@ var maxBytesPerTransaction = bytesPerBlob * blobsPerTransaction - // terminator 
 var versionedHashVersionKzg = 1;
 
 // node_modules/viem/_esm/errors/blob.js
+init_base();
 var BlobSizeTooLargeError = class extends BaseError {
   constructor({ maxSize, size: size2 }) {
     super("Blob size is too large.", {
@@ -21259,6 +22011,10 @@ var InvalidVersionedHashVersionError = class extends BaseError {
 };
 
 // node_modules/viem/_esm/utils/blob/toBlobs.js
+init_cursor2();
+init_size();
+init_toBytes();
+init_toHex();
 function toBlobs(parameters) {
   const to = parameters.to ?? (typeof parameters.data === "string" ? "hex" : "bytes");
   const data = typeof parameters.data === "string" ? hexToBytes(parameters.data) : parameters.data;
@@ -21309,532 +22065,103 @@ function toBlobSidecars(parameters) {
   return sidecars;
 }
 
-// node_modules/viem/_esm/experimental/eip7702/utils/serializeAuthorizationList.js
-function serializeAuthorizationList(authorizationList) {
-  if (!authorizationList || authorizationList.length === 0)
-    return [];
-  const serializedAuthorizationList = [];
-  for (const authorization of authorizationList) {
-    const { contractAddress, chainId, nonce, ...signature } = authorization;
-    serializedAuthorizationList.push([
-      chainId ? toHex(chainId) : "0x",
-      contractAddress,
-      nonce ? toHex(nonce) : "0x",
-      ...toYParitySignatureArray({}, signature)
-    ]);
+// node_modules/viem/_esm/utils/transaction/getTransactionType.js
+init_transaction();
+function getTransactionType(transaction) {
+  if (transaction.type)
+    return transaction.type;
+  if (typeof transaction.authorizationList !== "undefined")
+    return "eip7702";
+  if (typeof transaction.blobs !== "undefined" || typeof transaction.blobVersionedHashes !== "undefined" || typeof transaction.maxFeePerBlobGas !== "undefined" || typeof transaction.sidecars !== "undefined")
+    return "eip4844";
+  if (typeof transaction.maxFeePerGas !== "undefined" || typeof transaction.maxPriorityFeePerGas !== "undefined") {
+    return "eip1559";
   }
-  return serializedAuthorizationList;
+  if (typeof transaction.gasPrice !== "undefined") {
+    if (typeof transaction.accessList !== "undefined")
+      return "eip2930";
+    return "legacy";
+  }
+  throw new InvalidSerializableTransactionError({ transaction });
 }
 
-// node_modules/viem/_esm/errors/address.js
-var InvalidAddressError = class extends BaseError {
-  constructor({ address }) {
-    super(`Address "${address}" is invalid.`, {
-      metaMessages: [
-        "- Address must be a hex value of 20 bytes (40 hex characters).",
-        "- Address must match its checksum counterpart."
-      ],
-      name: "InvalidAddressError"
-    });
-  }
-};
+// node_modules/viem/_esm/utils/formatters/log.js
+function formatLog(log, { args, eventName } = {}) {
+  return {
+    ...log,
+    blockHash: log.blockHash ? log.blockHash : null,
+    blockNumber: log.blockNumber ? BigInt(log.blockNumber) : null,
+    logIndex: log.logIndex ? Number(log.logIndex) : null,
+    transactionHash: log.transactionHash ? log.transactionHash : null,
+    transactionIndex: log.transactionIndex ? Number(log.transactionIndex) : null,
+    ...eventName ? { args, eventName } : {}
+  };
+}
 
-// node_modules/viem/_esm/errors/chain.js
-var InvalidChainIdError = class extends BaseError {
-  constructor({ chainId }) {
-    super(typeof chainId === "number" ? `Chain ID "${chainId}" is invalid.` : "Chain ID is invalid.", { name: "InvalidChainIdError" });
-  }
-};
-
-// node_modules/viem/_esm/errors/node.js
-var ExecutionRevertedError = class extends BaseError {
-  constructor({ cause, message } = {}) {
-    const reason = message?.replace("execution reverted: ", "")?.replace("execution reverted", "");
-    super(`Execution reverted ${reason ? `with reason: ${reason}` : "for an unknown reason"}.`, {
-      cause,
-      name: "ExecutionRevertedError"
-    });
-  }
-};
-Object.defineProperty(ExecutionRevertedError, "code", {
-  enumerable: true,
-  configurable: true,
-  writable: true,
-  value: 3
-});
-Object.defineProperty(ExecutionRevertedError, "nodeMessage", {
-  enumerable: true,
-  configurable: true,
-  writable: true,
-  value: /execution reverted/
-});
-var FeeCapTooHighError = class extends BaseError {
-  constructor({ cause, maxFeePerGas } = {}) {
-    super(`The fee cap (\`maxFeePerGas\`${maxFeePerGas ? ` = ${formatGwei(maxFeePerGas)} gwei` : ""}) cannot be higher than the maximum allowed value (2^256-1).`, {
-      cause,
-      name: "FeeCapTooHighError"
-    });
-  }
-};
-Object.defineProperty(FeeCapTooHighError, "nodeMessage", {
-  enumerable: true,
-  configurable: true,
-  writable: true,
-  value: /max fee per gas higher than 2\^256-1|fee cap higher than 2\^256-1/
-});
-var FeeCapTooLowError = class extends BaseError {
-  constructor({ cause, maxFeePerGas } = {}) {
-    super(`The fee cap (\`maxFeePerGas\`${maxFeePerGas ? ` = ${formatGwei(maxFeePerGas)}` : ""} gwei) cannot be lower than the block base fee.`, {
-      cause,
-      name: "FeeCapTooLowError"
-    });
-  }
-};
-Object.defineProperty(FeeCapTooLowError, "nodeMessage", {
-  enumerable: true,
-  configurable: true,
-  writable: true,
-  value: /max fee per gas less than block base fee|fee cap less than block base fee|transaction is outdated/
-});
-var NonceTooHighError = class extends BaseError {
-  constructor({ cause, nonce } = {}) {
-    super(`Nonce provided for the transaction ${nonce ? `(${nonce}) ` : ""}is higher than the next one expected.`, { cause, name: "NonceTooHighError" });
-  }
-};
-Object.defineProperty(NonceTooHighError, "nodeMessage", {
-  enumerable: true,
-  configurable: true,
-  writable: true,
-  value: /nonce too high/
-});
-var NonceTooLowError = class extends BaseError {
-  constructor({ cause, nonce } = {}) {
+// node_modules/viem/_esm/errors/account.js
+init_base();
+var AccountNotFoundError = class extends BaseError {
+  constructor({ docsPath } = {}) {
     super([
-      `Nonce provided for the transaction ${nonce ? `(${nonce}) ` : ""}is lower than the current nonce of the account.`,
-      "Try increasing the nonce or find the latest nonce with `getTransactionCount`."
-    ].join("\n"), { cause, name: "NonceTooLowError" });
-  }
-};
-Object.defineProperty(NonceTooLowError, "nodeMessage", {
-  enumerable: true,
-  configurable: true,
-  writable: true,
-  value: /nonce too low|transaction already imported|already known/
-});
-var NonceMaxValueError = class extends BaseError {
-  constructor({ cause, nonce } = {}) {
-    super(`Nonce provided for the transaction ${nonce ? `(${nonce}) ` : ""}exceeds the maximum allowed nonce.`, { cause, name: "NonceMaxValueError" });
-  }
-};
-Object.defineProperty(NonceMaxValueError, "nodeMessage", {
-  enumerable: true,
-  configurable: true,
-  writable: true,
-  value: /nonce has max value/
-});
-var InsufficientFundsError = class extends BaseError {
-  constructor({ cause } = {}) {
-    super([
-      "The total cost (gas * gas fee + value) of executing this transaction exceeds the balance of the account."
+      "Could not find an Account to execute with this Action.",
+      "Please provide an Account with the `account` argument on the Action, or by supplying an `account` to the Client."
     ].join("\n"), {
-      cause,
-      metaMessages: [
-        "This error could arise when the account does not have enough funds to:",
-        " - pay for the total gas fee,",
-        " - pay for the value to send.",
-        " ",
-        "The cost of the transaction is calculated as `gas * gas fee + value`, where:",
-        " - `gas` is the amount of gas needed for transaction to execute,",
-        " - `gas fee` is the gas fee,",
-        " - `value` is the amount of ether to send to the recipient."
-      ],
-      name: "InsufficientFundsError"
-    });
-  }
-};
-Object.defineProperty(InsufficientFundsError, "nodeMessage", {
-  enumerable: true,
-  configurable: true,
-  writable: true,
-  value: /insufficient funds|exceeds transaction sender account balance/
-});
-var IntrinsicGasTooHighError = class extends BaseError {
-  constructor({ cause, gas } = {}) {
-    super(`The amount of gas ${gas ? `(${gas}) ` : ""}provided for the transaction exceeds the limit allowed for the block.`, {
-      cause,
-      name: "IntrinsicGasTooHighError"
-    });
-  }
-};
-Object.defineProperty(IntrinsicGasTooHighError, "nodeMessage", {
-  enumerable: true,
-  configurable: true,
-  writable: true,
-  value: /intrinsic gas too high|gas limit reached/
-});
-var IntrinsicGasTooLowError = class extends BaseError {
-  constructor({ cause, gas } = {}) {
-    super(`The amount of gas ${gas ? `(${gas}) ` : ""}provided for the transaction is too low.`, {
-      cause,
-      name: "IntrinsicGasTooLowError"
-    });
-  }
-};
-Object.defineProperty(IntrinsicGasTooLowError, "nodeMessage", {
-  enumerable: true,
-  configurable: true,
-  writable: true,
-  value: /intrinsic gas too low/
-});
-var TransactionTypeNotSupportedError = class extends BaseError {
-  constructor({ cause }) {
-    super("The transaction type is not supported for this chain.", {
-      cause,
-      name: "TransactionTypeNotSupportedError"
-    });
-  }
-};
-Object.defineProperty(TransactionTypeNotSupportedError, "nodeMessage", {
-  enumerable: true,
-  configurable: true,
-  writable: true,
-  value: /transaction type not valid/
-});
-var TipAboveFeeCapError = class extends BaseError {
-  constructor({ cause, maxPriorityFeePerGas, maxFeePerGas } = {}) {
-    super([
-      `The provided tip (\`maxPriorityFeePerGas\`${maxPriorityFeePerGas ? ` = ${formatGwei(maxPriorityFeePerGas)} gwei` : ""}) cannot be higher than the fee cap (\`maxFeePerGas\`${maxFeePerGas ? ` = ${formatGwei(maxFeePerGas)} gwei` : ""}).`
-    ].join("\n"), {
-      cause,
-      name: "TipAboveFeeCapError"
-    });
-  }
-};
-Object.defineProperty(TipAboveFeeCapError, "nodeMessage", {
-  enumerable: true,
-  configurable: true,
-  writable: true,
-  value: /max priority fee per gas higher than max fee per gas|tip higher than fee cap/
-});
-var UnknownNodeError = class extends BaseError {
-  constructor({ cause }) {
-    super(`An error occurred while executing: ${cause?.shortMessage}`, {
-      cause,
-      name: "UnknownNodeError"
+      docsPath,
+      docsSlug: "account",
+      name: "AccountNotFoundError"
     });
   }
 };
 
-// node_modules/viem/_esm/utils/lru.js
-var LruMap = class extends Map {
-  constructor(size2) {
-    super();
-    Object.defineProperty(this, "maxSize", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: void 0
-    });
-    this.maxSize = size2;
-  }
-  get(key) {
-    const value = super.get(key);
-    if (super.has(key) && value !== void 0) {
-      this.delete(key);
-      super.set(key, value);
-    }
-    return value;
-  }
-  set(key, value) {
-    super.set(key, value);
-    if (this.maxSize && this.size > this.maxSize) {
-      const firstKey = this.keys().next().value;
-      if (firstKey)
-        this.delete(firstKey);
-    }
-    return this;
-  }
+// node_modules/viem/_esm/utils/chain/defineChain.js
+function defineChain(chain) {
+  return {
+    formatters: void 0,
+    fees: void 0,
+    serializers: void 0,
+    ...chain
+  };
+}
+
+// node_modules/viem/_esm/utils/formatters/transactionReceipt.js
+init_fromHex();
+init_formatter();
+var receiptStatuses = {
+  "0x0": "reverted",
+  "0x1": "success"
 };
-
-// node_modules/@noble/hashes/esm/_u64.js
-var U32_MASK64 = /* @__PURE__ */ BigInt(2 ** 32 - 1);
-var _32n = /* @__PURE__ */ BigInt(32);
-function fromBig(n, le = false) {
-  if (le)
-    return { h: Number(n & U32_MASK64), l: Number(n >> _32n & U32_MASK64) };
-  return { h: Number(n >> _32n & U32_MASK64) | 0, l: Number(n & U32_MASK64) | 0 };
+function formatTransactionReceipt(transactionReceipt) {
+  const receipt = {
+    ...transactionReceipt,
+    blockNumber: transactionReceipt.blockNumber ? BigInt(transactionReceipt.blockNumber) : null,
+    contractAddress: transactionReceipt.contractAddress ? transactionReceipt.contractAddress : null,
+    cumulativeGasUsed: transactionReceipt.cumulativeGasUsed ? BigInt(transactionReceipt.cumulativeGasUsed) : null,
+    effectiveGasPrice: transactionReceipt.effectiveGasPrice ? BigInt(transactionReceipt.effectiveGasPrice) : null,
+    gasUsed: transactionReceipt.gasUsed ? BigInt(transactionReceipt.gasUsed) : null,
+    logs: transactionReceipt.logs ? transactionReceipt.logs.map((log) => formatLog(log)) : null,
+    to: transactionReceipt.to ? transactionReceipt.to : null,
+    transactionIndex: transactionReceipt.transactionIndex ? hexToNumber(transactionReceipt.transactionIndex) : null,
+    status: transactionReceipt.status ? receiptStatuses[transactionReceipt.status] : null,
+    type: transactionReceipt.type ? transactionType[transactionReceipt.type] || transactionReceipt.type : null
+  };
+  if (transactionReceipt.blobGasPrice)
+    receipt.blobGasPrice = BigInt(transactionReceipt.blobGasPrice);
+  if (transactionReceipt.blobGasUsed)
+    receipt.blobGasUsed = BigInt(transactionReceipt.blobGasUsed);
+  return receipt;
 }
-function split(lst, le = false) {
-  let Ah = new Uint32Array(lst.length);
-  let Al = new Uint32Array(lst.length);
-  for (let i = 0; i < lst.length; i++) {
-    const { h, l } = fromBig(lst[i], le);
-    [Ah[i], Al[i]] = [h, l];
-  }
-  return [Ah, Al];
-}
-var rotlSH = (h, l, s) => h << s | l >>> 32 - s;
-var rotlSL = (h, l, s) => l << s | h >>> 32 - s;
-var rotlBH = (h, l, s) => l << s - 32 | h >>> 64 - s;
-var rotlBL = (h, l, s) => h << s - 32 | l >>> 64 - s;
-
-// node_modules/@noble/hashes/esm/sha3.js
-var SHA3_PI = [];
-var SHA3_ROTL = [];
-var _SHA3_IOTA = [];
-var _0n = /* @__PURE__ */ BigInt(0);
-var _1n = /* @__PURE__ */ BigInt(1);
-var _2n = /* @__PURE__ */ BigInt(2);
-var _7n = /* @__PURE__ */ BigInt(7);
-var _256n = /* @__PURE__ */ BigInt(256);
-var _0x71n = /* @__PURE__ */ BigInt(113);
-for (let round = 0, R = _1n, x = 1, y = 0; round < 24; round++) {
-  [x, y] = [y, (2 * x + 3 * y) % 5];
-  SHA3_PI.push(2 * (5 * y + x));
-  SHA3_ROTL.push((round + 1) * (round + 2) / 2 % 64);
-  let t = _0n;
-  for (let j = 0; j < 7; j++) {
-    R = (R << _1n ^ (R >> _7n) * _0x71n) % _256n;
-    if (R & _2n)
-      t ^= _1n << (_1n << /* @__PURE__ */ BigInt(j)) - _1n;
-  }
-  _SHA3_IOTA.push(t);
-}
-var [SHA3_IOTA_H, SHA3_IOTA_L] = /* @__PURE__ */ split(_SHA3_IOTA, true);
-var rotlH = (h, l, s) => s > 32 ? rotlBH(h, l, s) : rotlSH(h, l, s);
-var rotlL = (h, l, s) => s > 32 ? rotlBL(h, l, s) : rotlSL(h, l, s);
-function keccakP(s, rounds = 24) {
-  const B = new Uint32Array(5 * 2);
-  for (let round = 24 - rounds; round < 24; round++) {
-    for (let x = 0; x < 10; x++)
-      B[x] = s[x] ^ s[x + 10] ^ s[x + 20] ^ s[x + 30] ^ s[x + 40];
-    for (let x = 0; x < 10; x += 2) {
-      const idx1 = (x + 8) % 10;
-      const idx0 = (x + 2) % 10;
-      const B0 = B[idx0];
-      const B1 = B[idx0 + 1];
-      const Th = rotlH(B0, B1, 1) ^ B[idx1];
-      const Tl = rotlL(B0, B1, 1) ^ B[idx1 + 1];
-      for (let y = 0; y < 50; y += 10) {
-        s[x + y] ^= Th;
-        s[x + y + 1] ^= Tl;
-      }
-    }
-    let curH = s[2];
-    let curL = s[3];
-    for (let t = 0; t < 24; t++) {
-      const shift = SHA3_ROTL[t];
-      const Th = rotlH(curH, curL, shift);
-      const Tl = rotlL(curH, curL, shift);
-      const PI = SHA3_PI[t];
-      curH = s[PI];
-      curL = s[PI + 1];
-      s[PI] = Th;
-      s[PI + 1] = Tl;
-    }
-    for (let y = 0; y < 50; y += 10) {
-      for (let x = 0; x < 10; x++)
-        B[x] = s[y + x];
-      for (let x = 0; x < 10; x++)
-        s[y + x] ^= ~B[(x + 2) % 10] & B[(x + 4) % 10];
-    }
-    s[0] ^= SHA3_IOTA_H[round];
-    s[1] ^= SHA3_IOTA_L[round];
-  }
-  B.fill(0);
-}
-var Keccak = class _Keccak extends Hash {
-  // NOTE: we accept arguments in bytes instead of bits here.
-  constructor(blockLen, suffix, outputLen, enableXOF = false, rounds = 24) {
-    super();
-    this.blockLen = blockLen;
-    this.suffix = suffix;
-    this.outputLen = outputLen;
-    this.enableXOF = enableXOF;
-    this.rounds = rounds;
-    this.pos = 0;
-    this.posOut = 0;
-    this.finished = false;
-    this.destroyed = false;
-    number(outputLen);
-    if (0 >= this.blockLen || this.blockLen >= 200)
-      throw new Error("Sha3 supports only keccak-f1600 function");
-    this.state = new Uint8Array(200);
-    this.state32 = u32(this.state);
-  }
-  keccak() {
-    if (!isLE)
-      byteSwap32(this.state32);
-    keccakP(this.state32, this.rounds);
-    if (!isLE)
-      byteSwap32(this.state32);
-    this.posOut = 0;
-    this.pos = 0;
-  }
-  update(data) {
-    exists(this);
-    const { blockLen, state } = this;
-    data = toBytes2(data);
-    const len = data.length;
-    for (let pos = 0; pos < len; ) {
-      const take = Math.min(blockLen - this.pos, len - pos);
-      for (let i = 0; i < take; i++)
-        state[this.pos++] ^= data[pos++];
-      if (this.pos === blockLen)
-        this.keccak();
-    }
-    return this;
-  }
-  finish() {
-    if (this.finished)
-      return;
-    this.finished = true;
-    const { state, suffix, pos, blockLen } = this;
-    state[pos] ^= suffix;
-    if ((suffix & 128) !== 0 && pos === blockLen - 1)
-      this.keccak();
-    state[blockLen - 1] ^= 128;
-    this.keccak();
-  }
-  writeInto(out) {
-    exists(this, false);
-    bytes(out);
-    this.finish();
-    const bufferOut = this.state;
-    const { blockLen } = this;
-    for (let pos = 0, len = out.length; pos < len; ) {
-      if (this.posOut >= blockLen)
-        this.keccak();
-      const take = Math.min(blockLen - this.posOut, len - pos);
-      out.set(bufferOut.subarray(this.posOut, this.posOut + take), pos);
-      this.posOut += take;
-      pos += take;
-    }
-    return out;
-  }
-  xofInto(out) {
-    if (!this.enableXOF)
-      throw new Error("XOF is not possible for this instance");
-    return this.writeInto(out);
-  }
-  xof(bytes2) {
-    number(bytes2);
-    return this.xofInto(new Uint8Array(bytes2));
-  }
-  digestInto(out) {
-    output(out, this);
-    if (this.finished)
-      throw new Error("digest() was already called");
-    this.writeInto(out);
-    this.destroy();
-    return out;
-  }
-  digest() {
-    return this.digestInto(new Uint8Array(this.outputLen));
-  }
-  destroy() {
-    this.destroyed = true;
-    this.state.fill(0);
-  }
-  _cloneInto(to) {
-    const { blockLen, suffix, outputLen, rounds, enableXOF } = this;
-    to || (to = new _Keccak(blockLen, suffix, outputLen, enableXOF, rounds));
-    to.state32.set(this.state32);
-    to.pos = this.pos;
-    to.posOut = this.posOut;
-    to.finished = this.finished;
-    to.rounds = rounds;
-    to.suffix = suffix;
-    to.outputLen = outputLen;
-    to.enableXOF = enableXOF;
-    to.destroyed = this.destroyed;
-    return to;
-  }
-};
-var gen = (suffix, blockLen, outputLen) => wrapConstructor(() => new Keccak(blockLen, suffix, outputLen));
-var keccak_256 = /* @__PURE__ */ gen(1, 136, 256 / 8);
-
-// node_modules/viem/_esm/utils/hash/keccak256.js
-function keccak256(value, to_) {
-  const bytes2 = keccak_256(isHex(value, { strict: false }) ? toBytes(value) : value);
-  return bytes2;
-}
-
-// node_modules/viem/_esm/utils/address/getAddress.js
-var checksumAddressCache = /* @__PURE__ */ new LruMap(8192);
-function checksumAddress(address_, chainId) {
-  if (checksumAddressCache.has(`${address_}.${chainId}`))
-    return checksumAddressCache.get(`${address_}.${chainId}`);
-  const hexAddress = address_.substring(2).toLowerCase();
-  const hash = keccak256(stringToBytes(hexAddress));
-  const address = (hexAddress).split("");
-  for (let i = 0; i < 40; i += 2) {
-    if (hash[i >> 1] >> 4 >= 8 && address[i]) {
-      address[i] = address[i].toUpperCase();
-    }
-    if ((hash[i >> 1] & 15) >= 8 && address[i + 1]) {
-      address[i + 1] = address[i + 1].toUpperCase();
-    }
-  }
-  const result = `0x${address.join("")}`;
-  checksumAddressCache.set(`${address_}.${chainId}`, result);
-  return result;
-}
-
-// node_modules/viem/_esm/utils/address/isAddress.js
-var addressRegex = /^0x[a-fA-F0-9]{40}$/;
-var isAddressCache = /* @__PURE__ */ new LruMap(8192);
-function isAddress(address, options) {
-  const { strict = true } = options ?? {};
-  const cacheKey = `${address}.${strict}`;
-  if (isAddressCache.has(cacheKey))
-    return isAddressCache.get(cacheKey);
-  const result = (() => {
-    if (!addressRegex.test(address))
-      return false;
-    if (address.toLowerCase() === address)
-      return true;
-    if (strict)
-      return checksumAddress(address) === address;
-    return true;
-  })();
-  isAddressCache.set(cacheKey, result);
-  return result;
-}
-
-// node_modules/viem/_esm/utils/data/slice.js
-function slice(value, start, end, { strict } = {}) {
-  if (isHex(value, { strict: false }))
-    return sliceHex(value, start, end, {
-      strict
-    });
-  return sliceBytes(value, start, end, {
-    strict
-  });
-}
-function assertEndOffset(value, start, end) {
-  if (size(value) !== end - start) {
-    throw new SliceOffsetOutOfBoundsError({
-      offset: end,
-      position: "end",
-      size: size(value)
-    });
-  }
-}
-function sliceBytes(value_, start, end, { strict } = {}) {
-  const value = value_.slice(start, end);
-  if (strict)
-    assertEndOffset(value, start, end);
-  return value;
-}
-function sliceHex(value_, start, end, { strict } = {}) {
-  const value = `0x${value_.replace("0x", "").slice((start) * 2, (end) * 2)}`;
-  if (strict)
-    assertEndOffset(value, start, end);
-  return value;
-}
+var defineTransactionReceipt = /* @__PURE__ */ defineFormatter("transactionReceipt", formatTransactionReceipt);
 
 // node_modules/viem/_esm/utils/transaction/assertTransaction.js
+init_number();
+init_address();
+init_base();
+init_chain();
+init_node();
+init_isAddress();
+init_size();
+init_slice();
+init_fromHex();
 function assertTransactionEIP7702(transaction) {
   const { authorizationList } = transaction;
   if (authorizationList) {
@@ -21901,26 +22228,34 @@ function assertTransactionLegacy(transaction) {
     throw new FeeCapTooHighError({ maxFeePerGas: gasPrice });
 }
 
-// node_modules/viem/_esm/utils/transaction/getTransactionType.js
-function getTransactionType(transaction) {
-  if (transaction.type)
-    return transaction.type;
-  if (typeof transaction.authorizationList !== "undefined")
-    return "eip7702";
-  if (typeof transaction.blobs !== "undefined" || typeof transaction.blobVersionedHashes !== "undefined" || typeof transaction.maxFeePerBlobGas !== "undefined" || typeof transaction.sidecars !== "undefined")
-    return "eip4844";
-  if (typeof transaction.maxFeePerGas !== "undefined" || typeof transaction.maxPriorityFeePerGas !== "undefined") {
-    return "eip1559";
+// node_modules/viem/_esm/utils/transaction/serializeTransaction.js
+init_transaction();
+init_concat();
+init_trim();
+init_toHex();
+
+// node_modules/viem/_esm/experimental/eip7702/utils/serializeAuthorizationList.js
+init_toHex();
+function serializeAuthorizationList(authorizationList) {
+  if (!authorizationList || authorizationList.length === 0)
+    return [];
+  const serializedAuthorizationList = [];
+  for (const authorization of authorizationList) {
+    const { contractAddress, chainId, nonce, ...signature } = authorization;
+    serializedAuthorizationList.push([
+      chainId ? toHex(chainId) : "0x",
+      contractAddress,
+      nonce ? toHex(nonce) : "0x",
+      ...toYParitySignatureArray({}, signature)
+    ]);
   }
-  if (typeof transaction.gasPrice !== "undefined") {
-    if (typeof transaction.accessList !== "undefined")
-      return "eip2930";
-    return "legacy";
-  }
-  throw new InvalidSerializableTransactionError({ transaction });
+  return serializedAuthorizationList;
 }
 
 // node_modules/viem/_esm/utils/transaction/serializeAccessList.js
+init_address();
+init_transaction();
+init_isAddress();
 function serializeAccessList(accessList) {
   if (!accessList || accessList.length === 0)
     return [];
@@ -22140,7 +22475,215 @@ function toYParitySignatureArray(transaction, signature_) {
   return [yParity_, r === "0x00" ? "0x" : r, s === "0x00" ? "0x" : s];
 }
 
+// src/alchemyIds.ts
+var networkMap = {
+  1: "eth-mainnet",
+  3: "eth-ropsten",
+  4: "eth-rinkeby",
+  5: "eth-goerli",
+  10: "opt-mainnet",
+  30: "rootstock-mainnet",
+  31: "rootstock-testnet",
+  42: "eth-kovan",
+  56: "bnb-mainnet",
+  69: "opt-kovan",
+  97: "bnb-testnet",
+  100: "gnosis-mainnet",
+  137: "polygon-mainnet",
+  146: "sonic-mainnet",
+  204: "opbnb-mainnet",
+  250: "fantom-mainnet",
+  252: "frax-mainnet",
+  300: "zksync-sepolia",
+  324: "zksync-mainnet",
+  360: "shape-mainnet",
+  420: "opt-goerli",
+  480: "worldchain-mainnet",
+  545: "flow-testnet",
+  592: "astar-mainnet",
+  747: "flow-mainnet",
+  1088: "metis-mainnet",
+  1101: "polygonzkevm-mainnet",
+  1301: "unichain-sepolia",
+  1442: "polygonzkevm-testnet",
+  1868: "soneium-mainnet",
+  1946: "soneium-minato",
+  2442: "polygonzkevm-cardona",
+  2522: "frax-sepolia",
+  4002: "fantom-testnet",
+  4157: "crossfi-testnet",
+  4158: "crossfi-mainnet",
+  4801: "worldchain-sepolia",
+  5e3: "mantle-mainnet",
+  5003: "mantle-sepolia",
+  5611: "opbnb-testnet",
+  7e3: "zetachain-mainnet",
+  7001: "zetachain-testnet",
+  8008: "polynomial-mainnet",
+  8009: "polynomial-sepolia",
+  8453: "base-mainnet",
+  10200: "gnosis-chiado",
+  11011: "shape-sepolia",
+  11124: "abstract-testnet",
+  17e3: "eth-holesky",
+  33111: "apechain-curtis",
+  33139: "apechain-mainnet",
+  37111: "lens-sepolia",
+  42161: "arb-mainnet",
+  42170: "arbnova-mainnet",
+  43113: "avax-fuji",
+  43114: "avax-mainnet",
+  57054: "sonic-blaze",
+  57073: "ink-mainnet",
+  59141: "linea-sepolia",
+  59144: "linea-mainnet",
+  63157: "geist-mainnet",
+  80001: "polygon-mumbai",
+  80002: "polygon-amoy",
+  80084: "berachain-bartio",
+  81457: "blast-mainnet",
+  84531: "base-goerli",
+  84532: "base-sepolia",
+  421611: "arb-rinkeby",
+  421613: "arb-goerli",
+  421614: "arb-sepolia",
+  534351: "scroll-sepolia",
+  534352: "scroll-mainnet",
+  631571: "geist-polter",
+  763373: "ink-sepolia",
+  7777777: "zora-mainnet",
+  11155111: "eth-sepolia",
+  11155420: "opt-sepolia",
+  168587773: "blast-sepolia",
+  241320161: "xmtp-testnet",
+  666666666: "degen-mainnet",
+  994873017: "lumia-prism",
+  999999999: "zora-sepolia",
+  1952959480: "lumia-testnet"
+};
+
+// node_modules/viem/_esm/zksync/formatters.js
+init_fromHex();
+init_toBytes();
+init_toHex();
+init_transactionRequest();
+
+// node_modules/viem/_esm/zksync/constants/number.js
+init_number();
+var gasPerPubdataDefault = 50000n;
+var maxBytecodeSize = maxUint16 * 32n;
+
+// node_modules/viem/_esm/zksync/formatters.js
+var formatters = {
+  block: /* @__PURE__ */ defineBlock({
+    format(args) {
+      const transactions = args.transactions?.map((transaction) => {
+        if (typeof transaction === "string")
+          return transaction;
+        const formatted = formatters.transaction?.format(transaction);
+        if (formatted.typeHex === "0x71")
+          formatted.type = "eip712";
+        else if (formatted.typeHex === "0xff")
+          formatted.type = "priority";
+        return formatted;
+      });
+      return {
+        l1BatchNumber: args.l1BatchNumber ? hexToBigInt(args.l1BatchNumber) : null,
+        l1BatchTimestamp: args.l1BatchTimestamp ? hexToBigInt(args.l1BatchTimestamp) : null,
+        transactions
+      };
+    }
+  }),
+  transaction: /* @__PURE__ */ defineTransaction({
+    format(args) {
+      const transaction = {};
+      if (args.type === "0x71")
+        transaction.type = "eip712";
+      else if (args.type === "0xff")
+        transaction.type = "priority";
+      return {
+        ...transaction,
+        l1BatchNumber: args.l1BatchNumber ? hexToBigInt(args.l1BatchNumber) : null,
+        l1BatchTxIndex: args.l1BatchTxIndex ? hexToBigInt(args.l1BatchTxIndex) : null
+      };
+    }
+  }),
+  transactionReceipt: /* @__PURE__ */ defineTransactionReceipt({
+    format(args) {
+      return {
+        l1BatchNumber: args.l1BatchNumber ? hexToBigInt(args.l1BatchNumber) : null,
+        l1BatchTxIndex: args.l1BatchTxIndex ? hexToBigInt(args.l1BatchTxIndex) : null,
+        logs: args.logs.map((log) => {
+          return {
+            ...formatLog(log),
+            l1BatchNumber: log.l1BatchNumber ? hexToBigInt(log.l1BatchNumber) : null,
+            transactionLogIndex: hexToNumber(log.transactionLogIndex),
+            logType: log.logType
+          };
+        }),
+        l2ToL1Logs: args.l2ToL1Logs.map((l2ToL1Log) => {
+          return {
+            blockNumber: hexToBigInt(l2ToL1Log.blockHash),
+            blockHash: l2ToL1Log.blockHash,
+            l1BatchNumber: hexToBigInt(l2ToL1Log.l1BatchNumber),
+            transactionIndex: hexToBigInt(l2ToL1Log.transactionIndex),
+            shardId: hexToBigInt(l2ToL1Log.shardId),
+            isService: l2ToL1Log.isService,
+            sender: l2ToL1Log.sender,
+            key: l2ToL1Log.key,
+            value: l2ToL1Log.value,
+            transactionHash: l2ToL1Log.transactionHash,
+            logIndex: hexToBigInt(l2ToL1Log.logIndex)
+          };
+        })
+      };
+    }
+  }),
+  transactionRequest: /* @__PURE__ */ defineTransactionRequest({
+    exclude: [
+      "customSignature",
+      "factoryDeps",
+      "gasPerPubdata",
+      "paymaster",
+      "paymasterInput"
+    ],
+    format(args) {
+      if (args.gasPerPubdata || args.paymaster && args.paymasterInput || args.factoryDeps || args.customSignature)
+        return {
+          eip712Meta: {
+            ...args.gasPerPubdata ? { gasPerPubdata: toHex(args.gasPerPubdata) } : { gasPerPubdata: toHex(gasPerPubdataDefault) },
+            ...args.paymaster && args.paymasterInput ? {
+              paymasterParams: {
+                paymaster: args.paymaster,
+                paymasterInput: Array.from(hexToBytes(args.paymasterInput))
+              }
+            } : {},
+            ...args.factoryDeps ? {
+              factoryDeps: args.factoryDeps.map((dep) => Array.from(hexToBytes(dep)))
+            } : {},
+            ...args.customSignature ? {
+              customSignature: Array.from(hexToBytes(args.customSignature))
+            } : {}
+          },
+          type: "0x71"
+        };
+      return {};
+    }
+  })
+};
+
+// node_modules/viem/_esm/zksync/serializers.js
+init_concat();
+init_toHex();
+
+// node_modules/viem/_esm/zksync/utils/assertEip712Transaction.js
+init_address();
+init_base();
+init_chain();
+init_isAddress();
+
 // node_modules/viem/_esm/zksync/errors/transaction.js
+init_base();
 var InvalidEip712TransactionError = class extends BaseError {
   constructor() {
     super([
@@ -22220,7 +22763,15 @@ function serializeTransactionEIP712(transaction) {
   ]);
 }
 
+// node_modules/viem/_esm/zksync/utils/getEip712Domain.js
+init_toHex();
+
+// node_modules/viem/_esm/zksync/utils/hashBytecode.js
+init_pad();
+init_toBytes();
+
 // node_modules/viem/_esm/zksync/errors/bytecode.js
+init_base();
 var BytecodeLengthExceedsMaxSizeError = class extends BaseError {
   constructor({ givenLength, maxBytecodeSize: maxBytecodeSize2 }) {
     super(`Bytecode cannot be longer than ${maxBytecodeSize2} bytes. Given length: ${givenLength}`, { name: "BytecodeLengthExceedsMaxSizeError" });
@@ -22339,6 +22890,7 @@ var contracts = {
 };
 
 // node_modules/viem/_esm/op-stack/formatters.js
+init_fromHex();
 var formatters2 = {
   block: /* @__PURE__ */ defineBlock({
     format(args) {
@@ -22385,6 +22937,10 @@ var formatters2 = {
 };
 
 // node_modules/viem/_esm/op-stack/serializers.js
+init_address();
+init_isAddress();
+init_concat();
+init_toHex();
 function serializeTransaction3(transaction, signature) {
   if (isDeposit(transaction))
     return serializeTransactionDeposit(transaction);
@@ -22714,7 +23270,12 @@ async function estimateMaxPriorityFeePerGasInFeeCurrency(client, feeCurrency) {
   return BigInt(feesPerGas);
 }
 
+// node_modules/viem/_esm/celo/formatters.js
+init_fromHex();
+init_transactionRequest();
+
 // node_modules/viem/_esm/celo/utils.js
+init_trim();
 function isEmpty(value) {
   return value === 0 || value === 0n || value === void 0 || value === null || value === "0" || value === "" || typeof value === "string" && (trim(value).toLowerCase() === "0x" || trim(value).toLowerCase() === "0x00");
 }
@@ -22788,6 +23349,14 @@ var formatters3 = {
 };
 
 // node_modules/viem/_esm/celo/serializers.js
+init_number();
+init_address();
+init_base();
+init_chain();
+init_node();
+init_isAddress();
+init_concat();
+init_toHex();
 function serializeTransaction4(transaction, signature) {
   if (isCIP64(transaction))
     return serializeTransactionCIP64(transaction, signature);
@@ -22986,197 +23555,13 @@ var harmonyOne = /* @__PURE__ */ defineChain({
   }
 });
 
-// node_modules/viem/_esm/accounts/utils/parseAccount.js
-function parseAccount(account) {
-  if (typeof account === "string")
-    return { address: account, type: "json-rpc" };
-  return account;
-}
-
-// node_modules/viem/_esm/errors/account.js
-var AccountNotFoundError = class extends BaseError {
-  constructor({ docsPath } = {}) {
-    super([
-      "Could not find an Account to execute with this Action.",
-      "Please provide an Account with the `account` argument on the Action, or by supplying an `account` to the Client."
-    ].join("\n"), {
-      docsPath,
-      docsSlug: "account",
-      name: "AccountNotFoundError"
-    });
-  }
-};
-
-// node_modules/viem/_esm/errors/stateOverride.js
-function prettyStateMapping(stateMapping) {
-  return stateMapping.reduce((pretty, { slot, value }) => {
-    return `${pretty}        ${slot}: ${value}
-`;
-  }, "");
-}
-function prettyStateOverride(stateOverride) {
-  return stateOverride.reduce((pretty, { address, ...state }) => {
-    let val = `${pretty}    ${address}:
-`;
-    if (state.nonce)
-      val += `      nonce: ${state.nonce}
-`;
-    if (state.balance)
-      val += `      balance: ${state.balance}
-`;
-    if (state.code)
-      val += `      code: ${state.code}
-`;
-    if (state.state) {
-      val += "      state:\n";
-      val += prettyStateMapping(state.state);
-    }
-    if (state.stateDiff) {
-      val += "      stateDiff:\n";
-      val += prettyStateMapping(state.stateDiff);
-    }
-    return val;
-  }, "  State Override:\n").slice(0, -1);
-}
-
-// node_modules/viem/_esm/errors/contract.js
-var CallExecutionError = class extends BaseError {
-  constructor(cause, { account: account_, docsPath, chain, data, gas, gasPrice, maxFeePerGas, maxPriorityFeePerGas, nonce, to, value, stateOverride }) {
-    const account = account_ ? parseAccount(account_) : void 0;
-    let prettyArgs = prettyPrint({
-      from: account?.address,
-      to,
-      value: typeof value !== "undefined" && `${formatEther(value)} ${chain?.nativeCurrency?.symbol || "ETH"}`,
-      data,
-      gas,
-      gasPrice: typeof gasPrice !== "undefined" && `${formatGwei(gasPrice)} gwei`,
-      maxFeePerGas: typeof maxFeePerGas !== "undefined" && `${formatGwei(maxFeePerGas)} gwei`,
-      maxPriorityFeePerGas: typeof maxPriorityFeePerGas !== "undefined" && `${formatGwei(maxPriorityFeePerGas)} gwei`,
-      nonce
-    });
-    if (stateOverride) {
-      prettyArgs += `
-${prettyStateOverride(stateOverride)}`;
-    }
-    super(cause.shortMessage, {
-      cause,
-      docsPath,
-      metaMessages: [
-        ...cause.metaMessages ? [...cause.metaMessages, " "] : [],
-        "Raw Call Arguments:",
-        prettyArgs
-      ].filter(Boolean),
-      name: "CallExecutionError"
-    });
-    Object.defineProperty(this, "cause", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: void 0
-    });
-    this.cause = cause;
-  }
-};
-
-// node_modules/viem/_esm/utils/errors/getNodeError.js
-function getNodeError(err, args) {
-  const message = (err.details || "").toLowerCase();
-  const executionRevertedError = err instanceof BaseError ? err.walk((e) => e?.code === ExecutionRevertedError.code) : err;
-  if (executionRevertedError instanceof BaseError)
-    return new ExecutionRevertedError({
-      cause: err,
-      message: executionRevertedError.details
-    });
-  if (ExecutionRevertedError.nodeMessage.test(message))
-    return new ExecutionRevertedError({
-      cause: err,
-      message: err.details
-    });
-  if (FeeCapTooHighError.nodeMessage.test(message))
-    return new FeeCapTooHighError({
-      cause: err,
-      maxFeePerGas: args?.maxFeePerGas
-    });
-  if (FeeCapTooLowError.nodeMessage.test(message))
-    return new FeeCapTooLowError({
-      cause: err,
-      maxFeePerGas: args?.maxFeePerGas
-    });
-  if (NonceTooHighError.nodeMessage.test(message))
-    return new NonceTooHighError({ cause: err, nonce: args?.nonce });
-  if (NonceTooLowError.nodeMessage.test(message))
-    return new NonceTooLowError({ cause: err, nonce: args?.nonce });
-  if (NonceMaxValueError.nodeMessage.test(message))
-    return new NonceMaxValueError({ cause: err, nonce: args?.nonce });
-  if (InsufficientFundsError.nodeMessage.test(message))
-    return new InsufficientFundsError({ cause: err });
-  if (IntrinsicGasTooHighError.nodeMessage.test(message))
-    return new IntrinsicGasTooHighError({ cause: err, gas: args?.gas });
-  if (IntrinsicGasTooLowError.nodeMessage.test(message))
-    return new IntrinsicGasTooLowError({ cause: err, gas: args?.gas });
-  if (TransactionTypeNotSupportedError.nodeMessage.test(message))
-    return new TransactionTypeNotSupportedError({ cause: err });
-  if (TipAboveFeeCapError.nodeMessage.test(message))
-    return new TipAboveFeeCapError({
-      cause: err,
-      maxFeePerGas: args?.maxFeePerGas,
-      maxPriorityFeePerGas: args?.maxPriorityFeePerGas
-    });
-  return new UnknownNodeError({
-    cause: err
-  });
-}
-
-// node_modules/viem/_esm/utils/errors/getCallError.js
-function getCallError(err, { docsPath, ...args }) {
-  const cause = (() => {
-    const cause2 = getNodeError(err, args);
-    if (cause2 instanceof UnknownNodeError)
-      return err;
-    return cause2;
-  })();
-  return new CallExecutionError(cause, {
-    docsPath,
-    ...args
-  });
-}
-
-// node_modules/viem/_esm/utils/formatters/extract.js
-function extract(value_, { format }) {
-  if (!format)
-    return {};
-  const value = {};
-  function extract_(formatted2) {
-    const keys = Object.keys(formatted2);
-    for (const key of keys) {
-      if (key in value_)
-        value[key] = value_[key];
-      if (formatted2[key] && typeof formatted2[key] === "object" && !Array.isArray(formatted2[key]))
-        extract_(formatted2[key]);
-    }
-  }
-  const formatted = format(value_ || {});
-  extract_(formatted);
-  return value;
-}
-
-// node_modules/viem/_esm/utils/transaction/assertRequest.js
-function assertRequest(args) {
-  const { account: account_, gasPrice, maxFeePerGas, maxPriorityFeePerGas, to } = args;
-  const account = account_ ? parseAccount(account_) : void 0;
-  if (account && !isAddress(account.address))
-    throw new InvalidAddressError({ address: account.address });
-  if (to && !isAddress(to))
-    throw new InvalidAddressError({ address: to });
-  if (typeof gasPrice !== "undefined" && (typeof maxFeePerGas !== "undefined" || typeof maxPriorityFeePerGas !== "undefined"))
-    throw new FeeConflictError();
-  if (maxFeePerGas && maxFeePerGas > maxUint256)
-    throw new FeeCapTooHighError({ maxFeePerGas });
-  if (maxPriorityFeePerGas && maxFeePerGas && maxPriorityFeePerGas > maxFeePerGas)
-    throw new TipAboveFeeCapError({ maxFeePerGas, maxPriorityFeePerGas });
-}
-
 // node_modules/viem/_esm/linea/actions/estimateGas.js
+init_parseAccount();
+init_toHex();
+init_getCallError();
+init_extract();
+init_transactionRequest();
+init_assertRequest();
 async function estimateGas(client, args) {
   const { account: account_ = client.account } = args;
   if (!account_)
