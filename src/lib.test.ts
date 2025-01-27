@@ -68,6 +68,7 @@ describe("lib", () => {
         "RPC_HARMONY": 1666600000,
         "RPC_LINEA": 59144,
         "RPC_MAINNET": 1,
+        "RPC_MANTLE": 5000,
         "RPC_METIS": 1088,
         "RPC_OPTIMISM": 10,
         "RPC_OPTIMISM_SEPOLIA": 11155420,
@@ -76,6 +77,7 @@ describe("lib", () => {
         "RPC_SCROLL": 534352,
         "RPC_SCROLL_SEPOLIA": 534351,
         "RPC_SEPOLIA": 11155111,
+        "RPC_SONIC": 146,
         "RPC_ZKEVM": 1101,
         "RPC_ZKSYNC": 324,
       }

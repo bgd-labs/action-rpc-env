@@ -10,6 +10,8 @@ exports[`should return alchemy supported chain 100 > gnosis-mainnet 1`] = `"http
 
 exports[`should return alchemy supported chain 137 > polygon-mainnet 1`] = `"https://polygon-mainnet.g.alchemy.com/v2/abc"`;
 
+exports[`should return alchemy supported chain 146 > sonic-mainnet 1`] = `"https://sonic-mainnet.g.alchemy.com/v2/abc"`;
+
 exports[`should return alchemy supported chain 250 > fantom-mainnet 1`] = `"https://fantom-mainnet.g.alchemy.com/v2/abc"`;
 
 exports[`should return alchemy supported chain 324 > zksync-mainnet 1`] = `"https://zksync-mainnet.g.alchemy.com/v2/abc"`;
@@ -19,6 +21,8 @@ exports[`should return alchemy supported chain 1088 > metis-mainnet 1`] = `"http
 exports[`should return alchemy supported chain 1101 > polygonzkevm-mainnet 1`] = `"https://polygonzkevm-mainnet.g.alchemy.com/v2/abc"`;
 
 exports[`should return alchemy supported chain 4002 > fantom-testnet 1`] = `"https://fantom-testnet.g.alchemy.com/v2/abc"`;
+
+exports[`should return alchemy supported chain 5000 > mantle-mainnet 1`] = `"https://mantle-mainnet.g.alchemy.com/v2/abc"`;
 
 exports[`should return alchemy supported chain 8453 > base-mainnet 1`] = `"https://base-mainnet.g.alchemy.com/v2/abc"`;
 
