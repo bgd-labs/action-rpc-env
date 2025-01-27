@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.3.1](https://github.com/bgd-labs/action-rpc-env/compare/v2.3.0...v2.3.1) (2025-01-27)
+
+
+### Bug Fixes
+
+* add sonic and mantle ([#68](https://github.com/bgd-labs/action-rpc-env/issues/68)) ([f1401bb](https://github.com/bgd-labs/action-rpc-env/commit/f1401bb72055394f4a85b3abfee951669e19157c))
+
 ## [2.3.0](https://github.com/bgd-labs/action-rpc-env/compare/v2.2.1...v2.3.0) (2025-01-21)
 
 
