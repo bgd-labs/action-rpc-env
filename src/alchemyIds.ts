@@ -30,6 +30,8 @@ export const networkMap = {
   1442: "polygonzkevm-testnet",
   1868: "soneium-mainnet",
   1946: "soneium-minato",
+  2020: "ronin-mainnet",
+  2021: "ronin-saigon",
   2442: "polygonzkevm-cardona",
   2522: "frax-sepolia",
   4002: "fantom-testnet",
