@@ -173,6 +173,8 @@ export function getClient(
   if (!clientCache[chainId] || forceRebuildClient) {
     const rpcURL = getRPCUrl(chainId as keyof typeof ChainList, {
       alchemyKey: process.env.ALCHEMY_API_KEY,
+      quicknodeEndpointName: process.env.QUICKNODE_ENDPOINT_NAME,
+      quicknodeToken: process.env.QUICKNODE_TOKEN,
     });
 
     clientCache[chainId] = createClient({
