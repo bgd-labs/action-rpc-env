@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.3.2](https://github.com/bgd-labs/action-rpc-env/compare/v2.3.1...v2.3.2) (2025-01-29)
+
+
+### Bug Fixes
+
+* allow quicknode on get client ([#72](https://github.com/bgd-labs/action-rpc-env/issues/72)) ([ad14a20](https://github.com/bgd-labs/action-rpc-env/commit/ad14a204953c7182012ec9bd20360d3f2fe0bef3))
+
 ## [2.3.1](https://github.com/bgd-labs/action-rpc-env/compare/v2.3.0...v2.3.1) (2025-01-27)
 
 
