@@ -1,5 +1,5 @@
 import { debug, exportVariable, getInput } from "@actions/core";
-import { ChainId, getNetworkEnv, getRPCUrl } from "./lib";
+import { ChainId, getNetworkEnv, getRPCUrl } from "@bgd-labs/toolbox";
 
 const alchemyKey =
   getInput("ALCHEMY_API_KEY") !== "" ? getInput("ALCHEMY_API_KEY") : undefined;
