@@ -20,10 +20,3 @@ jobs:
         id: release
         with:
           release-type: node
-
-  release-node:
-    uses: bgd-labs/github-workflows/.github/workflows/release-node.yml@main
-    if: ${{ needs.release-please.outputs.releaseCreated }}
-    needs: release-please
-    secrets:
-      NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
