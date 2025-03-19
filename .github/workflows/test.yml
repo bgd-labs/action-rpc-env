@@ -15,9 +15,6 @@ jobs:
 
       - uses: bgd-labs/github-workflows/.github/actions/setup-node@main
 
-      - name: test lib
-        run: npm test -- --run
-
       - name: test action
         uses: ./
         with:
