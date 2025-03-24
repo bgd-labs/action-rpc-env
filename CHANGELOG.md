@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.3.3](https://github.com/bgd-labs/action-rpc-env/compare/v2.3.2...v2.3.3) (2025-03-24)
+
+
+### Bug Fixes
+
+* update public rpcs ([#91](https://github.com/bgd-labs/action-rpc-env/issues/91)) ([bd44393](https://github.com/bgd-labs/action-rpc-env/commit/bd44393dfc87484624490e2c108d64fccda071c6))
+
 ## [2.3.2](https://github.com/bgd-labs/action-rpc-env/compare/v2.3.1...v2.3.2) (2025-01-29)
 
 
