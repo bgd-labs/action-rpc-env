@@ -38,12 +38,12 @@
   "devDependencies": {
     "@actions/core": "^1.11.1",
     "@biomejs/biome": "^1.9.4",
-    "@types/node": "^22.13.13",
-    "lefthook": "^1.11.4",
+    "@types/node": "^22.13.14",
+    "lefthook": "^1.11.6",
     "tsup": "^8.4.0",
     "typescript": "^5.8.2",
     "viem": "^2.22.15",
-    "vitest": "^3.0.9",
+    "vitest": "^3.1.1",
     "dotenv": "^16.4.7"
   },
   "tsup": {
