@@ -11,7 +11,7 @@ export const publicRPCs = {
   [ChainId.base]: "https://base.llamarpc.com",
   [ChainId.bnb]: "https://binance.llamarpc.com",
   [ChainId.metis]: "https://andromeda.metis.io/?owner=1088",
-  [ChainId.gnosis]: "https://rpc.gnosis.gateway.fm",
+  [ChainId.gnosis]: "https://gnosis.drpc.org",
   [ChainId.scroll]: "https://rpc.scroll.io",
   [ChainId.zksync]: "https://mainnet.era.zksync.io",
   [ChainId.fantom]: "https://rpc.ftm.tools",
