@@ -61,5 +61,5 @@ export const quicknodeNetworkMap = {
   11155420: "optimism-sepolia",
   111557560: "cyber-sepolia",
   168587773: "blast-sepolia",
-  37714555429: "xai-testnet",
+  37714555429: "xai-testnet"
 } as const;

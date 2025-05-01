@@ -11,6 +11,7 @@ import {
   fantomTestnet,
   gnosis,
   harmonyOne,
+  ink,
   linea,
   mainnet,
   mantle,
@@ -23,6 +24,7 @@ import {
   scroll,
   scrollSepolia,
   sepolia,
+  soneium,
   sonic,
   zksync,
 } from "viem/chains";
@@ -54,6 +56,8 @@ export const ChainId = {
   zkEVM: polygonZkEvm.id,
   zksync: zksync.id,
   linea: linea.id,
+  ink: ink.id,
+  soneium: soneium.id,
 } as const;
 
 export const ChainList = {
@@ -83,4 +87,6 @@ export const ChainList = {
   [ChainId.celo]: celo,
   [ChainId.zksync]: zksync,
   [ChainId.linea]: linea,
+  [ChainId.ink]: ink,
+  [ChainId.soneium]: soneium,
 };
