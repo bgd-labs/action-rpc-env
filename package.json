@@ -1,6 +1,6 @@
 {
   "name": "@bgd-labs/rpc-env",
-  "version": "2.3.3",
+  "version": "2.4.0",
   "private": true,
   "publishConfig": {
     "access": "public"
@@ -24,12 +24,17 @@
     "typescript": "^5.8.2"
   },
   "tsup": {
-    "entry": ["src/action.ts"],
+    "entry": [
+      "src/action.ts"
+    ],
     "splitting": false,
     "sourcemap": false,
     "clean": true,
     "dts": true,
     "treeshake": true,
-    "format": ["esm", "cjs"]
+    "format": [
+      "esm",
+      "cjs"
+    ]
   }
 }
