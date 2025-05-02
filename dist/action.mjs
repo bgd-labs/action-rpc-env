@@ -36913,6 +36913,54 @@ var harmonyOne = /* @__PURE__ */ defineChain({
   }
 });
 
+// node_modules/viem/_esm/chains/definitions/ink.js
+var sourceId3 = 1;
+var ink = /* @__PURE__ */ defineChain({
+  ...chainConfig2,
+  id: 57073,
+  name: "Ink",
+  nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+  rpcUrls: {
+    default: {
+      http: [
+        "https://rpc-gel.inkonchain.com",
+        "https://rpc-qnd.inkonchain.com"
+      ],
+      webSocket: [
+        "wss://rpc-gel.inkonchain.com",
+        "wss://rpc-qnd.inkonchain.com"
+      ]
+    }
+  },
+  blockExplorers: {
+    default: {
+      name: "Blockscout",
+      url: "https://explorer.inkonchain.com",
+      apiUrl: "https://explorer.inkonchain.com/api/v2"
+    }
+  },
+  contracts: {
+    ...chainConfig2.contracts,
+    disputeGameFactory: {
+      [sourceId3]: {
+        address: "0x10d7b35078d3baabb96dd45a9143b94be65b12cd"
+      }
+    },
+    portal: {
+      [sourceId3]: {
+        address: "0x5d66c1782664115999c47c9fa5cd031f495d3e4f"
+      }
+    },
+    l1StandardBridge: {
+      [sourceId3]: {
+        address: "0x88ff1e5b602916615391f55854588efcbb7663f0"
+      }
+    }
+  },
+  testnet: false,
+  sourceId: sourceId3
+});
+
 // node_modules/viem/_esm/linea/actions/estimateGas.js
 init_parseAccount();
 init_toHex();
@@ -37130,7 +37178,7 @@ var metis = /* @__PURE__ */ defineChain({
 });
 
 // node_modules/viem/_esm/chains/definitions/optimism.js
-var sourceId3 = 1;
+var sourceId4 = 1;
 var optimism = /* @__PURE__ */ defineChain({
   ...chainConfig2,
   id: 10,
@@ -37151,12 +37199,12 @@ var optimism = /* @__PURE__ */ defineChain({
   contracts: {
     ...chainConfig2.contracts,
     disputeGameFactory: {
-      [sourceId3]: {
+      [sourceId4]: {
         address: "0xe5965Ab5962eDc7477C8520243A95517CD252fA9"
       }
     },
     l2OutputOracle: {
-      [sourceId3]: {
+      [sourceId4]: {
         address: "0xdfe97868233d1aa22e815a266982f2cf17685a27"
       }
     },
@@ -37165,21 +37213,21 @@ var optimism = /* @__PURE__ */ defineChain({
       blockCreated: 4286263
     },
     portal: {
-      [sourceId3]: {
+      [sourceId4]: {
         address: "0xbEb5Fc579115071764c7423A4f12eDde41f106Ed"
       }
     },
     l1StandardBridge: {
-      [sourceId3]: {
+      [sourceId4]: {
         address: "0x99C9fc46f92E8a1c0deC1b1747d010903E884bE1"
       }
     }
   },
-  sourceId: sourceId3
+  sourceId: sourceId4
 });
 
 // node_modules/viem/_esm/chains/definitions/optimismSepolia.js
-var sourceId4 = 11155111;
+var sourceId5 = 11155111;
 var optimismSepolia = /* @__PURE__ */ defineChain({
   ...chainConfig2,
   id: 11155420,
@@ -37200,12 +37248,12 @@ var optimismSepolia = /* @__PURE__ */ defineChain({
   contracts: {
     ...chainConfig2.contracts,
     disputeGameFactory: {
-      [sourceId4]: {
+      [sourceId5]: {
         address: "0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1"
       }
     },
     l2OutputOracle: {
-      [sourceId4]: {
+      [sourceId5]: {
         address: "0x90E9c4f8a994a250F6aEfd61CAFb4F2e895D458F"
       }
     },
@@ -37214,18 +37262,18 @@ var optimismSepolia = /* @__PURE__ */ defineChain({
       blockCreated: 1620204
     },
     portal: {
-      [sourceId4]: {
+      [sourceId5]: {
         address: "0x16Fc5058F25648194471939df75CF27A2fdC48BC"
       }
     },
     l1StandardBridge: {
-      [sourceId4]: {
+      [sourceId5]: {
         address: "0xFBb0621E0B23b5478B630BD55a5f21f67730B0F1"
       }
     }
   },
   testnet: true,
-  sourceId: sourceId4
+  sourceId: sourceId5
 });
 
 // node_modules/viem/_esm/chains/definitions/polygon.js
@@ -39918,9 +39966,10 @@ var ChainId = {
   gnosis: gnosis.id,
   zkEVM: polygonZkEvm.id,
   zksync: zksync.id,
-  linea: linea.id
+  linea: linea.id,
+  ink: ink.id
 };
-var alechmyNetworkMap = {
+var alchemyNetworkMap = {
   1: "eth-mainnet",
   10: "opt-mainnet",
   30: "rootstock-mainnet",
@@ -40097,7 +40146,7 @@ var publicRPCs = {
   [ChainId.linea]: "https://rpc.linea.build"
 };
 Object.values(ChainId).filter(
-  (id) => alechmyNetworkMap[id]
+  (id) => alchemyNetworkMap[id]
 );
 var getNetworkEnv = (chainId) => {
   const symbol = Object.entries(ChainId).find(
@@ -40119,7 +40168,7 @@ function getExplicitRPC(chainId) {
   throw new Error(`Env '${env}' is not set. Please set it manually.`);
 }
 function getAlchemyRPC(chainId, alchemyKey2) {
-  const alchemyId = alechmyNetworkMap[chainId];
+  const alchemyId = alchemyNetworkMap[chainId];
   if (!alchemyId) {
     throw new Error(`ChainId '${chainId}' is not supported by Alchemy.`);
   }
@@ -40136,7 +40185,7 @@ function getPublicRpc(chainId) {
     throw new Error(`No default public rpc for '${chainId}' configured.`);
   return publicRpc;
 }
-function getQuickNodeRpc(chainId, options) {
+function getQuicknodeRpc(chainId, options) {
   const quickNodeSlug = quicknodeNetworkMap[chainId];
   if (!quickNodeSlug) {
     throw new Error(`ChainId '${chainId}' is not supported by Quicknode.`);
@@ -40174,7 +40223,7 @@ var getRPCUrl = (chainId, options) => {
   }
   if (options?.quicknodeEndpointName && options.quicknodeToken) {
     try {
-      return getQuickNodeRpc(chainId, {
+      return getQuicknodeRpc(chainId, {
         quicknodeToken: options.quicknodeToken,
         quicknodeEndpointName: options.quicknodeEndpointName
       });
