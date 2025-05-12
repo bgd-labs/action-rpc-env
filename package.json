@@ -16,9 +16,9 @@
   "license": "MIT",
   "devDependencies": {
     "@actions/core": "^1.11.1",
-    "@bgd-labs/toolbox": "^0.0.9",
+    "@bgd-labs/toolbox": "^0.0.14",
     "@biomejs/biome": "^1.9.4",
-    "@types/node": "^22.13.13",
+    "@types/node": "^22.15.17",
     "lefthook": "^1.11.4",
     "tsup": "^8.4.0",
     "typescript": "^5.8.2"
