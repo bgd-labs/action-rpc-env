@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.4.0](https://github.com/bgd-labs/action-rpc-env/compare/v2.3.3...v2.4.0) (2025-05-21)
+
+
+### Features
+
+* functionality was moved to the toolbox repo ([#90](https://github.com/bgd-labs/action-rpc-env/issues/90)) ([111dd51](https://github.com/bgd-labs/action-rpc-env/commit/111dd51ab7a83e24c066c131dde64dc32e087d6c))
+
 ## [2.3.3](https://github.com/bgd-labs/action-rpc-env/compare/v2.3.2...v2.3.3) (2025-03-24)
 
 
