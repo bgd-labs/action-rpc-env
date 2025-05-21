@@ -1,7 +1,5 @@
 'use strict';
 
-require('child_process');
-
 var __create = Object.create;
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
@@ -5261,6 +5259,13 @@ var require_body = __commonJS({
     var { isUint8Array, isArrayBuffer } = __require("util/types");
     var { File: UndiciFile } = require_file();
     var { parseMIMEType, serializeAMimeType } = require_dataURL();
+    var random;
+    try {
+      const crypto = __require("crypto");
+      random = (max) => crypto.randomInt(0, max);
+    } catch {
+      random = (max) => Math.floor(Math.random(max));
+    }
     var ReadableStream = globalThis.ReadableStream;
     var File = NativeFile ?? UndiciFile;
     var textEncoder = new TextEncoder();
@@ -5303,7 +5308,7 @@ var require_body = __commonJS({
       } else if (ArrayBuffer.isView(object)) {
         source = new Uint8Array(object.buffer.slice(object.byteOffset, object.byteOffset + object.byteLength));
       } else if (util.isFormDataLike(object)) {
-        const boundary = `----formdata-undici-0${`${Math.floor(Math.random() * 1e11)}`.padStart(11, "0")}`;
+        const boundary = `----formdata-undici-0${`${random(1e11)}`.padStart(11, "0")}`;
         const prefix = `--${boundary}\r
 Content-Disposition: form-data`;
         const escape = (str) => str.replace(/\n/g, "%0A").replace(/\r/g, "%0D").replace(/"/g, "%22");
@@ -8840,6 +8845,14 @@ var require_pool = __commonJS({
         this[kOptions] = { ...util.deepClone(options), connect, allowH2 };
         this[kOptions].interceptors = options.interceptors ? { ...options.interceptors } : void 0;
         this[kFactory] = factory;
+        this.on("connectionError", (origin2, targets, error) => {
+          for (const target of targets) {
+            const idx = this[kClients].indexOf(target);
+            if (idx !== -1) {
+              this[kClients].splice(idx, 1);
+            }
+          }
+        });
       }
       [kGetDispatcher]() {
         let dispatcher = this[kClients].find((dispatcher2) => !dispatcher2[kNeedDrain]);
@@ -11487,6 +11500,7 @@ var require_headers = __commonJS({
       isValidHeaderName,
       isValidHeaderValue
     } = require_util2();
+    var util = __require("util");
     var { webidl } = require_webidl();
     var assert = __require("assert");
     var kHeadersMap = Symbol("headers map");
@@ -11835,6 +11849,9 @@ var require_headers = __commonJS({
       [Symbol.toStringTag]: {
         value: "Headers",
         configurable: true
+      },
+      [util.inspect.custom]: {
+        enumerable: false
       }
     });
     webidl.converters.HeadersInit = function(V2) {
@@ -15399,8 +15416,6 @@ var require_constants4 = __commonJS({
 // node_modules/undici/lib/cookies/util.js
 var require_util6 = __commonJS({
   "node_modules/undici/lib/cookies/util.js"(exports, module) {
-    var assert = __require("assert");
-    var { kHeadersList } = require_symbols();
     function isCTLExcludingHtab(value) {
       if (value.length === 0) {
         return false;
@@ -15531,25 +15546,13 @@ var require_util6 = __commonJS({
       }
       return out.join("; ");
     }
-    var kHeadersListNode;
-    function getHeadersList(headers) {
-      if (headers[kHeadersList]) {
-        return headers[kHeadersList];
-      }
-      if (!kHeadersListNode) {
-        kHeadersListNode = Object.getOwnPropertySymbols(headers).find(
-          (symbol) => symbol.description === "headers list"
-        );
-        assert(kHeadersListNode, "Headers cannot be parsed");
-      }
-      const headersList = headers[kHeadersListNode];
-      assert(headersList);
-      return headersList;
-    }
     module.exports = {
       isCTLExcludingHtab,
-      stringify,
-      getHeadersList
+      validateCookieName,
+      validateCookiePath,
+      validateCookieValue,
+      toIMFDate,
+      stringify
     };
   }
 });
@@ -15697,7 +15700,7 @@ var require_parse = __commonJS({
 var require_cookies = __commonJS({
   "node_modules/undici/lib/cookies/index.js"(exports, module) {
     var { parseSetCookie } = require_parse();
-    var { stringify, getHeadersList } = require_util6();
+    var { stringify } = require_util6();
     var { webidl } = require_webidl();
     var { Headers: Headers2 } = require_headers();
     function getCookies(headers) {
@@ -15729,11 +15732,11 @@ var require_cookies = __commonJS({
     function getSetCookies(headers) {
       webidl.argumentLengthCheck(arguments, 1, { header: "getSetCookies" });
       webidl.brandCheck(headers, Headers2, { strict: false });
-      const cookies = getHeadersList(headers).cookies;
+      const cookies = headers.getSetCookie();
       if (!cookies) {
         return [];
       }
-      return cookies.map((pair) => parseSetCookie(Array.isArray(pair) ? pair[1] : pair));
+      return cookies.map((pair) => parseSetCookie(pair));
     }
     function setCookie(headers, cookie) {
       webidl.argumentLengthCheck(arguments, 2, { header: "setCookie" });
@@ -19755,7 +19758,7 @@ var init_size = __esm({
 var version;
 var init_version = __esm({
   "node_modules/viem/_esm/errors/version.js"() {
-    version = "2.23.12";
+    version = "2.30.0";
   }
 });
 
@@ -20235,6 +20238,8 @@ var init_utils = __esm({
   "node_modules/@noble/hashes/esm/utils.js"() {
     init_assert();
     isLE = /* @__PURE__ */ (() => new Uint8Array(new Uint32Array([287454020]).buffer)[0] === 68)();
+    // @ts-ignore
+    typeof Uint8Array.from([]).toHex === "function" && typeof Uint8Array.fromHex === "function";
     Hash = class {
       // Safe version that clones internal state
       clone() {
@@ -20319,15 +20324,16 @@ var init_sha3 = __esm({
       // NOTE: we accept arguments in bytes instead of bits here.
       constructor(blockLen, suffix, outputLen, enableXOF = false, rounds = 24) {
         super();
+        this.pos = 0;
+        this.posOut = 0;
+        this.finished = false;
+        this.destroyed = false;
+        this.enableXOF = false;
         this.blockLen = blockLen;
         this.suffix = suffix;
         this.outputLen = outputLen;
         this.enableXOF = enableXOF;
         this.rounds = rounds;
-        this.pos = 0;
-        this.posOut = 0;
-        this.finished = false;
-        this.destroyed = false;
         anumber(outputLen);
         if (0 >= this.blockLen || this.blockLen >= 200)
           throw new Error("Sha3 supports only keccak-f1600 function");
@@ -20742,7 +20748,7 @@ var init_cursor2 = __esm({
       pushUint24(value) {
         this.assertPosition(this.position + 2);
         this.dataView.setUint16(this.position, value >> 8);
-        this.dataView.setUint8(this.position + 2, value & ~4294967040);
+        this.dataView.setUint8(this.position + 2, value & 255);
         this.position += 3;
       },
       pushUint32(value) {
@@ -21344,7 +21350,7 @@ function formatTransactionRequest(request) {
 }
 function formatAuthorizationList(authorizationList) {
   return authorizationList.map((authorization) => ({
-    address: authorization.contractAddress,
+    address: authorization.address,
     r: authorization.r ? numberToHex(BigInt(authorization.r)) : authorization.r,
     s: authorization.s ? numberToHex(BigInt(authorization.s)) : authorization.s,
     chainId: numberToHex(authorization.chainId),
@@ -21431,14 +21437,14 @@ var init_md = __esm({
     HashMD = class extends Hash {
       constructor(blockLen, outputLen, padOffset, isLE2) {
         super();
-        this.blockLen = blockLen;
-        this.outputLen = outputLen;
-        this.padOffset = padOffset;
-        this.isLE = isLE2;
         this.finished = false;
         this.length = 0;
         this.pos = 0;
         this.destroyed = false;
+        this.blockLen = blockLen;
+        this.outputLen = outputLen;
+        this.padOffset = padOffset;
+        this.isLE = isLE2;
         this.buffer = new Uint8Array(blockLen);
         this.view = createView(this.buffer);
       }
@@ -21601,8 +21607,8 @@ var init_sha256 = __esm({
     ]);
     SHA256_W = /* @__PURE__ */ new Uint32Array(64);
     SHA256 = class extends HashMD {
-      constructor() {
-        super(64, 32, 8, false);
+      constructor(outputLen = 32) {
+        super(64, outputLen, 8, false);
         this.A = SHA256_IV[0] | 0;
         this.B = SHA256_IV[1] | 0;
         this.C = SHA256_IV[2] | 0;
@@ -34732,7 +34738,7 @@ function formatTransaction(transaction) {
 var defineTransaction = /* @__PURE__ */ defineFormatter("transaction", formatTransaction);
 function formatAuthorizationList2(authorizationList) {
   return authorizationList.map((authorization) => ({
-    contractAddress: authorization.address,
+    address: authorization.address,
     chainId: Number(authorization.chainId),
     nonce: Number(authorization.nonce),
     r: authorization.r,
@@ -34988,29 +34994,6 @@ var AccountNotFoundError = class extends BaseError {
   }
 };
 
-// node_modules/viem/_esm/actions/public/getCode.js
-init_toHex();
-async function getCode(client, { address, blockNumber, blockTag = "latest" }) {
-  const blockNumberHex = blockNumber !== void 0 ? numberToHex(blockNumber) : void 0;
-  const hex = await client.request({
-    method: "eth_getCode",
-    params: [address, blockNumberHex || blockTag]
-  }, { dedupe: Boolean(blockNumberHex) });
-  if (hex === "0x")
-    return void 0;
-  return hex;
-}
-
-// node_modules/viem/_esm/utils/chain/defineChain.js
-function defineChain(chain) {
-  return {
-    formatters: void 0,
-    fees: void 0,
-    serializers: void 0,
-    ...chain
-  };
-}
-
 // node_modules/viem/_esm/utils/formatters/transactionReceipt.js
 init_fromHex();
 init_formatter();
@@ -35040,6 +35023,25 @@ function formatTransactionReceipt(transactionReceipt) {
 }
 var defineTransactionReceipt = /* @__PURE__ */ defineFormatter("transactionReceipt", formatTransactionReceipt);
 
+// node_modules/viem/_esm/utils/chain/defineChain.js
+function defineChain(chain) {
+  return {
+    formatters: void 0,
+    fees: void 0,
+    serializers: void 0,
+    ...chain
+  };
+}
+
+// node_modules/viem/_esm/utils/authorization/serializeAuthorizationList.js
+init_toHex();
+
+// node_modules/viem/_esm/utils/transaction/serializeTransaction.js
+init_transaction();
+init_concat();
+init_trim();
+init_toHex();
+
 // node_modules/viem/_esm/utils/transaction/assertTransaction.js
 init_number();
 init_address();
@@ -35054,9 +35056,10 @@ function assertTransactionEIP7702(transaction) {
   const { authorizationList } = transaction;
   if (authorizationList) {
     for (const authorization of authorizationList) {
-      const { contractAddress, chainId } = authorization;
-      if (!isAddress(contractAddress))
-        throw new InvalidAddressError({ address: contractAddress });
+      const { chainId } = authorization;
+      const address = authorization.address;
+      if (!isAddress(address))
+        throw new InvalidAddressError({ address });
       if (chainId < 0)
         throw new InvalidChainIdError({ chainId });
     }
@@ -35114,30 +35117,6 @@ function assertTransactionLegacy(transaction) {
     throw new BaseError("`maxFeePerGas`/`maxPriorityFeePerGas` is not a valid Legacy Transaction attribute.");
   if (gasPrice && gasPrice > maxUint256)
     throw new FeeCapTooHighError({ maxFeePerGas: gasPrice });
-}
-
-// node_modules/viem/_esm/utils/transaction/serializeTransaction.js
-init_transaction();
-init_concat();
-init_trim();
-init_toHex();
-
-// node_modules/viem/_esm/experimental/eip7702/utils/serializeAuthorizationList.js
-init_toHex();
-function serializeAuthorizationList(authorizationList) {
-  if (!authorizationList || authorizationList.length === 0)
-    return [];
-  const serializedAuthorizationList = [];
-  for (const authorization of authorizationList) {
-    const { contractAddress, chainId, nonce, ...signature } = authorization;
-    serializedAuthorizationList.push([
-      chainId ? toHex(chainId) : "0x",
-      contractAddress,
-      nonce ? toHex(nonce) : "0x",
-      ...toYParitySignatureArray({}, signature)
-    ]);
-  }
-  return serializedAuthorizationList;
 }
 
 // node_modules/viem/_esm/utils/transaction/serializeAccessList.js
@@ -35362,6 +35341,1669 @@ function toYParitySignatureArray(transaction, signature_) {
   })();
   return [yParity_, r === "0x00" ? "0x" : r, s === "0x00" ? "0x" : s];
 }
+
+// node_modules/viem/_esm/utils/authorization/serializeAuthorizationList.js
+function serializeAuthorizationList(authorizationList) {
+  if (!authorizationList || authorizationList.length === 0)
+    return [];
+  const serializedAuthorizationList = [];
+  for (const authorization of authorizationList) {
+    const { chainId, nonce, ...signature } = authorization;
+    const contractAddress = authorization.address;
+    serializedAuthorizationList.push([
+      chainId ? toHex(chainId) : "0x",
+      contractAddress,
+      nonce ? toHex(nonce) : "0x",
+      ...toYParitySignatureArray({}, signature)
+    ]);
+  }
+  return serializedAuthorizationList;
+}
+
+// node_modules/viem/_esm/zksync/formatters.js
+init_fromHex();
+init_toBytes();
+init_toHex();
+init_transactionRequest();
+
+// node_modules/viem/_esm/zksync/constants/number.js
+init_number();
+var gasPerPubdataDefault = 50000n;
+var maxBytecodeSize = maxUint16 * 32n;
+
+// node_modules/viem/_esm/zksync/formatters.js
+var formatters = {
+  block: /* @__PURE__ */ defineBlock({
+    format(args) {
+      const transactions = args.transactions?.map((transaction) => {
+        if (typeof transaction === "string")
+          return transaction;
+        const formatted = formatters.transaction?.format(transaction);
+        if (formatted.typeHex === "0x71")
+          formatted.type = "eip712";
+        else if (formatted.typeHex === "0xff")
+          formatted.type = "priority";
+        return formatted;
+      });
+      return {
+        l1BatchNumber: args.l1BatchNumber ? hexToBigInt(args.l1BatchNumber) : null,
+        l1BatchTimestamp: args.l1BatchTimestamp ? hexToBigInt(args.l1BatchTimestamp) : null,
+        transactions
+      };
+    }
+  }),
+  transaction: /* @__PURE__ */ defineTransaction({
+    format(args) {
+      const transaction = {};
+      if (args.type === "0x71")
+        transaction.type = "eip712";
+      else if (args.type === "0xff")
+        transaction.type = "priority";
+      return {
+        ...transaction,
+        l1BatchNumber: args.l1BatchNumber ? hexToBigInt(args.l1BatchNumber) : null,
+        l1BatchTxIndex: args.l1BatchTxIndex ? hexToBigInt(args.l1BatchTxIndex) : null
+      };
+    }
+  }),
+  transactionReceipt: /* @__PURE__ */ defineTransactionReceipt({
+    format(args) {
+      return {
+        l1BatchNumber: args.l1BatchNumber ? hexToBigInt(args.l1BatchNumber) : null,
+        l1BatchTxIndex: args.l1BatchTxIndex ? hexToBigInt(args.l1BatchTxIndex) : null,
+        logs: args.logs.map((log) => {
+          return {
+            ...formatLog(log),
+            l1BatchNumber: log.l1BatchNumber ? hexToBigInt(log.l1BatchNumber) : null,
+            transactionLogIndex: hexToNumber(log.transactionLogIndex),
+            logType: log.logType
+          };
+        }),
+        l2ToL1Logs: args.l2ToL1Logs.map((l2ToL1Log) => {
+          return {
+            blockNumber: hexToBigInt(l2ToL1Log.blockHash),
+            blockHash: l2ToL1Log.blockHash,
+            l1BatchNumber: l2ToL1Log.l1BatchNumber ? hexToBigInt(l2ToL1Log.l1BatchNumber) : null,
+            transactionIndex: hexToBigInt(l2ToL1Log.transactionIndex),
+            shardId: hexToBigInt(l2ToL1Log.shardId),
+            isService: l2ToL1Log.isService,
+            sender: l2ToL1Log.sender,
+            key: l2ToL1Log.key,
+            value: l2ToL1Log.value,
+            transactionHash: l2ToL1Log.transactionHash,
+            logIndex: hexToBigInt(l2ToL1Log.logIndex)
+          };
+        })
+      };
+    }
+  }),
+  transactionRequest: /* @__PURE__ */ defineTransactionRequest({
+    exclude: [
+      "customSignature",
+      "factoryDeps",
+      "gasPerPubdata",
+      "paymaster",
+      "paymasterInput"
+    ],
+    format(args) {
+      if (args.gasPerPubdata || args.paymaster && args.paymasterInput || args.factoryDeps || args.customSignature)
+        return {
+          eip712Meta: {
+            ...args.gasPerPubdata ? { gasPerPubdata: toHex(args.gasPerPubdata) } : { gasPerPubdata: toHex(gasPerPubdataDefault) },
+            ...args.paymaster && args.paymasterInput ? {
+              paymasterParams: {
+                paymaster: args.paymaster,
+                paymasterInput: Array.from(hexToBytes(args.paymasterInput))
+              }
+            } : {},
+            ...args.factoryDeps ? {
+              factoryDeps: args.factoryDeps.map((dep) => Array.from(hexToBytes(dep)))
+            } : {},
+            ...args.customSignature ? {
+              customSignature: Array.from(hexToBytes(args.customSignature))
+            } : {}
+          },
+          type: "0x71"
+        };
+      return {};
+    }
+  })
+};
+
+// node_modules/viem/_esm/zksync/serializers.js
+init_concat();
+init_toHex();
+
+// node_modules/viem/_esm/zksync/utils/assertEip712Transaction.js
+init_address();
+init_base();
+init_chain();
+init_isAddress();
+
+// node_modules/viem/_esm/zksync/errors/transaction.js
+init_base();
+var InvalidEip712TransactionError = class extends BaseError {
+  constructor() {
+    super([
+      "Transaction is not an EIP712 transaction.",
+      "",
+      "Transaction must:",
+      '  - include `type: "eip712"`',
+      "  - include one of the following: `customSignature`, `paymaster`, `paymasterInput`, `gasPerPubdata`, `factoryDeps`"
+    ].join("\n"), { name: "InvalidEip712TransactionError" });
+  }
+};
+
+// node_modules/viem/_esm/zksync/utils/isEip712Transaction.js
+function isEIP712Transaction(transaction) {
+  if (transaction.type === "eip712")
+    return true;
+  if ("customSignature" in transaction && transaction.customSignature || "paymaster" in transaction && transaction.paymaster || "paymasterInput" in transaction && transaction.paymasterInput || "gasPerPubdata" in transaction && typeof transaction.gasPerPubdata === "bigint" || "factoryDeps" in transaction && transaction.factoryDeps)
+    return true;
+  return false;
+}
+
+// node_modules/viem/_esm/zksync/utils/assertEip712Transaction.js
+function assertEip712Transaction(transaction) {
+  const { chainId, to: to2, from, paymaster, paymasterInput } = transaction;
+  if (!isEIP712Transaction(transaction))
+    throw new InvalidEip712TransactionError();
+  if (!chainId || chainId <= 0)
+    throw new InvalidChainIdError({ chainId });
+  if (to2 && !isAddress(to2))
+    throw new InvalidAddressError({ address: to2 });
+  if (from && !isAddress(from))
+    throw new InvalidAddressError({ address: from });
+  if (paymaster && !isAddress(paymaster))
+    throw new InvalidAddressError({ address: paymaster });
+  if (paymaster && !paymasterInput) {
+    throw new BaseError("`paymasterInput` must be provided when `paymaster` is defined");
+  }
+  if (!paymaster && paymasterInput) {
+    throw new BaseError("`paymaster` must be provided when `paymasterInput` is defined");
+  }
+}
+
+// node_modules/viem/_esm/zksync/serializers.js
+function serializeTransaction2(transaction, signature) {
+  if (isEIP712Transaction(transaction))
+    return serializeTransactionEIP712(transaction);
+  return serializeTransaction(transaction, signature);
+}
+var serializers = {
+  transaction: serializeTransaction2
+};
+function serializeTransactionEIP712(transaction) {
+  const { chainId, gas, nonce, to: to2, from, value, maxFeePerGas, maxPriorityFeePerGas, customSignature, factoryDeps, paymaster, paymasterInput, gasPerPubdata, data } = transaction;
+  assertEip712Transaction(transaction);
+  const serializedTransaction = [
+    nonce ? toHex(nonce) : "0x",
+    maxPriorityFeePerGas ? toHex(maxPriorityFeePerGas) : "0x",
+    maxFeePerGas ? toHex(maxFeePerGas) : "0x",
+    gas ? toHex(gas) : "0x",
+    to2 ?? "0x",
+    value ? toHex(value) : "0x",
+    data ?? "0x",
+    toHex(chainId),
+    toHex(""),
+    toHex(""),
+    toHex(chainId),
+    from ?? "0x",
+    gasPerPubdata ? toHex(gasPerPubdata) : toHex(gasPerPubdataDefault),
+    factoryDeps ?? [],
+    customSignature ?? "0x",
+    // EIP712 signature
+    paymaster && paymasterInput ? [paymaster, paymasterInput] : []
+  ];
+  return concatHex([
+    "0x71",
+    toRlp(serializedTransaction)
+  ]);
+}
+
+// node_modules/viem/_esm/zksync/utils/getEip712Domain.js
+init_toHex();
+
+// node_modules/viem/_esm/zksync/utils/hashBytecode.js
+init_pad();
+init_toBytes();
+
+// node_modules/viem/_esm/zksync/errors/bytecode.js
+init_base();
+var BytecodeLengthExceedsMaxSizeError = class extends BaseError {
+  constructor({ givenLength, maxBytecodeSize: maxBytecodeSize2 }) {
+    super(`Bytecode cannot be longer than ${maxBytecodeSize2} bytes. Given length: ${givenLength}`, { name: "BytecodeLengthExceedsMaxSizeError" });
+  }
+};
+var BytecodeLengthInWordsMustBeOddError = class extends BaseError {
+  constructor({ givenLengthInWords }) {
+    super(`Bytecode length in 32-byte words must be odd. Given length in words: ${givenLengthInWords}`, { name: "BytecodeLengthInWordsMustBeOddError" });
+  }
+};
+var BytecodeLengthMustBeDivisibleBy32Error = class extends BaseError {
+  constructor({ givenLength }) {
+    super(`The bytecode length in bytes must be divisible by 32. Given length: ${givenLength}`, { name: "BytecodeLengthMustBeDivisibleBy32Error" });
+  }
+};
+
+// node_modules/viem/_esm/zksync/utils/hashBytecode.js
+function hashBytecode(bytecode) {
+  const bytecodeBytes = toBytes(bytecode);
+  if (bytecodeBytes.length % 32 !== 0)
+    throw new BytecodeLengthMustBeDivisibleBy32Error({
+      givenLength: bytecodeBytes.length
+    });
+  if (bytecodeBytes.length > maxBytecodeSize)
+    throw new BytecodeLengthExceedsMaxSizeError({
+      givenLength: bytecodeBytes.length,
+      maxBytecodeSize
+    });
+  const hashStr = sha2562(bytecodeBytes);
+  const hash = toBytes(hashStr);
+  const bytecodeLengthInWords = bytecodeBytes.length / 32;
+  if (bytecodeLengthInWords % 2 === 0) {
+    throw new BytecodeLengthInWordsMustBeOddError({
+      givenLengthInWords: bytecodeLengthInWords
+    });
+  }
+  const bytecodeLength = toBytes(bytecodeLengthInWords);
+  const bytecodeLengthPadded = pad(bytecodeLength, { size: 2 });
+  const codeHashVersion = new Uint8Array([1, 0]);
+  hash.set(codeHashVersion, 0);
+  hash.set(bytecodeLengthPadded, 2);
+  return hash;
+}
+
+// node_modules/viem/_esm/zksync/utils/getEip712Domain.js
+var getEip712Domain = (transaction) => {
+  assertEip712Transaction(transaction);
+  const message = transactionToMessage(transaction);
+  return {
+    domain: {
+      name: "zkSync",
+      version: "2",
+      chainId: transaction.chainId
+    },
+    types: {
+      Transaction: [
+        { name: "txType", type: "uint256" },
+        { name: "from", type: "uint256" },
+        { name: "to", type: "uint256" },
+        { name: "gasLimit", type: "uint256" },
+        { name: "gasPerPubdataByteLimit", type: "uint256" },
+        { name: "maxFeePerGas", type: "uint256" },
+        { name: "maxPriorityFeePerGas", type: "uint256" },
+        { name: "paymaster", type: "uint256" },
+        { name: "nonce", type: "uint256" },
+        { name: "value", type: "uint256" },
+        { name: "data", type: "bytes" },
+        { name: "factoryDeps", type: "bytes32[]" },
+        { name: "paymasterInput", type: "bytes" }
+      ]
+    },
+    primaryType: "Transaction",
+    message
+  };
+};
+function transactionToMessage(transaction) {
+  const { gas, nonce, to: to2, from, value, maxFeePerGas, maxPriorityFeePerGas, factoryDeps, paymaster, paymasterInput, gasPerPubdata, data } = transaction;
+  return {
+    txType: 113n,
+    from: BigInt(from),
+    to: to2 ? BigInt(to2) : 0n,
+    gasLimit: gas ?? 0n,
+    gasPerPubdataByteLimit: gasPerPubdata ?? gasPerPubdataDefault,
+    maxFeePerGas: maxFeePerGas ?? 0n,
+    maxPriorityFeePerGas: maxPriorityFeePerGas ?? 0n,
+    paymaster: paymaster ? BigInt(paymaster) : 0n,
+    nonce: nonce ? BigInt(nonce) : 0n,
+    value: value ?? 0n,
+    data: data ?? "0x",
+    factoryDeps: factoryDeps?.map((dep) => toHex(hashBytecode(dep))) ?? [],
+    paymasterInput: paymasterInput ? paymasterInput : "0x"
+  };
+}
+
+// node_modules/viem/_esm/zksync/chainConfig.js
+var chainConfig = {
+  formatters,
+  serializers,
+  custom: {
+    getEip712Domain
+  }
+};
+
+// node_modules/viem/_esm/op-stack/contracts.js
+var contracts = {
+  gasPriceOracle: { address: "0x420000000000000000000000000000000000000F" },
+  l1Block: { address: "0x4200000000000000000000000000000000000015" },
+  l2CrossDomainMessenger: {
+    address: "0x4200000000000000000000000000000000000007"
+  },
+  l2Erc721Bridge: { address: "0x4200000000000000000000000000000000000014" },
+  l2StandardBridge: { address: "0x4200000000000000000000000000000000000010" },
+  l2ToL1MessagePasser: {
+    address: "0x4200000000000000000000000000000000000016"
+  }
+};
+
+// node_modules/viem/_esm/op-stack/formatters.js
+init_fromHex();
+var formatters2 = {
+  block: /* @__PURE__ */ defineBlock({
+    format(args) {
+      const transactions = args.transactions?.map((transaction) => {
+        if (typeof transaction === "string")
+          return transaction;
+        const formatted = formatTransaction(transaction);
+        if (formatted.typeHex === "0x7e") {
+          formatted.isSystemTx = transaction.isSystemTx;
+          formatted.mint = transaction.mint ? hexToBigInt(transaction.mint) : void 0;
+          formatted.sourceHash = transaction.sourceHash;
+          formatted.type = "deposit";
+        }
+        return formatted;
+      });
+      return {
+        transactions,
+        stateRoot: args.stateRoot
+      };
+    }
+  }),
+  transaction: /* @__PURE__ */ defineTransaction({
+    format(args) {
+      const transaction = {};
+      if (args.type === "0x7e") {
+        transaction.isSystemTx = args.isSystemTx;
+        transaction.mint = args.mint ? hexToBigInt(args.mint) : void 0;
+        transaction.sourceHash = args.sourceHash;
+        transaction.type = "deposit";
+      }
+      return transaction;
+    }
+  }),
+  transactionReceipt: /* @__PURE__ */ defineTransactionReceipt({
+    format(args) {
+      return {
+        l1GasPrice: args.l1GasPrice ? hexToBigInt(args.l1GasPrice) : null,
+        l1GasUsed: args.l1GasUsed ? hexToBigInt(args.l1GasUsed) : null,
+        l1Fee: args.l1Fee ? hexToBigInt(args.l1Fee) : null,
+        l1FeeScalar: args.l1FeeScalar ? Number(args.l1FeeScalar) : null
+      };
+    }
+  })
+};
+
+// node_modules/viem/_esm/op-stack/serializers.js
+init_address();
+init_isAddress();
+init_concat();
+init_toHex();
+function serializeTransaction3(transaction, signature) {
+  if (isDeposit(transaction))
+    return serializeTransactionDeposit(transaction);
+  return serializeTransaction(transaction, signature);
+}
+var serializers2 = {
+  transaction: serializeTransaction3
+};
+function serializeTransactionDeposit(transaction) {
+  assertTransactionDeposit(transaction);
+  const { sourceHash, data, from, gas, isSystemTx, mint, to: to2, value } = transaction;
+  const serializedTransaction = [
+    sourceHash,
+    from,
+    to2 ?? "0x",
+    mint ? toHex(mint) : "0x",
+    value ? toHex(value) : "0x",
+    gas ? toHex(gas) : "0x",
+    isSystemTx ? "0x1" : "0x",
+    data ?? "0x"
+  ];
+  return concatHex([
+    "0x7e",
+    toRlp(serializedTransaction)
+  ]);
+}
+function isDeposit(transaction) {
+  if (transaction.type === "deposit")
+    return true;
+  if (typeof transaction.sourceHash !== "undefined")
+    return true;
+  return false;
+}
+function assertTransactionDeposit(transaction) {
+  const { from, to: to2 } = transaction;
+  if (from && !isAddress(from))
+    throw new InvalidAddressError({ address: from });
+  if (to2 && !isAddress(to2))
+    throw new InvalidAddressError({ address: to2 });
+}
+
+// node_modules/viem/_esm/op-stack/chainConfig.js
+var chainConfig2 = {
+  contracts,
+  formatters: formatters2,
+  serializers: serializers2
+};
+
+// node_modules/viem/_esm/chains/definitions/arbitrum.js
+var arbitrum = /* @__PURE__ */ defineChain({
+  id: 42161,
+  name: "Arbitrum One",
+  nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+  rpcUrls: {
+    default: {
+      http: ["https://arb1.arbitrum.io/rpc"]
+    }
+  },
+  blockExplorers: {
+    default: {
+      name: "Arbiscan",
+      url: "https://arbiscan.io",
+      apiUrl: "https://api.arbiscan.io/api"
+    }
+  },
+  contracts: {
+    multicall3: {
+      address: "0xca11bde05977b3631167028862be2a173976ca11",
+      blockCreated: 7654707
+    }
+  }
+});
+
+// node_modules/viem/_esm/chains/definitions/arbitrumSepolia.js
+var arbitrumSepolia = /* @__PURE__ */ defineChain({
+  id: 421614,
+  name: "Arbitrum Sepolia",
+  nativeCurrency: {
+    name: "Arbitrum Sepolia Ether",
+    symbol: "ETH",
+    decimals: 18
+  },
+  rpcUrls: {
+    default: {
+      http: ["https://sepolia-rollup.arbitrum.io/rpc"]
+    }
+  },
+  blockExplorers: {
+    default: {
+      name: "Arbiscan",
+      url: "https://sepolia.arbiscan.io",
+      apiUrl: "https://api-sepolia.arbiscan.io/api"
+    }
+  },
+  contracts: {
+    multicall3: {
+      address: "0xca11bde05977b3631167028862be2a173976ca11",
+      blockCreated: 81930
+    }
+  },
+  testnet: true
+});
+
+// node_modules/viem/_esm/chains/definitions/avalanche.js
+var avalanche = /* @__PURE__ */ defineChain({
+  id: 43114,
+  name: "Avalanche",
+  nativeCurrency: {
+    decimals: 18,
+    name: "Avalanche",
+    symbol: "AVAX"
+  },
+  rpcUrls: {
+    default: { http: ["https://api.avax.network/ext/bc/C/rpc"] }
+  },
+  blockExplorers: {
+    default: {
+      name: "SnowTrace",
+      url: "https://snowtrace.io",
+      apiUrl: "https://api.snowtrace.io"
+    }
+  },
+  contracts: {
+    multicall3: {
+      address: "0xca11bde05977b3631167028862be2a173976ca11",
+      blockCreated: 11907934
+    }
+  }
+});
+
+// node_modules/viem/_esm/chains/definitions/avalancheFuji.js
+var avalancheFuji = /* @__PURE__ */ defineChain({
+  id: 43113,
+  name: "Avalanche Fuji",
+  nativeCurrency: {
+    decimals: 18,
+    name: "Avalanche Fuji",
+    symbol: "AVAX"
+  },
+  rpcUrls: {
+    default: { http: ["https://api.avax-test.network/ext/bc/C/rpc"] }
+  },
+  blockExplorers: {
+    default: {
+      name: "SnowTrace",
+      url: "https://testnet.snowtrace.io",
+      apiUrl: "https://api-testnet.snowtrace.io"
+    }
+  },
+  contracts: {
+    multicall3: {
+      address: "0xca11bde05977b3631167028862be2a173976ca11",
+      blockCreated: 7096959
+    }
+  },
+  testnet: true
+});
+
+// node_modules/viem/_esm/chains/definitions/base.js
+var sourceId = 1;
+var base = /* @__PURE__ */ defineChain({
+  ...chainConfig2,
+  id: 8453,
+  name: "Base",
+  nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+  rpcUrls: {
+    default: {
+      http: ["https://mainnet.base.org"]
+    }
+  },
+  blockExplorers: {
+    default: {
+      name: "Basescan",
+      url: "https://basescan.org",
+      apiUrl: "https://api.basescan.org/api"
+    }
+  },
+  contracts: {
+    ...chainConfig2.contracts,
+    disputeGameFactory: {
+      [sourceId]: {
+        address: "0x43edB88C4B80fDD2AdFF2412A7BebF9dF42cB40e"
+      }
+    },
+    l2OutputOracle: {
+      [sourceId]: {
+        address: "0x56315b90c40730925ec5485cf004d835058518A0"
+      }
+    },
+    multicall3: {
+      address: "0xca11bde05977b3631167028862be2a173976ca11",
+      blockCreated: 5022
+    },
+    portal: {
+      [sourceId]: {
+        address: "0x49048044D57e1C92A77f79988d21Fa8fAF74E97e",
+        blockCreated: 17482143
+      }
+    },
+    l1StandardBridge: {
+      [sourceId]: {
+        address: "0x3154Cf16ccdb4C6d922629664174b904d80F2C35",
+        blockCreated: 17482143
+      }
+    }
+  },
+  sourceId
+});
+
+// node_modules/viem/_esm/chains/definitions/baseSepolia.js
+var sourceId2 = 11155111;
+var baseSepolia = /* @__PURE__ */ defineChain({
+  ...chainConfig2,
+  id: 84532,
+  network: "base-sepolia",
+  name: "Base Sepolia",
+  nativeCurrency: { name: "Sepolia Ether", symbol: "ETH", decimals: 18 },
+  rpcUrls: {
+    default: {
+      http: ["https://sepolia.base.org"]
+    }
+  },
+  blockExplorers: {
+    default: {
+      name: "Basescan",
+      url: "https://sepolia.basescan.org",
+      apiUrl: "https://api-sepolia.basescan.org/api"
+    }
+  },
+  contracts: {
+    ...chainConfig2.contracts,
+    disputeGameFactory: {
+      [sourceId2]: {
+        address: "0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1"
+      }
+    },
+    l2OutputOracle: {
+      [sourceId2]: {
+        address: "0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254"
+      }
+    },
+    portal: {
+      [sourceId2]: {
+        address: "0x49f53e41452c74589e85ca1677426ba426459e85",
+        blockCreated: 4446677
+      }
+    },
+    l1StandardBridge: {
+      [sourceId2]: {
+        address: "0xfd0Bf71F60660E2f608ed56e1659C450eB113120",
+        blockCreated: 4446677
+      }
+    },
+    multicall3: {
+      address: "0xca11bde05977b3631167028862be2a173976ca11",
+      blockCreated: 1059647
+    }
+  },
+  testnet: true,
+  sourceId: sourceId2
+});
+
+// node_modules/viem/_esm/chains/definitions/bsc.js
+var bsc = /* @__PURE__ */ defineChain({
+  id: 56,
+  name: "BNB Smart Chain",
+  nativeCurrency: {
+    decimals: 18,
+    name: "BNB",
+    symbol: "BNB"
+  },
+  rpcUrls: {
+    default: { http: ["https://56.rpc.thirdweb.com"] }
+  },
+  blockExplorers: {
+    default: {
+      name: "BscScan",
+      url: "https://bscscan.com",
+      apiUrl: "https://api.bscscan.com/api"
+    }
+  },
+  contracts: {
+    multicall3: {
+      address: "0xca11bde05977b3631167028862be2a173976ca11",
+      blockCreated: 15921452
+    }
+  }
+});
+
+// node_modules/viem/_esm/celo/fees.js
+var fees = {
+  /*
+     * Estimates the fees per gas for a transaction.
+  
+     * If the transaction is to be paid in a token (feeCurrency is present) then the fees
+     * are estimated in the value of the token. Otherwise falls back to the default
+     * estimation by returning null.
+     *
+     * @param params fee estimation function parameters
+     */
+  estimateFeesPerGas: async (params) => {
+    if (!params.request?.feeCurrency)
+      return null;
+    const [gasPrice, maxPriorityFeePerGas] = await Promise.all([
+      estimateFeePerGasInFeeCurrency(params.client, params.request.feeCurrency),
+      estimateMaxPriorityFeePerGasInFeeCurrency(params.client, params.request.feeCurrency)
+    ]);
+    const maxFeePerGas = params.multiply(gasPrice - maxPriorityFeePerGas) + maxPriorityFeePerGas;
+    return {
+      maxFeePerGas,
+      maxPriorityFeePerGas
+    };
+  }
+};
+async function estimateFeePerGasInFeeCurrency(client, feeCurrency) {
+  const fee = await client.request({
+    method: "eth_gasPrice",
+    params: [feeCurrency]
+  });
+  return BigInt(fee);
+}
+async function estimateMaxPriorityFeePerGasInFeeCurrency(client, feeCurrency) {
+  const feesPerGas = await client.request({
+    method: "eth_maxPriorityFeePerGas",
+    params: [feeCurrency]
+  });
+  return BigInt(feesPerGas);
+}
+
+// node_modules/viem/_esm/celo/formatters.js
+init_fromHex();
+init_transactionRequest();
+
+// node_modules/viem/_esm/celo/utils.js
+init_trim();
+function isEmpty(value) {
+  return value === 0 || value === 0n || value === void 0 || value === null || value === "0" || value === "" || typeof value === "string" && (trim(value).toLowerCase() === "0x" || trim(value).toLowerCase() === "0x00");
+}
+function isPresent(value) {
+  return !isEmpty(value);
+}
+function isEIP1559(transaction) {
+  return typeof transaction.maxFeePerGas !== "undefined" && typeof transaction.maxPriorityFeePerGas !== "undefined";
+}
+function isCIP64(transaction) {
+  if (transaction.type === "cip64") {
+    return true;
+  }
+  return isEIP1559(transaction) && isPresent(transaction.feeCurrency);
+}
+
+// node_modules/viem/_esm/celo/formatters.js
+var formatters3 = {
+  block: /* @__PURE__ */ defineBlock({
+    format(args) {
+      const transactions = args.transactions?.map((transaction) => {
+        if (typeof transaction === "string")
+          return transaction;
+        const formatted = formatTransaction(transaction);
+        return {
+          ...formatted,
+          ...transaction.gatewayFee ? {
+            gatewayFee: hexToBigInt(transaction.gatewayFee),
+            gatewayFeeRecipient: transaction.gatewayFeeRecipient
+          } : {},
+          feeCurrency: transaction.feeCurrency
+        };
+      });
+      return {
+        transactions
+      };
+    }
+  }),
+  transaction: /* @__PURE__ */ defineTransaction({
+    format(args) {
+      if (args.type === "0x7e")
+        return {
+          isSystemTx: args.isSystemTx,
+          mint: args.mint ? hexToBigInt(args.mint) : void 0,
+          sourceHash: args.sourceHash,
+          type: "deposit"
+        };
+      const transaction = { feeCurrency: args.feeCurrency };
+      if (args.type === "0x7b")
+        transaction.type = "cip64";
+      else {
+        if (args.type === "0x7c")
+          transaction.type = "cip42";
+        transaction.gatewayFee = args.gatewayFee ? hexToBigInt(args.gatewayFee) : null;
+        transaction.gatewayFeeRecipient = args.gatewayFeeRecipient;
+      }
+      return transaction;
+    }
+  }),
+  transactionRequest: /* @__PURE__ */ defineTransactionRequest({
+    format(args) {
+      const request = {};
+      if (args.feeCurrency)
+        request.feeCurrency = args.feeCurrency;
+      if (isCIP64(args))
+        request.type = "0x7b";
+      return request;
+    }
+  })
+};
+
+// node_modules/viem/_esm/celo/serializers.js
+init_number();
+init_address();
+init_base();
+init_chain();
+init_node();
+init_isAddress();
+init_concat();
+init_toHex();
+function serializeTransaction4(transaction, signature) {
+  if (isCIP64(transaction))
+    return serializeTransactionCIP64(transaction, signature);
+  return serializeTransaction3(transaction, signature);
+}
+var serializers3 = {
+  transaction: serializeTransaction4
+};
+function serializeTransactionCIP64(transaction, signature) {
+  assertTransactionCIP64(transaction);
+  const { chainId, gas, nonce, to: to2, value, maxFeePerGas, maxPriorityFeePerGas, accessList, feeCurrency, data } = transaction;
+  const serializedTransaction = [
+    toHex(chainId),
+    nonce ? toHex(nonce) : "0x",
+    maxPriorityFeePerGas ? toHex(maxPriorityFeePerGas) : "0x",
+    maxFeePerGas ? toHex(maxFeePerGas) : "0x",
+    gas ? toHex(gas) : "0x",
+    to2 ?? "0x",
+    value ? toHex(value) : "0x",
+    data ?? "0x",
+    serializeAccessList(accessList),
+    feeCurrency,
+    ...toYParitySignatureArray(transaction, signature)
+  ];
+  return concatHex([
+    "0x7b",
+    toRlp(serializedTransaction)
+  ]);
+}
+var MAX_MAX_FEE_PER_GAS = maxUint256;
+function assertTransactionCIP64(transaction) {
+  const { chainId, maxPriorityFeePerGas, gasPrice, maxFeePerGas, to: to2, feeCurrency } = transaction;
+  if (chainId <= 0)
+    throw new InvalidChainIdError({ chainId });
+  if (to2 && !isAddress(to2))
+    throw new InvalidAddressError({ address: to2 });
+  if (gasPrice)
+    throw new BaseError("`gasPrice` is not a valid CIP-64 Transaction attribute.");
+  if (isPresent(maxFeePerGas) && maxFeePerGas > MAX_MAX_FEE_PER_GAS)
+    throw new FeeCapTooHighError({ maxFeePerGas });
+  if (isPresent(maxPriorityFeePerGas) && isPresent(maxFeePerGas) && maxPriorityFeePerGas > maxFeePerGas)
+    throw new TipAboveFeeCapError({ maxFeePerGas, maxPriorityFeePerGas });
+  if (isPresent(feeCurrency) && !isAddress(feeCurrency)) {
+    throw new BaseError("`feeCurrency` MUST be a token address for CIP-64 transactions.");
+  }
+  if (isEmpty(feeCurrency)) {
+    throw new BaseError("`feeCurrency` must be provided for CIP-64 transactions.");
+  }
+}
+
+// node_modules/viem/_esm/celo/chainConfig.js
+var chainConfig3 = {
+  contracts,
+  formatters: formatters3,
+  serializers: serializers3,
+  fees
+};
+
+// node_modules/viem/_esm/chains/definitions/celo.js
+var celo = /* @__PURE__ */ defineChain({
+  ...chainConfig3,
+  id: 42220,
+  name: "Celo",
+  nativeCurrency: {
+    decimals: 18,
+    name: "CELO",
+    symbol: "CELO"
+  },
+  rpcUrls: {
+    default: { http: ["https://forno.celo.org"] }
+  },
+  blockExplorers: {
+    default: {
+      name: "Celo Explorer",
+      url: "https://celoscan.io",
+      apiUrl: "https://api.celoscan.io/api"
+    }
+  },
+  contracts: {
+    multicall3: {
+      address: "0xcA11bde05977b3631167028862bE2a173976CA11",
+      blockCreated: 13112599
+    }
+  },
+  testnet: false
+});
+
+// node_modules/viem/_esm/chains/definitions/fantom.js
+var fantom = /* @__PURE__ */ defineChain({
+  id: 250,
+  name: "Fantom",
+  nativeCurrency: {
+    decimals: 18,
+    name: "Fantom",
+    symbol: "FTM"
+  },
+  rpcUrls: {
+    default: { http: ["https://250.rpc.thirdweb.com"] }
+  },
+  blockExplorers: {
+    default: {
+      name: "FTMScan",
+      url: "https://ftmscan.com",
+      apiUrl: "https://api.ftmscan.com/api"
+    }
+  },
+  contracts: {
+    multicall3: {
+      address: "0xca11bde05977b3631167028862be2a173976ca11",
+      blockCreated: 33001987
+    }
+  }
+});
+
+// node_modules/viem/_esm/chains/definitions/fantomTestnet.js
+var fantomTestnet = /* @__PURE__ */ defineChain({
+  id: 4002,
+  name: "Fantom Testnet",
+  nativeCurrency: {
+    decimals: 18,
+    name: "Fantom",
+    symbol: "FTM"
+  },
+  rpcUrls: {
+    default: { http: ["https://rpc.testnet.fantom.network"] }
+  },
+  blockExplorers: {
+    default: {
+      name: "FTMScan",
+      url: "https://testnet.ftmscan.com",
+      apiUrl: "https://testnet.ftmscan.com/api"
+    }
+  },
+  contracts: {
+    multicall3: {
+      address: "0xca11bde05977b3631167028862be2a173976ca11",
+      blockCreated: 8328688
+    }
+  },
+  testnet: true
+});
+
+// node_modules/viem/_esm/chains/definitions/gnosis.js
+var gnosis = /* @__PURE__ */ defineChain({
+  id: 100,
+  name: "Gnosis",
+  nativeCurrency: {
+    decimals: 18,
+    name: "xDAI",
+    symbol: "XDAI"
+  },
+  rpcUrls: {
+    default: {
+      http: ["https://rpc.gnosischain.com"],
+      webSocket: ["wss://rpc.gnosischain.com/wss"]
+    }
+  },
+  blockExplorers: {
+    default: {
+      name: "Gnosisscan",
+      url: "https://gnosisscan.io",
+      apiUrl: "https://api.gnosisscan.io/api"
+    }
+  },
+  contracts: {
+    multicall3: {
+      address: "0xca11bde05977b3631167028862be2a173976ca11",
+      blockCreated: 21022491
+    }
+  }
+});
+
+// node_modules/viem/_esm/chains/definitions/harmonyOne.js
+var harmonyOne = /* @__PURE__ */ defineChain({
+  id: 16666e5,
+  name: "Harmony One",
+  nativeCurrency: {
+    name: "Harmony",
+    symbol: "ONE",
+    decimals: 18
+  },
+  rpcUrls: {
+    default: { http: ["https://1666600000.rpc.thirdweb.com"] }
+  },
+  blockExplorers: {
+    default: {
+      name: "Harmony Explorer",
+      url: "https://explorer.harmony.one"
+    }
+  },
+  contracts: {
+    multicall3: {
+      address: "0xca11bde05977b3631167028862be2a173976ca11",
+      blockCreated: 24185753
+    }
+  }
+});
+
+// node_modules/viem/_esm/chains/definitions/ink.js
+var sourceId3 = 1;
+var ink = /* @__PURE__ */ defineChain({
+  ...chainConfig2,
+  id: 57073,
+  name: "Ink",
+  nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+  rpcUrls: {
+    default: {
+      http: [
+        "https://rpc-gel.inkonchain.com",
+        "https://rpc-qnd.inkonchain.com"
+      ],
+      webSocket: [
+        "wss://rpc-gel.inkonchain.com",
+        "wss://rpc-qnd.inkonchain.com"
+      ]
+    }
+  },
+  blockExplorers: {
+    default: {
+      name: "Blockscout",
+      url: "https://explorer.inkonchain.com",
+      apiUrl: "https://explorer.inkonchain.com/api/v2"
+    }
+  },
+  contracts: {
+    multicall3: {
+      address: "0xcA11bde05977b3631167028862bE2a173976CA11",
+      blockCreated: 0
+    },
+    ...chainConfig2.contracts,
+    disputeGameFactory: {
+      [sourceId3]: {
+        address: "0x10d7b35078d3baabb96dd45a9143b94be65b12cd"
+      }
+    },
+    portal: {
+      [sourceId3]: {
+        address: "0x5d66c1782664115999c47c9fa5cd031f495d3e4f"
+      }
+    },
+    l1StandardBridge: {
+      [sourceId3]: {
+        address: "0x88ff1e5b602916615391f55854588efcbb7663f0"
+      }
+    }
+  },
+  testnet: false,
+  sourceId: sourceId3
+});
+
+// node_modules/viem/_esm/linea/actions/estimateGas.js
+init_parseAccount();
+init_toHex();
+init_getCallError();
+init_extract();
+init_transactionRequest();
+init_assertRequest();
+async function estimateGas(client, args) {
+  const { account: account_ = client.account } = args;
+  if (!account_)
+    throw new AccountNotFoundError();
+  const account = parseAccount(account_);
+  try {
+    const { accessList, blockNumber, blockTag, data, gas, gasPrice, maxFeePerGas, maxPriorityFeePerGas, nonce, to: to2, value, ...rest } = args;
+    const blockNumberHex = typeof blockNumber === "bigint" ? numberToHex(blockNumber) : void 0;
+    const block = blockNumberHex || blockTag;
+    assertRequest(args);
+    const chainFormat = client.chain?.formatters?.transactionRequest?.format;
+    const format = chainFormat || formatTransactionRequest;
+    const request = format({
+      // Pick out extra data that might exist on the chain's transaction request type.
+      ...extract(rest, { format: chainFormat }),
+      from: account?.address,
+      accessList,
+      data,
+      gas,
+      gasPrice,
+      maxFeePerGas,
+      maxPriorityFeePerGas,
+      nonce,
+      to: to2,
+      value
+    });
+    const { baseFeePerGas, gasLimit, priorityFeePerGas } = await client.request({
+      method: "linea_estimateGas",
+      params: block ? [request, block] : [request]
+    });
+    return {
+      baseFeePerGas: BigInt(baseFeePerGas),
+      gasLimit: BigInt(gasLimit),
+      priorityFeePerGas: BigInt(priorityFeePerGas)
+    };
+  } catch (err) {
+    throw getCallError(err, {
+      ...args,
+      account,
+      chain: client.chain
+    });
+  }
+}
+
+// node_modules/viem/_esm/linea/chainConfig.js
+var chainConfig4 = {
+  fees: {
+    estimateFeesPerGas,
+    async maxPriorityFeePerGas({ block, client, request }) {
+      const response = await estimateFeesPerGas({
+        block,
+        client,
+        multiply: (x2) => x2,
+        request,
+        type: "eip1559"
+      });
+      if (!response?.maxPriorityFeePerGas)
+        return null;
+      return response.maxPriorityFeePerGas;
+    }
+  }
+};
+async function estimateFeesPerGas({ client, multiply, request, type }) {
+  try {
+    const response = await estimateGas(client, {
+      ...request,
+      account: request?.account
+    });
+    const { priorityFeePerGas: maxPriorityFeePerGas } = response;
+    const baseFeePerGas = multiply(BigInt(response.baseFeePerGas));
+    const maxFeePerGas = baseFeePerGas + maxPriorityFeePerGas;
+    if (type === "legacy")
+      return { gasPrice: maxFeePerGas };
+    return {
+      maxFeePerGas,
+      maxPriorityFeePerGas
+    };
+  } catch {
+    return null;
+  }
+}
+
+// node_modules/viem/_esm/chains/definitions/linea.js
+var linea = /* @__PURE__ */ defineChain({
+  ...chainConfig4,
+  id: 59144,
+  name: "Linea Mainnet",
+  nativeCurrency: { name: "Linea Ether", symbol: "ETH", decimals: 18 },
+  rpcUrls: {
+    default: {
+      http: ["https://rpc.linea.build"],
+      webSocket: ["wss://rpc.linea.build"]
+    }
+  },
+  blockExplorers: {
+    default: {
+      name: "Etherscan",
+      url: "https://lineascan.build",
+      apiUrl: "https://api.lineascan.build/api"
+    }
+  },
+  contracts: {
+    multicall3: {
+      address: "0xcA11bde05977b3631167028862bE2a173976CA11",
+      blockCreated: 42
+    },
+    ensRegistry: {
+      address: "0x50130b669B28C339991d8676FA73CF122a121267",
+      blockCreated: 6682888
+    },
+    ensUniversalResolver: {
+      address: "0x3aA974fb3f8C1E02796048BDCdeD79e9D53a6965",
+      blockCreated: 6683e3
+    }
+  },
+  ensTlds: [".linea.eth"],
+  testnet: false
+});
+
+// node_modules/viem/_esm/chains/definitions/mainnet.js
+var mainnet = /* @__PURE__ */ defineChain({
+  id: 1,
+  name: "Ethereum",
+  nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+  rpcUrls: {
+    default: {
+      http: ["https://eth.merkle.io"]
+    }
+  },
+  blockExplorers: {
+    default: {
+      name: "Etherscan",
+      url: "https://etherscan.io",
+      apiUrl: "https://api.etherscan.io/api"
+    }
+  },
+  contracts: {
+    ensRegistry: {
+      address: "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e"
+    },
+    ensUniversalResolver: {
+      address: "0xce01f8eee7E479C928F8919abD53E553a36CeF67",
+      blockCreated: 19258213
+    },
+    multicall3: {
+      address: "0xca11bde05977b3631167028862be2a173976ca11",
+      blockCreated: 14353601
+    }
+  }
+});
+
+// node_modules/viem/_esm/chains/definitions/mantle.js
+var mantle = /* @__PURE__ */ defineChain({
+  id: 5e3,
+  name: "Mantle",
+  nativeCurrency: {
+    decimals: 18,
+    name: "MNT",
+    symbol: "MNT"
+  },
+  rpcUrls: {
+    default: { http: ["https://rpc.mantle.xyz"] }
+  },
+  blockExplorers: {
+    default: {
+      name: "Mantle Explorer",
+      url: "https://mantlescan.xyz/",
+      apiUrl: "https://api.mantlescan.xyz/api"
+    }
+  },
+  contracts: {
+    multicall3: {
+      address: "0xcA11bde05977b3631167028862bE2a173976CA11",
+      blockCreated: 304717
+    }
+  }
+});
+
+// node_modules/viem/_esm/chains/definitions/metis.js
+var metis = /* @__PURE__ */ defineChain({
+  id: 1088,
+  name: "Metis",
+  nativeCurrency: {
+    decimals: 18,
+    name: "Metis",
+    symbol: "METIS"
+  },
+  rpcUrls: {
+    default: {
+      http: [
+        "https://metis.rpc.hypersync.xyz",
+        "https://metis-pokt.nodies.app",
+        "https://api.blockeden.xyz/metis/67nCBdZQSH9z3YqDDjdm",
+        "https://metis-andromeda.rpc.thirdweb.com",
+        "https://metis-andromeda.gateway.tenderly.co",
+        "https://metis.api.onfinality.io/public",
+        "https://andromeda.metis.io/?owner=1088",
+        "https://metis-mainnet.public.blastapi.io"
+      ],
+      webSocket: ["wss://metis-rpc.publicnode.com", "wss://metis.drpc.org"]
+    }
+  },
+  blockExplorers: {
+    default: {
+      name: "Metis Explorer",
+      url: "https://explorer.metis.io",
+      apiUrl: "https://api.routescan.io/v2/network/mainnet/evm/1088/etherscan/api"
+    }
+  },
+  contracts: {
+    multicall3: {
+      address: "0xca11bde05977b3631167028862be2a173976ca11",
+      blockCreated: 2338552
+    }
+  }
+});
+
+// node_modules/viem/_esm/chains/definitions/optimism.js
+var sourceId4 = 1;
+var optimism = /* @__PURE__ */ defineChain({
+  ...chainConfig2,
+  id: 10,
+  name: "OP Mainnet",
+  nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+  rpcUrls: {
+    default: {
+      http: ["https://mainnet.optimism.io"]
+    }
+  },
+  blockExplorers: {
+    default: {
+      name: "Optimism Explorer",
+      url: "https://optimistic.etherscan.io",
+      apiUrl: "https://api-optimistic.etherscan.io/api"
+    }
+  },
+  contracts: {
+    ...chainConfig2.contracts,
+    disputeGameFactory: {
+      [sourceId4]: {
+        address: "0xe5965Ab5962eDc7477C8520243A95517CD252fA9"
+      }
+    },
+    l2OutputOracle: {
+      [sourceId4]: {
+        address: "0xdfe97868233d1aa22e815a266982f2cf17685a27"
+      }
+    },
+    multicall3: {
+      address: "0xca11bde05977b3631167028862be2a173976ca11",
+      blockCreated: 4286263
+    },
+    portal: {
+      [sourceId4]: {
+        address: "0xbEb5Fc579115071764c7423A4f12eDde41f106Ed"
+      }
+    },
+    l1StandardBridge: {
+      [sourceId4]: {
+        address: "0x99C9fc46f92E8a1c0deC1b1747d010903E884bE1"
+      }
+    }
+  },
+  sourceId: sourceId4
+});
+
+// node_modules/viem/_esm/chains/definitions/optimismSepolia.js
+var sourceId5 = 11155111;
+var optimismSepolia = /* @__PURE__ */ defineChain({
+  ...chainConfig2,
+  id: 11155420,
+  name: "OP Sepolia",
+  nativeCurrency: { name: "Sepolia Ether", symbol: "ETH", decimals: 18 },
+  rpcUrls: {
+    default: {
+      http: ["https://sepolia.optimism.io"]
+    }
+  },
+  blockExplorers: {
+    default: {
+      name: "Blockscout",
+      url: "https://optimism-sepolia.blockscout.com",
+      apiUrl: "https://optimism-sepolia.blockscout.com/api"
+    }
+  },
+  contracts: {
+    ...chainConfig2.contracts,
+    disputeGameFactory: {
+      [sourceId5]: {
+        address: "0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1"
+      }
+    },
+    l2OutputOracle: {
+      [sourceId5]: {
+        address: "0x90E9c4f8a994a250F6aEfd61CAFb4F2e895D458F"
+      }
+    },
+    multicall3: {
+      address: "0xca11bde05977b3631167028862be2a173976ca11",
+      blockCreated: 1620204
+    },
+    portal: {
+      [sourceId5]: {
+        address: "0x16Fc5058F25648194471939df75CF27A2fdC48BC"
+      }
+    },
+    l1StandardBridge: {
+      [sourceId5]: {
+        address: "0xFBb0621E0B23b5478B630BD55a5f21f67730B0F1"
+      }
+    }
+  },
+  testnet: true,
+  sourceId: sourceId5
+});
+
+// node_modules/viem/_esm/chains/definitions/polygon.js
+var polygon = /* @__PURE__ */ defineChain({
+  id: 137,
+  name: "Polygon",
+  nativeCurrency: { name: "POL", symbol: "POL", decimals: 18 },
+  rpcUrls: {
+    default: {
+      http: ["https://polygon-rpc.com"]
+    }
+  },
+  blockExplorers: {
+    default: {
+      name: "PolygonScan",
+      url: "https://polygonscan.com",
+      apiUrl: "https://api.polygonscan.com/api"
+    }
+  },
+  contracts: {
+    multicall3: {
+      address: "0xca11bde05977b3631167028862be2a173976ca11",
+      blockCreated: 25770160
+    }
+  }
+});
+
+// node_modules/viem/_esm/chains/definitions/polygonAmoy.js
+var polygonAmoy = /* @__PURE__ */ defineChain({
+  id: 80002,
+  name: "Polygon Amoy",
+  nativeCurrency: { name: "POL", symbol: "POL", decimals: 18 },
+  rpcUrls: {
+    default: {
+      http: ["https://rpc-amoy.polygon.technology"]
+    }
+  },
+  blockExplorers: {
+    default: {
+      name: "PolygonScan",
+      url: "https://amoy.polygonscan.com",
+      apiUrl: "https://api-amoy.polygonscan.com/api"
+    }
+  },
+  contracts: {
+    multicall3: {
+      address: "0xca11bde05977b3631167028862be2a173976ca11",
+      blockCreated: 3127388
+    }
+  },
+  testnet: true
+});
+
+// node_modules/viem/_esm/chains/definitions/polygonZkEvm.js
+var polygonZkEvm = /* @__PURE__ */ defineChain({
+  id: 1101,
+  name: "Polygon zkEVM",
+  nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+  rpcUrls: {
+    default: {
+      http: ["https://zkevm-rpc.com"]
+    }
+  },
+  blockExplorers: {
+    default: {
+      name: "PolygonScan",
+      url: "https://zkevm.polygonscan.com",
+      apiUrl: "https://api-zkevm.polygonscan.com/api"
+    }
+  },
+  contracts: {
+    multicall3: {
+      address: "0xca11bde05977b3631167028862be2a173976ca11",
+      blockCreated: 57746
+    }
+  }
+});
+
+// node_modules/viem/_esm/chains/definitions/scroll.js
+var scroll = /* @__PURE__ */ defineChain({
+  id: 534352,
+  name: "Scroll",
+  nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+  rpcUrls: {
+    default: {
+      http: ["https://rpc.scroll.io"],
+      webSocket: ["wss://wss-rpc.scroll.io/ws"]
+    }
+  },
+  blockExplorers: {
+    default: {
+      name: "Scrollscan",
+      url: "https://scrollscan.com",
+      apiUrl: "https://api.scrollscan.com/api"
+    }
+  },
+  contracts: {
+    multicall3: {
+      address: "0xca11bde05977b3631167028862be2a173976ca11",
+      blockCreated: 14
+    }
+  },
+  testnet: false
+});
+
+// node_modules/viem/_esm/chains/definitions/scrollSepolia.js
+var scrollSepolia = /* @__PURE__ */ defineChain({
+  id: 534351,
+  name: "Scroll Sepolia",
+  nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+  rpcUrls: {
+    default: {
+      http: ["https://sepolia-rpc.scroll.io"]
+    }
+  },
+  blockExplorers: {
+    default: {
+      name: "Scrollscan",
+      url: "https://sepolia.scrollscan.com",
+      apiUrl: "https://api-sepolia.scrollscan.com/api"
+    }
+  },
+  contracts: {
+    multicall3: {
+      address: "0xca11bde05977b3631167028862be2a173976ca11",
+      blockCreated: 9473
+    }
+  },
+  testnet: true
+});
+
+// node_modules/viem/_esm/chains/definitions/sepolia.js
+var sepolia = /* @__PURE__ */ defineChain({
+  id: 11155111,
+  name: "Sepolia",
+  nativeCurrency: { name: "Sepolia Ether", symbol: "ETH", decimals: 18 },
+  rpcUrls: {
+    default: {
+      http: ["https://sepolia.drpc.org"]
+    }
+  },
+  blockExplorers: {
+    default: {
+      name: "Etherscan",
+      url: "https://sepolia.etherscan.io",
+      apiUrl: "https://api-sepolia.etherscan.io/api"
+    }
+  },
+  contracts: {
+    multicall3: {
+      address: "0xca11bde05977b3631167028862be2a173976ca11",
+      blockCreated: 751532
+    },
+    ensRegistry: { address: "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e" },
+    ensUniversalResolver: {
+      address: "0xc8Af999e38273D658BE1b921b88A9Ddf005769cC",
+      blockCreated: 5317080
+    }
+  },
+  testnet: true
+});
+
+// node_modules/viem/_esm/chains/definitions/soneium.js
+var sourceId6 = 1;
+var soneium = /* @__PURE__ */ defineChain({
+  ...chainConfig2,
+  id: 1868,
+  name: "Soneium Mainnet",
+  nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+  rpcUrls: {
+    default: {
+      http: ["https://rpc.soneium.org"]
+    }
+  },
+  blockExplorers: {
+    default: {
+      name: "Blockscout",
+      url: "https://soneium.blockscout.com",
+      apiUrl: "https://soneium.blockscout.com/api"
+    }
+  },
+  contracts: {
+    ...chainConfig2.contracts,
+    disputeGameFactory: {
+      [sourceId6]: {
+        address: "0x512a3d2c7a43bd9261d2b8e8c9c70d4bd4d503c0"
+      }
+    },
+    l2OutputOracle: {
+      [sourceId6]: {
+        address: "0x0000000000000000000000000000000000000000"
+      }
+    },
+    portal: {
+      [sourceId6]: {
+        address: "0x88e529a6ccd302c948689cd5156c83d4614fae92",
+        blockCreated: 7061266
+      }
+    },
+    l1StandardBridge: {
+      [sourceId6]: {
+        address: "0xeb9bf100225c214efc3e7c651ebbadcf85177607",
+        blockCreated: 7061266
+      }
+    },
+    multicall3: {
+      address: "0xcA11bde05977b3631167028862bE2a173976CA11",
+      blockCreated: 1
+    }
+  },
+  sourceId: sourceId6
+});
+
+// node_modules/viem/_esm/chains/definitions/sonic.js
+var sonic = /* @__PURE__ */ defineChain({
+  id: 146,
+  name: "Sonic",
+  nativeCurrency: {
+    decimals: 18,
+    name: "Sonic",
+    symbol: "S"
+  },
+  rpcUrls: {
+    default: { http: ["https://rpc.soniclabs.com"] }
+  },
+  blockExplorers: {
+    default: {
+      name: "Sonic Explorer",
+      url: "https://sonicscan.org"
+    }
+  },
+  contracts: {
+    multicall3: {
+      address: "0xca11bde05977b3631167028862be2a173976ca11",
+      blockCreated: 60
+    }
+  },
+  testnet: false
+});
+
+// node_modules/viem/_esm/chains/definitions/zksync.js
+var zksync = /* @__PURE__ */ defineChain({
+  ...chainConfig,
+  id: 324,
+  name: "ZKsync Era",
+  network: "zksync-era",
+  nativeCurrency: {
+    decimals: 18,
+    name: "Ether",
+    symbol: "ETH"
+  },
+  rpcUrls: {
+    default: {
+      http: ["https://mainnet.era.zksync.io"],
+      webSocket: ["wss://mainnet.era.zksync.io/ws"]
+    }
+  },
+  blockExplorers: {
+    default: {
+      name: "Etherscan",
+      url: "https://era.zksync.network/",
+      apiUrl: "https://api-era.zksync.network/api"
+    },
+    native: {
+      name: "ZKsync Explorer",
+      url: "https://explorer.zksync.io/",
+      apiUrl: "https://block-explorer-api.mainnet.zksync.io/api"
+    }
+  },
+  contracts: {
+    multicall3: {
+      address: "0xF9cda624FBC7e059355ce98a31693d299FACd963"
+    },
+    universalSignatureVerifier: {
+      address: "0xfB688330379976DA81eB64Fe4BF50d7401763B9C",
+      blockCreated: 45659388
+    }
+  }
+});
 
 // node_modules/diff/lib/index.mjs
 function Diff() {
@@ -35911,1601 +37553,6 @@ arrayDiff.tokenize = function(value) {
 arrayDiff.join = arrayDiff.removeEmpty = function(value) {
   return value;
 };
-
-// node_modules/viem/_esm/zksync/formatters.js
-init_fromHex();
-init_toBytes();
-init_toHex();
-init_transactionRequest();
-
-// node_modules/viem/_esm/zksync/constants/number.js
-init_number();
-var gasPerPubdataDefault = 50000n;
-var maxBytecodeSize = maxUint16 * 32n;
-
-// node_modules/viem/_esm/zksync/formatters.js
-var formatters = {
-  block: /* @__PURE__ */ defineBlock({
-    format(args) {
-      const transactions = args.transactions?.map((transaction) => {
-        if (typeof transaction === "string")
-          return transaction;
-        const formatted = formatters.transaction?.format(transaction);
-        if (formatted.typeHex === "0x71")
-          formatted.type = "eip712";
-        else if (formatted.typeHex === "0xff")
-          formatted.type = "priority";
-        return formatted;
-      });
-      return {
-        l1BatchNumber: args.l1BatchNumber ? hexToBigInt(args.l1BatchNumber) : null,
-        l1BatchTimestamp: args.l1BatchTimestamp ? hexToBigInt(args.l1BatchTimestamp) : null,
-        transactions
-      };
-    }
-  }),
-  transaction: /* @__PURE__ */ defineTransaction({
-    format(args) {
-      const transaction = {};
-      if (args.type === "0x71")
-        transaction.type = "eip712";
-      else if (args.type === "0xff")
-        transaction.type = "priority";
-      return {
-        ...transaction,
-        l1BatchNumber: args.l1BatchNumber ? hexToBigInt(args.l1BatchNumber) : null,
-        l1BatchTxIndex: args.l1BatchTxIndex ? hexToBigInt(args.l1BatchTxIndex) : null
-      };
-    }
-  }),
-  transactionReceipt: /* @__PURE__ */ defineTransactionReceipt({
-    format(args) {
-      return {
-        l1BatchNumber: args.l1BatchNumber ? hexToBigInt(args.l1BatchNumber) : null,
-        l1BatchTxIndex: args.l1BatchTxIndex ? hexToBigInt(args.l1BatchTxIndex) : null,
-        logs: args.logs.map((log) => {
-          return {
-            ...formatLog(log),
-            l1BatchNumber: log.l1BatchNumber ? hexToBigInt(log.l1BatchNumber) : null,
-            transactionLogIndex: hexToNumber(log.transactionLogIndex),
-            logType: log.logType
-          };
-        }),
-        l2ToL1Logs: args.l2ToL1Logs.map((l2ToL1Log) => {
-          return {
-            blockNumber: hexToBigInt(l2ToL1Log.blockHash),
-            blockHash: l2ToL1Log.blockHash,
-            l1BatchNumber: l2ToL1Log.l1BatchNumber ? hexToBigInt(l2ToL1Log.l1BatchNumber) : null,
-            transactionIndex: hexToBigInt(l2ToL1Log.transactionIndex),
-            shardId: hexToBigInt(l2ToL1Log.shardId),
-            isService: l2ToL1Log.isService,
-            sender: l2ToL1Log.sender,
-            key: l2ToL1Log.key,
-            value: l2ToL1Log.value,
-            transactionHash: l2ToL1Log.transactionHash,
-            logIndex: hexToBigInt(l2ToL1Log.logIndex)
-          };
-        })
-      };
-    }
-  }),
-  transactionRequest: /* @__PURE__ */ defineTransactionRequest({
-    exclude: [
-      "customSignature",
-      "factoryDeps",
-      "gasPerPubdata",
-      "paymaster",
-      "paymasterInput"
-    ],
-    format(args) {
-      if (args.gasPerPubdata || args.paymaster && args.paymasterInput || args.factoryDeps || args.customSignature)
-        return {
-          eip712Meta: {
-            ...args.gasPerPubdata ? { gasPerPubdata: toHex(args.gasPerPubdata) } : { gasPerPubdata: toHex(gasPerPubdataDefault) },
-            ...args.paymaster && args.paymasterInput ? {
-              paymasterParams: {
-                paymaster: args.paymaster,
-                paymasterInput: Array.from(hexToBytes(args.paymasterInput))
-              }
-            } : {},
-            ...args.factoryDeps ? {
-              factoryDeps: args.factoryDeps.map((dep) => Array.from(hexToBytes(dep)))
-            } : {},
-            ...args.customSignature ? {
-              customSignature: Array.from(hexToBytes(args.customSignature))
-            } : {}
-          },
-          type: "0x71"
-        };
-      return {};
-    }
-  })
-};
-
-// node_modules/viem/_esm/zksync/serializers.js
-init_concat();
-init_toHex();
-
-// node_modules/viem/_esm/zksync/utils/assertEip712Transaction.js
-init_address();
-init_base();
-init_chain();
-init_isAddress();
-
-// node_modules/viem/_esm/zksync/errors/transaction.js
-init_base();
-var InvalidEip712TransactionError = class extends BaseError {
-  constructor() {
-    super([
-      "Transaction is not an EIP712 transaction.",
-      "",
-      "Transaction must:",
-      '  - include `type: "eip712"`',
-      "  - include one of the following: `customSignature`, `paymaster`, `paymasterInput`, `gasPerPubdata`, `factoryDeps`"
-    ].join("\n"), { name: "InvalidEip712TransactionError" });
-  }
-};
-
-// node_modules/viem/_esm/zksync/utils/isEip712Transaction.js
-function isEIP712Transaction(transaction) {
-  if (transaction.type === "eip712")
-    return true;
-  if ("customSignature" in transaction && transaction.customSignature || "paymaster" in transaction && transaction.paymaster || "paymasterInput" in transaction && transaction.paymasterInput || "gasPerPubdata" in transaction && typeof transaction.gasPerPubdata === "bigint" || "factoryDeps" in transaction && transaction.factoryDeps)
-    return true;
-  return false;
-}
-
-// node_modules/viem/_esm/zksync/utils/assertEip712Transaction.js
-function assertEip712Transaction(transaction) {
-  const { chainId, to: to2, from, paymaster, paymasterInput } = transaction;
-  if (!isEIP712Transaction(transaction))
-    throw new InvalidEip712TransactionError();
-  if (!chainId || chainId <= 0)
-    throw new InvalidChainIdError({ chainId });
-  if (to2 && !isAddress(to2))
-    throw new InvalidAddressError({ address: to2 });
-  if (from && !isAddress(from))
-    throw new InvalidAddressError({ address: from });
-  if (paymaster && !isAddress(paymaster))
-    throw new InvalidAddressError({ address: paymaster });
-  if (paymaster && !paymasterInput) {
-    throw new BaseError("`paymasterInput` must be provided when `paymaster` is defined");
-  }
-  if (!paymaster && paymasterInput) {
-    throw new BaseError("`paymaster` must be provided when `paymasterInput` is defined");
-  }
-}
-
-// node_modules/viem/_esm/zksync/serializers.js
-function serializeTransaction2(transaction, signature) {
-  if (isEIP712Transaction(transaction))
-    return serializeTransactionEIP712(transaction);
-  return serializeTransaction(transaction, signature);
-}
-var serializers = {
-  transaction: serializeTransaction2
-};
-function serializeTransactionEIP712(transaction) {
-  const { chainId, gas, nonce, to: to2, from, value, maxFeePerGas, maxPriorityFeePerGas, customSignature, factoryDeps, paymaster, paymasterInput, gasPerPubdata, data } = transaction;
-  assertEip712Transaction(transaction);
-  const serializedTransaction = [
-    nonce ? toHex(nonce) : "0x",
-    maxPriorityFeePerGas ? toHex(maxPriorityFeePerGas) : "0x",
-    maxFeePerGas ? toHex(maxFeePerGas) : "0x",
-    gas ? toHex(gas) : "0x",
-    to2 ?? "0x",
-    value ? toHex(value) : "0x",
-    data ?? "0x",
-    toHex(chainId),
-    toHex(""),
-    toHex(""),
-    toHex(chainId),
-    from ?? "0x",
-    gasPerPubdata ? toHex(gasPerPubdata) : toHex(gasPerPubdataDefault),
-    factoryDeps ?? [],
-    customSignature ?? "0x",
-    // EIP712 signature
-    paymaster && paymasterInput ? [paymaster, paymasterInput] : []
-  ];
-  return concatHex([
-    "0x71",
-    toRlp(serializedTransaction)
-  ]);
-}
-
-// node_modules/viem/_esm/zksync/utils/getEip712Domain.js
-init_toHex();
-
-// node_modules/viem/_esm/zksync/utils/hashBytecode.js
-init_pad();
-init_toBytes();
-
-// node_modules/viem/_esm/zksync/errors/bytecode.js
-init_base();
-var BytecodeLengthExceedsMaxSizeError = class extends BaseError {
-  constructor({ givenLength, maxBytecodeSize: maxBytecodeSize2 }) {
-    super(`Bytecode cannot be longer than ${maxBytecodeSize2} bytes. Given length: ${givenLength}`, { name: "BytecodeLengthExceedsMaxSizeError" });
-  }
-};
-var BytecodeLengthInWordsMustBeOddError = class extends BaseError {
-  constructor({ givenLengthInWords }) {
-    super(`Bytecode length in 32-byte words must be odd. Given length in words: ${givenLengthInWords}`, { name: "BytecodeLengthInWordsMustBeOddError" });
-  }
-};
-var BytecodeLengthMustBeDivisibleBy32Error = class extends BaseError {
-  constructor({ givenLength }) {
-    super(`The bytecode length in bytes must be divisible by 32. Given length: ${givenLength}`, { name: "BytecodeLengthMustBeDivisibleBy32Error" });
-  }
-};
-
-// node_modules/viem/_esm/zksync/utils/hashBytecode.js
-function hashBytecode(bytecode) {
-  const bytecodeBytes = toBytes(bytecode);
-  if (bytecodeBytes.length % 32 !== 0)
-    throw new BytecodeLengthMustBeDivisibleBy32Error({
-      givenLength: bytecodeBytes.length
-    });
-  if (bytecodeBytes.length > maxBytecodeSize)
-    throw new BytecodeLengthExceedsMaxSizeError({
-      givenLength: bytecodeBytes.length,
-      maxBytecodeSize
-    });
-  const hashStr = sha2562(bytecodeBytes);
-  const hash = toBytes(hashStr);
-  const bytecodeLengthInWords = bytecodeBytes.length / 32;
-  if (bytecodeLengthInWords % 2 === 0) {
-    throw new BytecodeLengthInWordsMustBeOddError({
-      givenLengthInWords: bytecodeLengthInWords
-    });
-  }
-  const bytecodeLength = toBytes(bytecodeLengthInWords);
-  const bytecodeLengthPadded = pad(bytecodeLength, { size: 2 });
-  const codeHashVersion = new Uint8Array([1, 0]);
-  hash.set(codeHashVersion, 0);
-  hash.set(bytecodeLengthPadded, 2);
-  return hash;
-}
-
-// node_modules/viem/_esm/zksync/utils/getEip712Domain.js
-var getEip712Domain = (transaction) => {
-  assertEip712Transaction(transaction);
-  const message = transactionToMessage(transaction);
-  return {
-    domain: {
-      name: "zkSync",
-      version: "2",
-      chainId: transaction.chainId
-    },
-    types: {
-      Transaction: [
-        { name: "txType", type: "uint256" },
-        { name: "from", type: "uint256" },
-        { name: "to", type: "uint256" },
-        { name: "gasLimit", type: "uint256" },
-        { name: "gasPerPubdataByteLimit", type: "uint256" },
-        { name: "maxFeePerGas", type: "uint256" },
-        { name: "maxPriorityFeePerGas", type: "uint256" },
-        { name: "paymaster", type: "uint256" },
-        { name: "nonce", type: "uint256" },
-        { name: "value", type: "uint256" },
-        { name: "data", type: "bytes" },
-        { name: "factoryDeps", type: "bytes32[]" },
-        { name: "paymasterInput", type: "bytes" }
-      ]
-    },
-    primaryType: "Transaction",
-    message
-  };
-};
-function transactionToMessage(transaction) {
-  const { gas, nonce, to: to2, from, value, maxFeePerGas, maxPriorityFeePerGas, factoryDeps, paymaster, paymasterInput, gasPerPubdata, data } = transaction;
-  return {
-    txType: 113n,
-    from: BigInt(from),
-    to: to2 ? BigInt(to2) : 0n,
-    gasLimit: gas ?? 0n,
-    gasPerPubdataByteLimit: gasPerPubdata ?? gasPerPubdataDefault,
-    maxFeePerGas: maxFeePerGas ?? 0n,
-    maxPriorityFeePerGas: maxPriorityFeePerGas ?? 0n,
-    paymaster: paymaster ? BigInt(paymaster) : 0n,
-    nonce: nonce ? BigInt(nonce) : 0n,
-    value: value ?? 0n,
-    data: data ? data : "0x0",
-    factoryDeps: factoryDeps?.map((dep) => toHex(hashBytecode(dep))) ?? [],
-    paymasterInput: paymasterInput ? paymasterInput : "0x"
-  };
-}
-
-// node_modules/viem/_esm/zksync/chainConfig.js
-var chainConfig = {
-  formatters,
-  serializers,
-  custom: {
-    getEip712Domain
-  }
-};
-
-// node_modules/viem/_esm/op-stack/contracts.js
-var contracts = {
-  gasPriceOracle: { address: "0x420000000000000000000000000000000000000F" },
-  l1Block: { address: "0x4200000000000000000000000000000000000015" },
-  l2CrossDomainMessenger: {
-    address: "0x4200000000000000000000000000000000000007"
-  },
-  l2Erc721Bridge: { address: "0x4200000000000000000000000000000000000014" },
-  l2StandardBridge: { address: "0x4200000000000000000000000000000000000010" },
-  l2ToL1MessagePasser: {
-    address: "0x4200000000000000000000000000000000000016"
-  }
-};
-
-// node_modules/viem/_esm/op-stack/formatters.js
-init_fromHex();
-var formatters2 = {
-  block: /* @__PURE__ */ defineBlock({
-    format(args) {
-      const transactions = args.transactions?.map((transaction) => {
-        if (typeof transaction === "string")
-          return transaction;
-        const formatted = formatTransaction(transaction);
-        if (formatted.typeHex === "0x7e") {
-          formatted.isSystemTx = transaction.isSystemTx;
-          formatted.mint = transaction.mint ? hexToBigInt(transaction.mint) : void 0;
-          formatted.sourceHash = transaction.sourceHash;
-          formatted.type = "deposit";
-        }
-        return formatted;
-      });
-      return {
-        transactions,
-        stateRoot: args.stateRoot
-      };
-    }
-  }),
-  transaction: /* @__PURE__ */ defineTransaction({
-    format(args) {
-      const transaction = {};
-      if (args.type === "0x7e") {
-        transaction.isSystemTx = args.isSystemTx;
-        transaction.mint = args.mint ? hexToBigInt(args.mint) : void 0;
-        transaction.sourceHash = args.sourceHash;
-        transaction.type = "deposit";
-      }
-      return transaction;
-    }
-  }),
-  transactionReceipt: /* @__PURE__ */ defineTransactionReceipt({
-    format(args) {
-      return {
-        l1GasPrice: args.l1GasPrice ? hexToBigInt(args.l1GasPrice) : null,
-        l1GasUsed: args.l1GasUsed ? hexToBigInt(args.l1GasUsed) : null,
-        l1Fee: args.l1Fee ? hexToBigInt(args.l1Fee) : null,
-        l1FeeScalar: args.l1FeeScalar ? Number(args.l1FeeScalar) : null
-      };
-    }
-  })
-};
-
-// node_modules/viem/_esm/op-stack/serializers.js
-init_address();
-init_isAddress();
-init_concat();
-init_toHex();
-function serializeTransaction3(transaction, signature) {
-  if (isDeposit(transaction))
-    return serializeTransactionDeposit(transaction);
-  return serializeTransaction(transaction, signature);
-}
-var serializers2 = {
-  transaction: serializeTransaction3
-};
-function serializeTransactionDeposit(transaction) {
-  assertTransactionDeposit(transaction);
-  const { sourceHash, data, from, gas, isSystemTx, mint, to: to2, value } = transaction;
-  const serializedTransaction = [
-    sourceHash,
-    from,
-    to2 ?? "0x",
-    mint ? toHex(mint) : "0x",
-    value ? toHex(value) : "0x",
-    gas ? toHex(gas) : "0x",
-    isSystemTx ? "0x1" : "0x",
-    data ?? "0x"
-  ];
-  return concatHex([
-    "0x7e",
-    toRlp(serializedTransaction)
-  ]);
-}
-function isDeposit(transaction) {
-  if (transaction.type === "deposit")
-    return true;
-  if (typeof transaction.sourceHash !== "undefined")
-    return true;
-  return false;
-}
-function assertTransactionDeposit(transaction) {
-  const { from, to: to2 } = transaction;
-  if (from && !isAddress(from))
-    throw new InvalidAddressError({ address: from });
-  if (to2 && !isAddress(to2))
-    throw new InvalidAddressError({ address: to2 });
-}
-
-// node_modules/viem/_esm/op-stack/chainConfig.js
-var chainConfig2 = {
-  contracts,
-  formatters: formatters2,
-  serializers: serializers2
-};
-
-// node_modules/viem/_esm/chains/definitions/arbitrum.js
-var arbitrum = /* @__PURE__ */ defineChain({
-  id: 42161,
-  name: "Arbitrum One",
-  nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
-  rpcUrls: {
-    default: {
-      http: ["https://arb1.arbitrum.io/rpc"]
-    }
-  },
-  blockExplorers: {
-    default: {
-      name: "Arbiscan",
-      url: "https://arbiscan.io",
-      apiUrl: "https://api.arbiscan.io/api"
-    }
-  },
-  contracts: {
-    multicall3: {
-      address: "0xca11bde05977b3631167028862be2a173976ca11",
-      blockCreated: 7654707
-    }
-  }
-});
-
-// node_modules/viem/_esm/chains/definitions/arbitrumSepolia.js
-var arbitrumSepolia = /* @__PURE__ */ defineChain({
-  id: 421614,
-  name: "Arbitrum Sepolia",
-  nativeCurrency: {
-    name: "Arbitrum Sepolia Ether",
-    symbol: "ETH",
-    decimals: 18
-  },
-  rpcUrls: {
-    default: {
-      http: ["https://sepolia-rollup.arbitrum.io/rpc"]
-    }
-  },
-  blockExplorers: {
-    default: {
-      name: "Arbiscan",
-      url: "https://sepolia.arbiscan.io",
-      apiUrl: "https://api-sepolia.arbiscan.io/api"
-    }
-  },
-  contracts: {
-    multicall3: {
-      address: "0xca11bde05977b3631167028862be2a173976ca11",
-      blockCreated: 81930
-    }
-  },
-  testnet: true
-});
-
-// node_modules/viem/_esm/chains/definitions/avalanche.js
-var avalanche = /* @__PURE__ */ defineChain({
-  id: 43114,
-  name: "Avalanche",
-  nativeCurrency: {
-    decimals: 18,
-    name: "Avalanche",
-    symbol: "AVAX"
-  },
-  rpcUrls: {
-    default: { http: ["https://api.avax.network/ext/bc/C/rpc"] }
-  },
-  blockExplorers: {
-    default: {
-      name: "SnowTrace",
-      url: "https://snowtrace.io",
-      apiUrl: "https://api.snowtrace.io"
-    }
-  },
-  contracts: {
-    multicall3: {
-      address: "0xca11bde05977b3631167028862be2a173976ca11",
-      blockCreated: 11907934
-    }
-  }
-});
-
-// node_modules/viem/_esm/chains/definitions/avalancheFuji.js
-var avalancheFuji = /* @__PURE__ */ defineChain({
-  id: 43113,
-  name: "Avalanche Fuji",
-  nativeCurrency: {
-    decimals: 18,
-    name: "Avalanche Fuji",
-    symbol: "AVAX"
-  },
-  rpcUrls: {
-    default: { http: ["https://api.avax-test.network/ext/bc/C/rpc"] }
-  },
-  blockExplorers: {
-    default: {
-      name: "SnowTrace",
-      url: "https://testnet.snowtrace.io",
-      apiUrl: "https://api-testnet.snowtrace.io"
-    }
-  },
-  contracts: {
-    multicall3: {
-      address: "0xca11bde05977b3631167028862be2a173976ca11",
-      blockCreated: 7096959
-    }
-  },
-  testnet: true
-});
-
-// node_modules/viem/_esm/chains/definitions/base.js
-var sourceId = 1;
-var base = /* @__PURE__ */ defineChain({
-  ...chainConfig2,
-  id: 8453,
-  name: "Base",
-  nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
-  rpcUrls: {
-    default: {
-      http: ["https://mainnet.base.org"]
-    }
-  },
-  blockExplorers: {
-    default: {
-      name: "Basescan",
-      url: "https://basescan.org",
-      apiUrl: "https://api.basescan.org/api"
-    }
-  },
-  contracts: {
-    ...chainConfig2.contracts,
-    disputeGameFactory: {
-      [sourceId]: {
-        address: "0x43edB88C4B80fDD2AdFF2412A7BebF9dF42cB40e"
-      }
-    },
-    l2OutputOracle: {
-      [sourceId]: {
-        address: "0x56315b90c40730925ec5485cf004d835058518A0"
-      }
-    },
-    multicall3: {
-      address: "0xca11bde05977b3631167028862be2a173976ca11",
-      blockCreated: 5022
-    },
-    portal: {
-      [sourceId]: {
-        address: "0x49048044D57e1C92A77f79988d21Fa8fAF74E97e",
-        blockCreated: 17482143
-      }
-    },
-    l1StandardBridge: {
-      [sourceId]: {
-        address: "0x3154Cf16ccdb4C6d922629664174b904d80F2C35",
-        blockCreated: 17482143
-      }
-    }
-  },
-  sourceId
-});
-
-// node_modules/viem/_esm/chains/definitions/baseSepolia.js
-var sourceId2 = 11155111;
-var baseSepolia = /* @__PURE__ */ defineChain({
-  ...chainConfig2,
-  id: 84532,
-  network: "base-sepolia",
-  name: "Base Sepolia",
-  nativeCurrency: { name: "Sepolia Ether", symbol: "ETH", decimals: 18 },
-  rpcUrls: {
-    default: {
-      http: ["https://sepolia.base.org"]
-    }
-  },
-  blockExplorers: {
-    default: {
-      name: "Basescan",
-      url: "https://sepolia.basescan.org",
-      apiUrl: "https://api-sepolia.basescan.org/api"
-    }
-  },
-  contracts: {
-    ...chainConfig2.contracts,
-    disputeGameFactory: {
-      [sourceId2]: {
-        address: "0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1"
-      }
-    },
-    l2OutputOracle: {
-      [sourceId2]: {
-        address: "0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254"
-      }
-    },
-    portal: {
-      [sourceId2]: {
-        address: "0x49f53e41452c74589e85ca1677426ba426459e85",
-        blockCreated: 4446677
-      }
-    },
-    l1StandardBridge: {
-      [sourceId2]: {
-        address: "0xfd0Bf71F60660E2f608ed56e1659C450eB113120",
-        blockCreated: 4446677
-      }
-    },
-    multicall3: {
-      address: "0xca11bde05977b3631167028862be2a173976ca11",
-      blockCreated: 1059647
-    }
-  },
-  testnet: true,
-  sourceId: sourceId2
-});
-
-// node_modules/viem/_esm/chains/definitions/bsc.js
-var bsc = /* @__PURE__ */ defineChain({
-  id: 56,
-  name: "BNB Smart Chain",
-  nativeCurrency: {
-    decimals: 18,
-    name: "BNB",
-    symbol: "BNB"
-  },
-  rpcUrls: {
-    default: { http: ["https://rpc.ankr.com/bsc"] }
-  },
-  blockExplorers: {
-    default: {
-      name: "BscScan",
-      url: "https://bscscan.com",
-      apiUrl: "https://api.bscscan.com/api"
-    }
-  },
-  contracts: {
-    multicall3: {
-      address: "0xca11bde05977b3631167028862be2a173976ca11",
-      blockCreated: 15921452
-    }
-  }
-});
-
-// node_modules/viem/_esm/celo/fees.js
-var fees = {
-  /*
-     * Estimates the fees per gas for a transaction.
-  
-     * If the transaction is to be paid in a token (feeCurrency is present) then the fees
-     * are estimated in the value of the token. Otherwise falls back to the default
-     * estimation by returning null.
-     *
-     * @param params fee estimation function parameters
-     */
-  estimateFeesPerGas: async (params) => {
-    if (!params.request?.feeCurrency)
-      return null;
-    const [gasPrice, maxPriorityFeePerGas, cel2] = await Promise.all([
-      estimateFeePerGasInFeeCurrency(params.client, params.request.feeCurrency),
-      estimateMaxPriorityFeePerGasInFeeCurrency(params.client, params.request.feeCurrency),
-      isCel2(params.client)
-    ]);
-    const maxFeePerGas = cel2 ? (
-      // eth_gasPrice for cel2 returns baseFeePerGas + maxPriorityFeePerGas
-      params.multiply(gasPrice - maxPriorityFeePerGas) + maxPriorityFeePerGas
-    ) : (
-      // eth_gasPrice for Celo L1 returns (baseFeePerGas * multiplier), where the multiplier is 2 by default.
-      gasPrice + maxPriorityFeePerGas
-    );
-    return {
-      maxFeePerGas,
-      maxPriorityFeePerGas
-    };
-  }
-};
-async function estimateFeePerGasInFeeCurrency(client, feeCurrency) {
-  const fee = await client.request({
-    method: "eth_gasPrice",
-    params: [feeCurrency]
-  });
-  return BigInt(fee);
-}
-async function estimateMaxPriorityFeePerGasInFeeCurrency(client, feeCurrency) {
-  const feesPerGas = await client.request({
-    method: "eth_maxPriorityFeePerGas",
-    params: [feeCurrency]
-  });
-  return BigInt(feesPerGas);
-}
-async function isCel2(client) {
-  const proxyAdminAddress = "0x4200000000000000000000000000000000000018";
-  const code = await getCode(client, { address: proxyAdminAddress });
-  return Boolean(code);
-}
-
-// node_modules/viem/_esm/celo/formatters.js
-init_fromHex();
-init_transactionRequest();
-
-// node_modules/viem/_esm/celo/utils.js
-init_trim();
-function isEmpty(value) {
-  return value === 0 || value === 0n || value === void 0 || value === null || value === "0" || value === "" || typeof value === "string" && (trim(value).toLowerCase() === "0x" || trim(value).toLowerCase() === "0x00");
-}
-function isPresent(value) {
-  return !isEmpty(value);
-}
-function isEIP1559(transaction) {
-  return typeof transaction.maxFeePerGas !== "undefined" && typeof transaction.maxPriorityFeePerGas !== "undefined";
-}
-function isCIP64(transaction) {
-  if (transaction.type === "cip64") {
-    return true;
-  }
-  return isEIP1559(transaction) && isPresent(transaction.feeCurrency);
-}
-
-// node_modules/viem/_esm/celo/formatters.js
-var formatters3 = {
-  block: /* @__PURE__ */ defineBlock({
-    format(args) {
-      const transactions = args.transactions?.map((transaction) => {
-        if (typeof transaction === "string")
-          return transaction;
-        const formatted = formatTransaction(transaction);
-        return {
-          ...formatted,
-          ...transaction.gatewayFee ? {
-            gatewayFee: hexToBigInt(transaction.gatewayFee),
-            gatewayFeeRecipient: transaction.gatewayFeeRecipient
-          } : {},
-          feeCurrency: transaction.feeCurrency
-        };
-      });
-      return {
-        transactions,
-        ...args.randomness ? { randomness: args.randomness } : {}
-      };
-    }
-  }),
-  transaction: /* @__PURE__ */ defineTransaction({
-    format(args) {
-      if (args.type === "0x7e")
-        return {
-          isSystemTx: args.isSystemTx,
-          mint: args.mint ? hexToBigInt(args.mint) : void 0,
-          sourceHash: args.sourceHash,
-          type: "deposit"
-        };
-      const transaction = { feeCurrency: args.feeCurrency };
-      if (args.type === "0x7b")
-        transaction.type = "cip64";
-      else {
-        if (args.type === "0x7c")
-          transaction.type = "cip42";
-        transaction.gatewayFee = args.gatewayFee ? hexToBigInt(args.gatewayFee) : null;
-        transaction.gatewayFeeRecipient = args.gatewayFeeRecipient;
-      }
-      return transaction;
-    }
-  }),
-  transactionRequest: /* @__PURE__ */ defineTransactionRequest({
-    format(args) {
-      const request = {};
-      if (args.feeCurrency)
-        request.feeCurrency = args.feeCurrency;
-      if (isCIP64(args))
-        request.type = "0x7b";
-      return request;
-    }
-  })
-};
-
-// node_modules/viem/_esm/celo/serializers.js
-init_number();
-init_address();
-init_base();
-init_chain();
-init_node();
-init_isAddress();
-init_concat();
-init_toHex();
-function serializeTransaction4(transaction, signature) {
-  if (isCIP64(transaction))
-    return serializeTransactionCIP64(transaction, signature);
-  return serializeTransaction3(transaction, signature);
-}
-var serializers3 = {
-  transaction: serializeTransaction4
-};
-function serializeTransactionCIP64(transaction, signature) {
-  assertTransactionCIP64(transaction);
-  const { chainId, gas, nonce, to: to2, value, maxFeePerGas, maxPriorityFeePerGas, accessList, feeCurrency, data } = transaction;
-  const serializedTransaction = [
-    toHex(chainId),
-    nonce ? toHex(nonce) : "0x",
-    maxPriorityFeePerGas ? toHex(maxPriorityFeePerGas) : "0x",
-    maxFeePerGas ? toHex(maxFeePerGas) : "0x",
-    gas ? toHex(gas) : "0x",
-    to2 ?? "0x",
-    value ? toHex(value) : "0x",
-    data ?? "0x",
-    serializeAccessList(accessList),
-    feeCurrency,
-    ...toYParitySignatureArray(transaction, signature)
-  ];
-  return concatHex([
-    "0x7b",
-    toRlp(serializedTransaction)
-  ]);
-}
-var MAX_MAX_FEE_PER_GAS = maxUint256;
-function assertTransactionCIP64(transaction) {
-  const { chainId, maxPriorityFeePerGas, gasPrice, maxFeePerGas, to: to2, feeCurrency } = transaction;
-  if (chainId <= 0)
-    throw new InvalidChainIdError({ chainId });
-  if (to2 && !isAddress(to2))
-    throw new InvalidAddressError({ address: to2 });
-  if (gasPrice)
-    throw new BaseError("`gasPrice` is not a valid CIP-64 Transaction attribute.");
-  if (isPresent(maxFeePerGas) && maxFeePerGas > MAX_MAX_FEE_PER_GAS)
-    throw new FeeCapTooHighError({ maxFeePerGas });
-  if (isPresent(maxPriorityFeePerGas) && isPresent(maxFeePerGas) && maxPriorityFeePerGas > maxFeePerGas)
-    throw new TipAboveFeeCapError({ maxFeePerGas, maxPriorityFeePerGas });
-  if (isPresent(feeCurrency) && !isAddress(feeCurrency)) {
-    throw new BaseError("`feeCurrency` MUST be a token address for CIP-64 transactions.");
-  }
-  if (isEmpty(feeCurrency)) {
-    throw new BaseError("`feeCurrency` must be provided for CIP-64 transactions.");
-  }
-}
-
-// node_modules/viem/_esm/celo/chainConfig.js
-var chainConfig3 = {
-  contracts,
-  formatters: formatters3,
-  serializers: serializers3,
-  fees
-};
-
-// node_modules/viem/_esm/chains/definitions/celo.js
-var celo = /* @__PURE__ */ defineChain({
-  ...chainConfig3,
-  id: 42220,
-  name: "Celo",
-  nativeCurrency: {
-    decimals: 18,
-    name: "CELO",
-    symbol: "CELO"
-  },
-  rpcUrls: {
-    default: { http: ["https://forno.celo.org"] }
-  },
-  blockExplorers: {
-    default: {
-      name: "Celo Explorer",
-      url: "https://celoscan.io",
-      apiUrl: "https://api.celoscan.io/api"
-    }
-  },
-  contracts: {
-    multicall3: {
-      address: "0xcA11bde05977b3631167028862bE2a173976CA11",
-      blockCreated: 13112599
-    }
-  },
-  testnet: false
-});
-
-// node_modules/viem/_esm/chains/definitions/fantom.js
-var fantom = /* @__PURE__ */ defineChain({
-  id: 250,
-  name: "Fantom",
-  nativeCurrency: {
-    decimals: 18,
-    name: "Fantom",
-    symbol: "FTM"
-  },
-  rpcUrls: {
-    default: { http: ["https://rpc.ankr.com/fantom"] }
-  },
-  blockExplorers: {
-    default: {
-      name: "FTMScan",
-      url: "https://ftmscan.com",
-      apiUrl: "https://api.ftmscan.com/api"
-    }
-  },
-  contracts: {
-    multicall3: {
-      address: "0xca11bde05977b3631167028862be2a173976ca11",
-      blockCreated: 33001987
-    }
-  }
-});
-
-// node_modules/viem/_esm/chains/definitions/fantomTestnet.js
-var fantomTestnet = /* @__PURE__ */ defineChain({
-  id: 4002,
-  name: "Fantom Testnet",
-  nativeCurrency: {
-    decimals: 18,
-    name: "Fantom",
-    symbol: "FTM"
-  },
-  rpcUrls: {
-    default: { http: ["https://rpc.testnet.fantom.network"] }
-  },
-  blockExplorers: {
-    default: {
-      name: "FTMScan",
-      url: "https://testnet.ftmscan.com",
-      apiUrl: "https://testnet.ftmscan.com/api"
-    }
-  },
-  contracts: {
-    multicall3: {
-      address: "0xca11bde05977b3631167028862be2a173976ca11",
-      blockCreated: 8328688
-    }
-  },
-  testnet: true
-});
-
-// node_modules/viem/_esm/chains/definitions/gnosis.js
-var gnosis = /* @__PURE__ */ defineChain({
-  id: 100,
-  name: "Gnosis",
-  nativeCurrency: {
-    decimals: 18,
-    name: "xDAI",
-    symbol: "XDAI"
-  },
-  rpcUrls: {
-    default: {
-      http: ["https://rpc.gnosischain.com"],
-      webSocket: ["wss://rpc.gnosischain.com/wss"]
-    }
-  },
-  blockExplorers: {
-    default: {
-      name: "Gnosisscan",
-      url: "https://gnosisscan.io",
-      apiUrl: "https://api.gnosisscan.io/api"
-    }
-  },
-  contracts: {
-    multicall3: {
-      address: "0xca11bde05977b3631167028862be2a173976ca11",
-      blockCreated: 21022491
-    }
-  }
-});
-
-// node_modules/viem/_esm/chains/definitions/harmonyOne.js
-var harmonyOne = /* @__PURE__ */ defineChain({
-  id: 16666e5,
-  name: "Harmony One",
-  nativeCurrency: {
-    name: "Harmony",
-    symbol: "ONE",
-    decimals: 18
-  },
-  rpcUrls: {
-    default: { http: ["https://rpc.ankr.com/harmony"] }
-  },
-  blockExplorers: {
-    default: {
-      name: "Harmony Explorer",
-      url: "https://explorer.harmony.one"
-    }
-  },
-  contracts: {
-    multicall3: {
-      address: "0xca11bde05977b3631167028862be2a173976ca11",
-      blockCreated: 24185753
-    }
-  }
-});
-
-// node_modules/viem/_esm/chains/definitions/ink.js
-var sourceId3 = 1;
-var ink = /* @__PURE__ */ defineChain({
-  ...chainConfig2,
-  id: 57073,
-  name: "Ink",
-  nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
-  rpcUrls: {
-    default: {
-      http: [
-        "https://rpc-gel.inkonchain.com",
-        "https://rpc-qnd.inkonchain.com"
-      ],
-      webSocket: [
-        "wss://rpc-gel.inkonchain.com",
-        "wss://rpc-qnd.inkonchain.com"
-      ]
-    }
-  },
-  blockExplorers: {
-    default: {
-      name: "Blockscout",
-      url: "https://explorer.inkonchain.com",
-      apiUrl: "https://explorer.inkonchain.com/api/v2"
-    }
-  },
-  contracts: {
-    ...chainConfig2.contracts,
-    disputeGameFactory: {
-      [sourceId3]: {
-        address: "0x10d7b35078d3baabb96dd45a9143b94be65b12cd"
-      }
-    },
-    portal: {
-      [sourceId3]: {
-        address: "0x5d66c1782664115999c47c9fa5cd031f495d3e4f"
-      }
-    },
-    l1StandardBridge: {
-      [sourceId3]: {
-        address: "0x88ff1e5b602916615391f55854588efcbb7663f0"
-      }
-    }
-  },
-  testnet: false,
-  sourceId: sourceId3
-});
-
-// node_modules/viem/_esm/linea/actions/estimateGas.js
-init_parseAccount();
-init_toHex();
-init_getCallError();
-init_extract();
-init_transactionRequest();
-init_assertRequest();
-async function estimateGas(client, args) {
-  const { account: account_ = client.account } = args;
-  if (!account_)
-    throw new AccountNotFoundError();
-  const account = parseAccount(account_);
-  try {
-    const { accessList, blockNumber, blockTag, data, gas, gasPrice, maxFeePerGas, maxPriorityFeePerGas, nonce, to: to2, value, ...rest } = args;
-    const blockNumberHex = blockNumber ? numberToHex(blockNumber) : void 0;
-    const block = blockNumberHex || blockTag;
-    assertRequest(args);
-    const chainFormat = client.chain?.formatters?.transactionRequest?.format;
-    const format = chainFormat || formatTransactionRequest;
-    const request = format({
-      // Pick out extra data that might exist on the chain's transaction request type.
-      ...extract(rest, { format: chainFormat }),
-      from: account?.address,
-      accessList,
-      data,
-      gas,
-      gasPrice,
-      maxFeePerGas,
-      maxPriorityFeePerGas,
-      nonce,
-      to: to2,
-      value
-    });
-    const { baseFeePerGas, gasLimit, priorityFeePerGas } = await client.request({
-      method: "linea_estimateGas",
-      params: block ? [request, block] : [request]
-    });
-    return {
-      baseFeePerGas: BigInt(baseFeePerGas),
-      gasLimit: BigInt(gasLimit),
-      priorityFeePerGas: BigInt(priorityFeePerGas)
-    };
-  } catch (err) {
-    throw getCallError(err, {
-      ...args,
-      account,
-      chain: client.chain
-    });
-  }
-}
-
-// node_modules/viem/_esm/linea/chainConfig.js
-var chainConfig4 = {
-  fees: {
-    estimateFeesPerGas,
-    async maxPriorityFeePerGas({ block, client, request }) {
-      const response = await estimateFeesPerGas({
-        block,
-        client,
-        multiply: (x2) => x2,
-        request,
-        type: "eip1559"
-      });
-      if (!response?.maxPriorityFeePerGas)
-        return null;
-      return response.maxPriorityFeePerGas;
-    }
-  }
-};
-async function estimateFeesPerGas({ client, multiply, request, type }) {
-  try {
-    const response = await estimateGas(client, {
-      ...request,
-      account: request?.account
-    });
-    const { priorityFeePerGas: maxPriorityFeePerGas } = response;
-    const baseFeePerGas = multiply(BigInt(response.baseFeePerGas));
-    const maxFeePerGas = baseFeePerGas + maxPriorityFeePerGas;
-    if (type === "legacy")
-      return { gasPrice: maxFeePerGas };
-    return {
-      maxFeePerGas,
-      maxPriorityFeePerGas
-    };
-  } catch {
-    return null;
-  }
-}
-
-// node_modules/viem/_esm/chains/definitions/linea.js
-var linea = /* @__PURE__ */ defineChain({
-  ...chainConfig4,
-  id: 59144,
-  name: "Linea Mainnet",
-  nativeCurrency: { name: "Linea Ether", symbol: "ETH", decimals: 18 },
-  rpcUrls: {
-    default: {
-      http: ["https://rpc.linea.build"],
-      webSocket: ["wss://rpc.linea.build"]
-    }
-  },
-  blockExplorers: {
-    default: {
-      name: "Etherscan",
-      url: "https://lineascan.build",
-      apiUrl: "https://api.lineascan.build/api"
-    }
-  },
-  contracts: {
-    multicall3: {
-      address: "0xcA11bde05977b3631167028862bE2a173976CA11",
-      blockCreated: 42
-    }
-  },
-  testnet: false
-});
-
-// node_modules/viem/_esm/chains/definitions/mainnet.js
-var mainnet = /* @__PURE__ */ defineChain({
-  id: 1,
-  name: "Ethereum",
-  nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
-  rpcUrls: {
-    default: {
-      http: ["https://eth.merkle.io"]
-    }
-  },
-  blockExplorers: {
-    default: {
-      name: "Etherscan",
-      url: "https://etherscan.io",
-      apiUrl: "https://api.etherscan.io/api"
-    }
-  },
-  contracts: {
-    ensRegistry: {
-      address: "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e"
-    },
-    ensUniversalResolver: {
-      address: "0xce01f8eee7E479C928F8919abD53E553a36CeF67",
-      blockCreated: 19258213
-    },
-    multicall3: {
-      address: "0xca11bde05977b3631167028862be2a173976ca11",
-      blockCreated: 14353601
-    }
-  }
-});
-
-// node_modules/viem/_esm/chains/definitions/mantle.js
-var mantle = /* @__PURE__ */ defineChain({
-  id: 5e3,
-  name: "Mantle",
-  nativeCurrency: {
-    decimals: 18,
-    name: "MNT",
-    symbol: "MNT"
-  },
-  rpcUrls: {
-    default: { http: ["https://rpc.mantle.xyz"] }
-  },
-  blockExplorers: {
-    default: {
-      name: "Mantle Explorer",
-      url: "https://mantlescan.xyz/",
-      apiUrl: "https://api.mantlescan.xyz/api"
-    }
-  },
-  contracts: {
-    multicall3: {
-      address: "0xcA11bde05977b3631167028862bE2a173976CA11",
-      blockCreated: 304717
-    }
-  }
-});
-
-// node_modules/viem/_esm/chains/definitions/metis.js
-var metis = /* @__PURE__ */ defineChain({
-  id: 1088,
-  name: "Metis",
-  nativeCurrency: {
-    decimals: 18,
-    name: "Metis",
-    symbol: "METIS"
-  },
-  rpcUrls: {
-    default: {
-      http: [
-        "https://metis.rpc.hypersync.xyz",
-        "https://metis-pokt.nodies.app",
-        "https://api.blockeden.xyz/metis/67nCBdZQSH9z3YqDDjdm",
-        "https://metis-andromeda.rpc.thirdweb.com",
-        "https://metis-andromeda.gateway.tenderly.co",
-        "https://metis.api.onfinality.io/public",
-        "wss://metis-rpc.publicnode.com",
-        "https://andromeda.metis.io/?owner=1088",
-        "wss://metis.drpc.org",
-        "https://metis-mainnet.public.blastapi.io"
-      ]
-    }
-  },
-  blockExplorers: {
-    default: {
-      name: "Metis Explorer",
-      url: "https://explorer.metis.io",
-      apiUrl: "https://api.routescan.io/v2/network/mainnet/evm/1088/etherscan/api"
-    }
-  },
-  contracts: {
-    multicall3: {
-      address: "0xca11bde05977b3631167028862be2a173976ca11",
-      blockCreated: 2338552
-    }
-  }
-});
-
-// node_modules/viem/_esm/chains/definitions/optimism.js
-var sourceId4 = 1;
-var optimism = /* @__PURE__ */ defineChain({
-  ...chainConfig2,
-  id: 10,
-  name: "OP Mainnet",
-  nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
-  rpcUrls: {
-    default: {
-      http: ["https://mainnet.optimism.io"]
-    }
-  },
-  blockExplorers: {
-    default: {
-      name: "Optimism Explorer",
-      url: "https://optimistic.etherscan.io",
-      apiUrl: "https://api-optimistic.etherscan.io/api"
-    }
-  },
-  contracts: {
-    ...chainConfig2.contracts,
-    disputeGameFactory: {
-      [sourceId4]: {
-        address: "0xe5965Ab5962eDc7477C8520243A95517CD252fA9"
-      }
-    },
-    l2OutputOracle: {
-      [sourceId4]: {
-        address: "0xdfe97868233d1aa22e815a266982f2cf17685a27"
-      }
-    },
-    multicall3: {
-      address: "0xca11bde05977b3631167028862be2a173976ca11",
-      blockCreated: 4286263
-    },
-    portal: {
-      [sourceId4]: {
-        address: "0xbEb5Fc579115071764c7423A4f12eDde41f106Ed"
-      }
-    },
-    l1StandardBridge: {
-      [sourceId4]: {
-        address: "0x99C9fc46f92E8a1c0deC1b1747d010903E884bE1"
-      }
-    }
-  },
-  sourceId: sourceId4
-});
-
-// node_modules/viem/_esm/chains/definitions/optimismSepolia.js
-var sourceId5 = 11155111;
-var optimismSepolia = /* @__PURE__ */ defineChain({
-  ...chainConfig2,
-  id: 11155420,
-  name: "OP Sepolia",
-  nativeCurrency: { name: "Sepolia Ether", symbol: "ETH", decimals: 18 },
-  rpcUrls: {
-    default: {
-      http: ["https://sepolia.optimism.io"]
-    }
-  },
-  blockExplorers: {
-    default: {
-      name: "Blockscout",
-      url: "https://optimism-sepolia.blockscout.com",
-      apiUrl: "https://optimism-sepolia.blockscout.com/api"
-    }
-  },
-  contracts: {
-    ...chainConfig2.contracts,
-    disputeGameFactory: {
-      [sourceId5]: {
-        address: "0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1"
-      }
-    },
-    l2OutputOracle: {
-      [sourceId5]: {
-        address: "0x90E9c4f8a994a250F6aEfd61CAFb4F2e895D458F"
-      }
-    },
-    multicall3: {
-      address: "0xca11bde05977b3631167028862be2a173976ca11",
-      blockCreated: 1620204
-    },
-    portal: {
-      [sourceId5]: {
-        address: "0x16Fc5058F25648194471939df75CF27A2fdC48BC"
-      }
-    },
-    l1StandardBridge: {
-      [sourceId5]: {
-        address: "0xFBb0621E0B23b5478B630BD55a5f21f67730B0F1"
-      }
-    }
-  },
-  testnet: true,
-  sourceId: sourceId5
-});
-
-// node_modules/viem/_esm/chains/definitions/polygon.js
-var polygon = /* @__PURE__ */ defineChain({
-  id: 137,
-  name: "Polygon",
-  nativeCurrency: { name: "POL", symbol: "POL", decimals: 18 },
-  rpcUrls: {
-    default: {
-      http: ["https://polygon-rpc.com"]
-    }
-  },
-  blockExplorers: {
-    default: {
-      name: "PolygonScan",
-      url: "https://polygonscan.com",
-      apiUrl: "https://api.polygonscan.com/api"
-    }
-  },
-  contracts: {
-    multicall3: {
-      address: "0xca11bde05977b3631167028862be2a173976ca11",
-      blockCreated: 25770160
-    }
-  }
-});
-
-// node_modules/viem/_esm/chains/definitions/polygonAmoy.js
-var polygonAmoy = /* @__PURE__ */ defineChain({
-  id: 80002,
-  name: "Polygon Amoy",
-  nativeCurrency: { name: "POL", symbol: "POL", decimals: 18 },
-  rpcUrls: {
-    default: {
-      http: ["https://rpc-amoy.polygon.technology"]
-    }
-  },
-  blockExplorers: {
-    default: {
-      name: "PolygonScan",
-      url: "https://amoy.polygonscan.com",
-      apiUrl: "https://api-amoy.polygonscan.com/api"
-    }
-  },
-  contracts: {
-    multicall3: {
-      address: "0xca11bde05977b3631167028862be2a173976ca11",
-      blockCreated: 3127388
-    }
-  },
-  testnet: true
-});
-
-// node_modules/viem/_esm/chains/definitions/polygonZkEvm.js
-var polygonZkEvm = /* @__PURE__ */ defineChain({
-  id: 1101,
-  name: "Polygon zkEVM",
-  nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
-  rpcUrls: {
-    default: {
-      http: ["https://zkevm-rpc.com"]
-    }
-  },
-  blockExplorers: {
-    default: {
-      name: "PolygonScan",
-      url: "https://zkevm.polygonscan.com",
-      apiUrl: "https://api-zkevm.polygonscan.com/api"
-    }
-  },
-  contracts: {
-    multicall3: {
-      address: "0xca11bde05977b3631167028862be2a173976ca11",
-      blockCreated: 57746
-    }
-  }
-});
-
-// node_modules/viem/_esm/chains/definitions/scroll.js
-var scroll = /* @__PURE__ */ defineChain({
-  id: 534352,
-  name: "Scroll",
-  nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
-  rpcUrls: {
-    default: {
-      http: ["https://rpc.scroll.io"],
-      webSocket: ["wss://wss-rpc.scroll.io/ws"]
-    }
-  },
-  blockExplorers: {
-    default: {
-      name: "Scrollscan",
-      url: "https://scrollscan.com",
-      apiUrl: "https://api.scrollscan.com/api"
-    }
-  },
-  contracts: {
-    multicall3: {
-      address: "0xca11bde05977b3631167028862be2a173976ca11",
-      blockCreated: 14
-    }
-  },
-  testnet: false
-});
-
-// node_modules/viem/_esm/chains/definitions/scrollSepolia.js
-var scrollSepolia = /* @__PURE__ */ defineChain({
-  id: 534351,
-  name: "Scroll Sepolia",
-  nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
-  rpcUrls: {
-    default: {
-      http: ["https://sepolia-rpc.scroll.io"]
-    }
-  },
-  blockExplorers: {
-    default: {
-      name: "Scrollscan",
-      url: "https://sepolia.scrollscan.com",
-      apiUrl: "https://api-sepolia.scrollscan.com/api"
-    }
-  },
-  contracts: {
-    multicall3: {
-      address: "0xca11bde05977b3631167028862be2a173976ca11",
-      blockCreated: 9473
-    }
-  },
-  testnet: true
-});
-
-// node_modules/viem/_esm/chains/definitions/sepolia.js
-var sepolia = /* @__PURE__ */ defineChain({
-  id: 11155111,
-  name: "Sepolia",
-  nativeCurrency: { name: "Sepolia Ether", symbol: "ETH", decimals: 18 },
-  rpcUrls: {
-    default: {
-      http: ["https://sepolia.drpc.org"]
-    }
-  },
-  blockExplorers: {
-    default: {
-      name: "Etherscan",
-      url: "https://sepolia.etherscan.io",
-      apiUrl: "https://api-sepolia.etherscan.io/api"
-    }
-  },
-  contracts: {
-    multicall3: {
-      address: "0xca11bde05977b3631167028862be2a173976ca11",
-      blockCreated: 751532
-    },
-    ensRegistry: { address: "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e" },
-    ensUniversalResolver: {
-      address: "0xc8Af999e38273D658BE1b921b88A9Ddf005769cC",
-      blockCreated: 5317080
-    }
-  },
-  testnet: true
-});
-
-// node_modules/viem/_esm/chains/definitions/sonic.js
-var sonic = /* @__PURE__ */ defineChain({
-  id: 146,
-  name: "Sonic",
-  nativeCurrency: {
-    decimals: 18,
-    name: "Sonic",
-    symbol: "S"
-  },
-  rpcUrls: {
-    default: { http: ["https://rpc.soniclabs.com"] }
-  },
-  blockExplorers: {
-    default: {
-      name: "Sonic Explorer",
-      url: "https://sonicscan.org"
-    }
-  },
-  contracts: {
-    multicall3: {
-      address: "0xca11bde05977b3631167028862be2a173976ca11",
-      blockCreated: 60
-    }
-  },
-  testnet: false
-});
-
-// node_modules/viem/_esm/chains/definitions/zksync.js
-var zksync = /* @__PURE__ */ defineChain({
-  ...chainConfig,
-  id: 324,
-  name: "ZKsync Era",
-  network: "zksync-era",
-  nativeCurrency: {
-    decimals: 18,
-    name: "Ether",
-    symbol: "ETH"
-  },
-  rpcUrls: {
-    default: {
-      http: ["https://mainnet.era.zksync.io"],
-      webSocket: ["wss://mainnet.era.zksync.io/ws"]
-    }
-  },
-  blockExplorers: {
-    default: {
-      name: "Etherscan",
-      url: "https://era.zksync.network/",
-      apiUrl: "https://api-era.zksync.network/api"
-    },
-    native: {
-      name: "ZKsync Explorer",
-      url: "https://explorer.zksync.io/",
-      apiUrl: "https://block-explorer-api.mainnet.zksync.io/api"
-    }
-  },
-  contracts: {
-    multicall3: {
-      address: "0xF9cda624FBC7e059355ce98a31693d299FACd963"
-    },
-    universalSignatureVerifier: {
-      address: "0xfB688330379976DA81eB64Fe4BF50d7401763B9C",
-      blockCreated: 45659388
-    }
-  }
-});
 
 // node_modules/prettier/standalone.mjs
 var Au = Object.create;
@@ -39971,7 +40018,8 @@ var ChainId = {
   zkEVM: polygonZkEvm.id,
   zksync: zksync.id,
   linea: linea.id,
-  ink: ink.id
+  ink: ink.id,
+  soneium: soneium.id
 };
 var alchemyNetworkMap = {
   1: "eth-mainnet",
@@ -39985,6 +40033,7 @@ var alchemyNetworkMap = {
   137: "polygon-mainnet",
   146: "sonic-mainnet",
   204: "opbnb-mainnet",
+  232: "lens-mainnet",
   250: "fantom-mainnet",
   252: "frax-mainnet",
   300: "zksync-sepolia",
@@ -40012,6 +40061,8 @@ var alchemyNetworkMap = {
   4801: "worldchain-sepolia",
   5e3: "mantle-mainnet",
   5003: "mantle-sepolia",
+  5330: "superseed-mainnet",
+  5371: "settlus-mainnet",
   5373: "settlus-septestnet",
   5611: "opbnb-testnet",
   7e3: "zetachain-mainnet",
@@ -40021,6 +40072,7 @@ var alchemyNetworkMap = {
   8453: "base-mainnet",
   10143: "monad-testnet",
   10200: "gnosis-chiado",
+  10218: "tea-sepolia",
   11011: "shape-sepolia",
   11124: "abstract-testnet",
   17e3: "eth-holesky",
@@ -40029,21 +40081,28 @@ var alchemyNetworkMap = {
   37111: "lens-sepolia",
   42161: "arb-mainnet",
   42170: "arbnova-mainnet",
+  42220: "celo-mainnet",
   43113: "avax-fuji",
   43114: "avax-mainnet",
+  44787: "celo-alfajores",
+  53302: "superseed-sepolia",
   57054: "sonic-blaze",
   57073: "ink-mainnet",
   59141: "linea-sepolia",
   59144: "linea-mainnet",
+  62320: "celo-baklava",
   63157: "geist-mainnet",
   80002: "polygon-amoy",
+  80069: "berachain-bepolia",
   80094: "berachain-mainnet",
   81457: "blast-mainnet",
   84532: "base-sepolia",
   421614: "arb-sepolia",
   534351: "scroll-sepolia",
   534352: "scroll-mainnet",
+  560048: "eth-hoodi",
   631571: "geist-polter",
+  685685: "gensyn-testnet",
   763373: "ink-sepolia",
   7777777: "zora-mainnet",
   11155111: "eth-sepolia",
@@ -40117,6 +40176,7 @@ var quicknodeNetworkMap = {
   43114: "avalanche-mainnet",
   59144: "linea-mainnet",
   80002: "matic-amoy",
+  80069: "bera-bepolia",
   80084: "bera-bartio",
   80085: "bera-artio",
   80094: "bera-mainnet",
@@ -40126,6 +40186,7 @@ var quicknodeNetworkMap = {
   421614: "arbitrum-sepolia",
   534351: "scroll-testnet",
   534352: "scroll-mainnet",
+  560048: "ethereum-hoodi",
   660279: "xai-mainnet",
   763373: "ink-sepolia",
   7777777: "zora-mainnet",
