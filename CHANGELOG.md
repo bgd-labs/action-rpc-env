@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.4.2](https://github.com/bgd-labs/action-rpc-env/compare/v2.4.1...v2.4.2) (2025-09-17)
+
+
+### Bug Fixes
+
+* build action ([3589f96](https://github.com/bgd-labs/action-rpc-env/commit/3589f9652e25f15ec5273b98ae3dd9fc1aac76f9))
+
 ## [2.4.1](https://github.com/bgd-labs/action-rpc-env/compare/v2.4.0...v2.4.1) (2025-09-17)
 
 
