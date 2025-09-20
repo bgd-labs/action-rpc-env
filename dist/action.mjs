@@ -51899,9 +51899,11 @@ var alchemyNetworkMap = {
   10218: "tea-sepolia",
   11011: "shape-sepolia",
   11124: "abstract-testnet",
+  14601: "sonic-testnet",
   17e3: "eth-holesky",
   33111: "apechain-curtis",
   33139: "apechain-mainnet",
+  36900: "adi-testnet",
   37111: "lens-sepolia",
   42161: "arb-mainnet",
   42170: "arbnova-mainnet",
@@ -51953,6 +51955,7 @@ var quicknodeNetworkMap = {
   114: "flare-coston2",
   130: "unichain-mainnet",
   137: "matic",
+  146: "sonic-mainnet",
   164: "omni-omega",
   166: "omni-mainnet",
   250: "fantom",
@@ -52040,7 +52043,8 @@ var publicRPCs = {
   [ChainId.avalanche]: "https://api.avax.network/ext/bc/C/rpc",
   [ChainId.linea]: "https://rpc.linea.build",
   [ChainId.bob]: "https://rpc.gobob.xyz",
-  [ChainId.plasma]: "https://rpc.plasma.to"
+  [ChainId.plasma]: "https://rpc.plasma.to",
+  [ChainId.ink]: "https://ink-public.nodies.app"
 };
 Object.values(ChainId).filter(
   (id) => alchemyNetworkMap[id]
