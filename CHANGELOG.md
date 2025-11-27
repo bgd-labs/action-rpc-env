@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.4.3](https://github.com/bgd-labs/action-rpc-env/compare/v2.4.2...v2.4.3) (2025-11-27)
+
+
+### Bug Fixes
+
+* built actions ([#114](https://github.com/bgd-labs/action-rpc-env/issues/114)) ([086e5ca](https://github.com/bgd-labs/action-rpc-env/commit/086e5ca5e20d126820c8f4dac6b7b08c95867a44))
+* updated toolbox version to .56 ([#112](https://github.com/bgd-labs/action-rpc-env/issues/112)) ([576bbfd](https://github.com/bgd-labs/action-rpc-env/commit/576bbfd70755ed80252f197ef637c5faff0f2895))
+
 ## [2.4.2](https://github.com/bgd-labs/action-rpc-env/compare/v2.4.1...v2.4.2) (2025-09-17)
 
 
