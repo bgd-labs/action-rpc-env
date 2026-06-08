@@ -15,13 +15,13 @@
   "author": "Jonas Strassel <jonas@bdglabs.com>",
   "license": "MIT",
   "devDependencies": {
-    "@actions/core": "^3.0.0",
-    "@bgd-labs/toolbox": "^0.2.21",
-    "@biomejs/biome": "^2.4.6",
-    "@types/node": "^25.4.0",
-    "lefthook": "^2.1.3",
+    "@actions/core": "^3.0.1",
+    "@bgd-labs/toolbox": "^0.2.25",
+    "@biomejs/biome": "^2.4.16",
+    "@types/node": "^25.9.2",
+    "lefthook": "^2.1.9",
     "tsup": "^8.5.1",
-    "typescript": "^5.9.3"
+    "typescript": "^6.0.3"
   },
   "tsup": {
     "entry": [
