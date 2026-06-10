@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.4.4](https://github.com/bgd-labs/action-rpc-env/compare/v2.4.3...v2.4.4) (2026-06-10)
+
+
+### Bug Fixes
+
+* update tooling ([5191193](https://github.com/bgd-labs/action-rpc-env/commit/5191193b0de7443bda94b6f42092c83e32464adc))
+
 ## [2.4.3](https://github.com/bgd-labs/action-rpc-env/compare/v2.4.2...v2.4.3) (2026-02-03)
 
 
