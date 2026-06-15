@@ -17,8 +17,8 @@
   "devDependencies": {
     "@actions/core": "^3.0.1",
     "@bgd-labs/toolbox": "^0.2.25",
-    "@biomejs/biome": "^2.4.16",
-    "@types/node": "^25.9.2",
+    "@biomejs/biome": "^2.5.0",
+    "@types/node": "^25.9.3",
     "lefthook": "^2.1.9",
     "tsup": "^8.5.1",
     "typescript": "^6.0.3"
