@@ -16,12 +16,12 @@
   "license": "MIT",
   "devDependencies": {
     "@actions/core": "^3.0.1",
-    "@bgd-labs/toolbox": "^0.2.25",
-    "@biomejs/biome": "^2.5.0",
-    "@types/node": "^25.9.3",
-    "lefthook": "^2.1.9",
+    "@bgd-labs/toolbox": "^0.2.26",
+    "@biomejs/biome": "^2.5.3",
+    "@types/node": "^26.1.1",
+    "lefthook": "^2.1.10",
     "tsup": "^8.5.1",
-    "typescript": "^6.0.3"
+    "typescript": "^7.0.2"
   },
   "tsup": {
     "entry": [
